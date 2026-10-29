@@ -37,3 +37,6 @@ try { & (Join-Path $PSScriptRoot 'Test-ReleasePayload.ps1') -Directory $payload 
 catch { $blocked = $_.Exception.Message -like '*settings.json*' }
 if (-not $blocked) { throw 'El empaquetado no rechazo settings.json.' }
 Write-Output 'Seguridad: ignores, locks/assets permitidos, deteccion redactada de secreto sintetico y rechazo de datos personales aprobados.'
+# La prueba negativa de gitleaks termina con codigo 1 a proposito. GitHub Actions
+# propaga ese $LASTEXITCODE al final del paso aunque el script haya pasado.
+$global:LASTEXITCODE = 0
