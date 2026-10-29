@@ -133,7 +133,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         var code = ApiKeyBox.Password.Trim();
         VerifyButton.IsEnabled = !_verifying && _steamGrid is not null && code.Length > 0;
         VerifyButton.Content = code.Length > 0 && code == (_settings?.SteamGridDbApiKey ?? string.Empty).Trim()
-            ? "Verificar" : "Conectar";
+            ? "Verificar" : "Conectar →";
     }
 
     private void PasteCode_Click(object sender, RoutedEventArgs e)

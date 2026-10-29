@@ -23,7 +23,7 @@
         TextOptions.TextFormattingMode="Display">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="48"
+        <WindowChrome CaptionHeight="64"
                       ResizeBorderThickness="6"
                       GlassFrameThickness="0"
                       UseAeroCaptionButtons="False" />
@@ -32,8 +32,6 @@
     <Window.Resources>
         <SolidColorBrush x:Key="CardAccentBrush" Color="#149DFF" />
         <Style x:Key="GameCardItemStyle" TargetType="{x:Type ListBoxItem}">
-            <Setter Property="Width" Value="200" />
-            <Setter Property="Height" Value="300" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="0" />
             <Setter Property="Background" Value="Transparent" />
@@ -237,7 +235,7 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="48" />
+            <RowDefinition Height="64" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -251,24 +249,18 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                <Image Width="21"
-                       Height="21"
-                       RenderOptions.BitmapScalingMode="HighQuality">
-                    <Image.Source>
-                        <BitmapImage UriSource="pack://application:,,,/Assets/viciotek.png" DecodePixelWidth="64" />
-                    </Image.Source>
-                </Image>
-                <TextBlock Text="VICIOTEK"
-                           Margin="10,0,0,0"
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="28,0,0,0">
+                <TextBlock Text="V I C I O T E K"
+                           Margin="0"
                            VerticalAlignment="Center"
                            FontFamily="{StaticResource DisplayFont}"
                            FontSize="13.5"
                            FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" />
+                <Ellipse Width="4" Height="4" Fill="{StaticResource ActionAccentBrush}" Margin="7,0,0,0" VerticalAlignment="Center" />
             </StackPanel>
 
-            <Grid Grid.Column="1" Margin="24,0">
+            <Grid Grid.Column="1" Margin="30,0">
                 <TextBox x:Name="SearchBox"
                          MaxWidth="360"
                          HorizontalAlignment="Stretch"
@@ -280,7 +272,7 @@
                          PreviewKeyDown="SearchBox_PreviewKeyDown" />
             </Grid>
 
-            <Button Grid.Column="2"
+            <Button Grid.Column="3"
                     Command="{Binding OpenPreferencesCommand}"
                     Style="{StaticResource IconButtonStyle}"
                     FontFamily="{StaticResource IconFont}" FontSize="14"
@@ -289,7 +281,7 @@
                     VerticalAlignment="Center" Margin="0,0,8,0"
                     WindowChrome.IsHitTestVisibleInChrome="True" />
 
-            <Button Grid.Column="3"
+            <Button Grid.Column="2"
                     Command="{Binding AddGamesCommand}"
                     Style="{StaticResource IconButtonStyle}"
                     VerticalAlignment="Center"
@@ -336,11 +328,11 @@
                                   PreviewMouseRightButtonDown="Gallery_PreviewMouseRightButtonDown">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <controls:VirtualizingWrapPanel ItemWidth="200"
-                                                       ItemHeight="300"
+                        <controls:VirtualizingWrapPanel ItemWidth="280" Responsive="True"
+                                                       ItemHeight="420"
                                                        Gap="16"
                                                        HorizontalPadding="40"
-                                                       VerticalPadding="24" />
+                                                       VerticalPadding="34" />
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
             </controls:GameGallery>

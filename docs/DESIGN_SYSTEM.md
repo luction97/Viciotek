@@ -4,8 +4,8 @@ Fuente de verdad: `src/Viciotek/Presentation/Theme/Theme.xaml` y `MainWindow.xam
 
 - Fondo `#0A0B0E`; superficies `#121419`/`#171A20`; texto principal `#F3F4F6`, secundario `#A2A8B3`; acciones y enlaces en azul suave `#83B9F5` (`ActionAccentBrush`); recursos legados de portadas intactos.
 - Segoe UI Variable Text/Display; iconos Segoe Fluent Icons con alternativa MDL2.
-- Barra superior de 48 DIP: marca, búsqueda, botón `+` (abre la modal de agregar), engranaje de Preferencias y controles de ventana discretos.
-- Portadas 200×300 DIP, radio 10 DIP, separación 16 DIP; margen horizontal mínimo 40 DIP y vertical 24 DIP. Columnas centradas según ancho.
+- Barra superior de 64 DIP: marca, búsqueda, botón `+` (abre la modal de agregar), engranaje de Preferencias y controles de ventana discretos.
+- Portadas 2:3, preferidas 280×420 DIP y ancho efectivo acotado a 322 DIP, radio 10 DIP, separación 16 DIP; margen horizontal mínimo 40 DIP y vertical 34 DIP. Columnas centradas según ancho.
 - Imagen llena todo el marco con recorte central 2:3. No deformar ni introducir bandas para conservar una imagen panorámica completa.
 - Solo el nombre aparece temporalmente al hover o foco de teclado, sobre un degradado inferior corto. Sin instrucciones de clic, leyendas permanentes ni animaciones de texto.
 - Hover de portada: elevación vertical de 6 DIP en 180 ms (ease-out) y borde de acento, también al foco de teclado; desactivable en Preferencias. Sin escala, deformación, sombras costosas ni blur; no se modifica el bitmap ni su resolución.
@@ -22,3 +22,5 @@ Fuente de verdad: `src/Viciotek/Presentation/Theme/Theme.xaml` y `MainWindow.xam
 - SteamGridDB: dos pasos breves dentro de Preferencias (sitio oficial → pegar código). Usar «código de conexión» y mencionar «API Key» solo para reconocer el texto del proveedor. Pegar solo lee el portapapeles tras el clic explícito. Conectar verifica y confirma preferencias en una acción; Comprobar conserva la edición. Estado guardado no implica verificación al arrancar. Mensajes de conexión junto al campo, con reintento y anuncio accesible.
 
 - Revisión 1.1.8: búsqueda sin borde (incluido foco), texto alineado con placeholder mediante columnas explícitas, sin doble padding. Configuración prioriza SteamGridDB, descripción de 13 DIP y pasos breves; Más opciones cerrado al abrir. Biblioteca y Datos locales dentro del desplegable; Acerca de siempre visible. Altura natural acotada al área de trabajo.
+
+- Propuesta aprobada, 1.1.9: marca espaciada con punto azul, buscador discreto con Ctrl F, agregar antes de configuración. Modal con superficie #191B20, ancho visible 550 DIP, título 19 DIP, proveedor con icono y pasos alineados, acento #92BAF0, Listo como acción clara y Acerca de visible. Responsive solo en biblioteca principal; galería de selección de portadas conserva su geometría.

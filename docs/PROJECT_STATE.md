@@ -1,6 +1,16 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.8**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.9**, C#/WPF/.NET 8 para Windows 11.
+
+## Propuesta premium aprobada y portadas responsivas — 1.1.9
+- Implementación WPF de la propuesta aprobada: barra de 64 DIP, marca espaciada con punto azul, búsqueda sin borde con atajo Ctrl F y botones de agregar/configurar. Se conservan controles de ventana nativos y acciones reales.
+- Configuración: superficie 550 DIP dentro de ventana 590, título 19 DIP, icono del proveedor, dos pasos alineados, código con pegado y Conectar, Más opciones plegado, Acerca de visible y Listo como confirmación. Sin dependencias, sombras costosas ni blur.
+- Cambio de tamaño de portadas expresamente autorizado por el propietario, sustituyendo la regla previa de 200×300. La biblioteca usa tamaño preferido 280×420 DIP y se adapta al ancho, con 2:3 y máximo 322 DIP de ancho. Columnas y dimensiones se calculan en el panel virtualizado; el contenedor deja de fijar tamaño. Scroll, teclado, selección, hover y carga diferida se conservan. Sin cambios de imágenes ni esquema JSON.
+- Responsive es opt-in y solo se activa en la biblioteca principal; la galería de elección de portadas y los consumidores existentes mantienen su layout. Al redimensionar se aproxima la posición por el primer índice de la fila visible y se acota el offset al nuevo contenido.
+- CONFIRMADO: build Release -warnaserror 0 errores/advertencias; 212/212 tests. Nuevas regresiones STA/Dispatcher con 500 y 5000 entradas, anchos 760/1024/1280/1920/760, 2/3/4/6/2 columnas, proporción 1.5, contenedores acotados y acceso al último elemento después de redimensionar.
+- SteamGridSmoke offline PASS: importación, galería, configuración, conexión/cancelación y reapertura offline. Renders WPF de configuración y biblioteca en 1280/800 DIP, con portadas sintéticas exclusivamente del sandbox; evidencia en artifacts/ux-1.1.9. Los ejemplos no se incorporan a la aplicación.
+- DESCONOCIDO: RAM con portadas reales y matriz completa de DPI/multimonitor; no se afirma cumplimiento del presupuesto de memoria ni mejora de arranque. Se preservan datos personales, no se cierran instancias ajenas y no se hace push.
+- Próximo paso: generar y comprobar la distribución 1.1.9; repetir smoke completo del instalador si una instancia personal bloquea la prueba. Firma y revisión del runtime siguen pendientes antes de venta.
 
 ## Buscador y Configuración simplificados — 1.1.8
 - Alcance limitado al buscador y la configuración. Portadas, biblioteca, ejecución y persistencia conservadas.

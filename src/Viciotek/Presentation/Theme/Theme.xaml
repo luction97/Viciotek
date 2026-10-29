@@ -12,7 +12,7 @@
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A2A8B3" />
     <SolidColorBrush x:Key="TextTertiaryBrush" Color="#6E7480" />
     <SolidColorBrush x:Key="AccentBrush" Color="#E7BE7B" />
-    <SolidColorBrush x:Key="ActionAccentBrush" Color="#83B9F5" />
+    <SolidColorBrush x:Key="ActionAccentBrush" Color="#92BAF0" />
     <SolidColorBrush x:Key="AccentMutedBrush" Color="#8C744A" />
     <SolidColorBrush x:Key="AccentSoftBrush" Color="#2A2319" />
     <SolidColorBrush x:Key="DangerBrush" Color="#E58F8F" />
@@ -54,7 +54,7 @@
     <!-- ============ Buttons ============ -->
     <Style x:Key="DialogSurfaceStyle" TargetType="{x:Type Border}">
         <Setter Property="Margin" Value="20" />
-        <Setter Property="Background" Value="#191A1E" />
+        <Setter Property="Background" Value="#191B20" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="CornerRadius" Value="20" />
@@ -306,6 +306,9 @@
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False">
                             </TextBlock>
+                            <TextBlock x:Name="SearchShortcut" Grid.Column="2" Text="Ctrl F"
+                                       FontSize="10" Foreground="{StaticResource TextTertiaryBrush}"
+                                       VerticalAlignment="Center" Visibility="Collapsed" IsHitTestVisible="False" />
                             <Button x:Name="ClearButton" Grid.Column="2"
                                     Command="{Binding ClearSearchCommand}"
                                     Style="{StaticResource IconButtonStyle}"
@@ -334,6 +337,7 @@
                                 <Condition Property="IsKeyboardFocusWithin" Value="False" />
                             </MultiTrigger.Conditions>
                             <Setter TargetName="SearchPlaceholder" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="SearchShortcut" Property="Visibility" Value="Visible" />
                         </MultiTrigger>
                         <Trigger Property="Text" Value="">
                             <Setter TargetName="ClearButton" Property="Visibility" Value="Collapsed" />

@@ -43,6 +43,16 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
         typeof(VirtualizingWrapPanel),
         new FrameworkPropertyMetadata(20d, FrameworkPropertyMetadataOptions.AffectsMeasure));
 
+    public static readonly DependencyProperty ResponsiveProperty = DependencyProperty.Register(
+        nameof(Responsive), typeof(bool), typeof(VirtualizingWrapPanel),
+        new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsMeasure));
+
+    public bool Responsive { get => (bool)GetValue(ResponsiveProperty); set => SetValue(ResponsiveProperty, value); }
+    public double EffectiveItemWidth => _layoutWidth;
+    public double EffectiveItemHeight => _layoutHeight;
+    private double _layoutWidth = 200;
+    private double _layoutHeight = 300;
+
     private const double ScrollLineDelta = 72;
     private Size _extent;
     private Size _viewport;
@@ -156,10 +166,10 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
 
             var row = itemIndex / _columns;
             var column = itemIndex % _columns;
-            var x = _gridLeft + (column * (ItemWidth + Gap));
-            var y = VerticalPadding + (row * (ItemHeight + Gap)) - VerticalOffset;
+            var x = _gridLeft + (column * (_layoutWidth + Gap));
+            var y = VerticalPadding + (row * (_layoutHeight + Gap)) - VerticalOffset;
 
-            child.Arrange(new Rect(x, y, ItemWidth, ItemHeight));
+            child.Arrange(new Rect(x, y, _layoutWidth, _layoutHeight));
         }
 
         return finalSize;
@@ -193,8 +203,8 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
         }
 
         var row = index / _columns;
-        var top = VerticalPadding + (row * (ItemHeight + Gap));
-        var bottom = top + ItemHeight;
+        var top = VerticalPadding + (row * (_layoutHeight + Gap));
+        var bottom = top + _layoutHeight;
 
         if (top < VerticalOffset)
         {
@@ -216,19 +226,31 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
 
         _itemCount = ItemsControl.GetItemsOwner(this)?.Items.Count ?? 0;
 
+        var anchor = Math.Max(0, (int)Math.Floor((VerticalOffset - VerticalPadding) / (_layoutHeight + Gap))) * _columns;
+        var previousColumns = _columns;
+        var previousWidth = _layoutWidth;
+        _layoutWidth = ItemWidth;
+        _layoutHeight = ItemHeight;
         var usableWidth = Math.Max(0, width - (2 * HorizontalPadding));
-        _columns = Math.Max(1, (int)Math.Floor((usableWidth + Gap) / (ItemWidth + Gap)));
+        _columns = Math.Max(1, (int)Math.Floor((usableWidth + Gap) / (_layoutWidth + Gap)));
+        if (Responsive)
+        {
+            _layoutWidth = Math.Max(1, Math.Min(ItemWidth * 1.15, (usableWidth - ((_columns - 1) * Gap)) / _columns));
+            _layoutHeight = _layoutWidth * ItemHeight / ItemWidth;
+            if (VerticalOffset > 0 && (previousColumns != _columns || Math.Abs(previousWidth - _layoutWidth) > 0.1))
+                _offset.Y = VerticalPadding + (anchor / _columns) * (_layoutHeight + Gap);
+        }
         _rows = _itemCount == 0 ? 0 : (int)Math.Ceiling(_itemCount / (double)_columns);
 
-        var contentWidth = (_columns * ItemWidth) + (Math.Max(0, _columns - 1) * Gap);
+        var contentWidth = (_columns * _layoutWidth) + (Math.Max(0, _columns - 1) * Gap);
         _gridLeft = HorizontalPadding + Math.Max(0, (usableWidth - contentWidth) / 2);
 
         var contentHeight = _rows == 0
             ? 0
-            : (VerticalPadding * 2) + (_rows * ItemHeight) + (Math.Max(0, _rows - 1) * Gap);
+            : (VerticalPadding * 2) + (_rows * _layoutHeight) + (Math.Max(0, _rows - 1) * Gap);
 
         var height = double.IsInfinity(availableSize.Height)
-            ? Math.Max(contentHeight, ItemHeight + (2 * VerticalPadding))
+            ? Math.Max(contentHeight, _layoutHeight + (2 * VerticalPadding))
             : Math.Max(0, availableSize.Height);
 
         var newExtent = new Size(width, contentHeight);
@@ -264,7 +286,7 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
             return 0;
         }
 
-        var row = Math.Floor((VerticalOffset - VerticalPadding) / (ItemHeight + Gap));
+        var row = Math.Floor((VerticalOffset - VerticalPadding) / (_layoutHeight + Gap));
         var bufferedRow = Math.Max(0, (int)row - 1);
         return Math.Clamp(bufferedRow * _columns, 0, Math.Max(0, _itemCount - 1));
     }
@@ -276,7 +298,7 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
             return -1;
         }
 
-        var row = Math.Floor((VerticalOffset + ViewportHeight - VerticalPadding) / (ItemHeight + Gap));
+        var row = Math.Floor((VerticalOffset + ViewportHeight - VerticalPadding) / (_layoutHeight + Gap));
         var bufferedRow = Math.Min(_rows - 1, (int)row + 1);
         return Math.Clamp(((bufferedRow + 1) * _columns) - 1, 0, Math.Max(0, _itemCount - 1));
     }
@@ -316,7 +338,7 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
                     generator.PrepareItemContainer(child);
                 }
 
-                child.Measure(new Size(ItemWidth, ItemHeight));
+                child.Measure(new Size(_layoutWidth, _layoutHeight));
             }
         }
     }
@@ -345,7 +367,7 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
     {
         var width = double.IsInfinity(availableSize.Width) ? _viewport.Width : availableSize.Width;
         var height = double.IsInfinity(availableSize.Height)
-            ? Math.Max(_extent.Height, ItemHeight + (2 * VerticalPadding))
+            ? Math.Max(_extent.Height, _layoutHeight + (2 * VerticalPadding))
             : availableSize.Height;
         return new Size(Math.Max(0, width), Math.Max(0, height));
     }
@@ -362,9 +384,9 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
     {
     }
 
-    public void MouseWheelUp() => SetVerticalOffset(VerticalOffset - (ItemHeight + Gap));
+    public void MouseWheelUp() => SetVerticalOffset(VerticalOffset - (_layoutHeight + Gap));
 
-    public void MouseWheelDown() => SetVerticalOffset(VerticalOffset + (ItemHeight + Gap));
+    public void MouseWheelDown() => SetVerticalOffset(VerticalOffset + (_layoutHeight + Gap));
 
     public void MouseWheelLeft()
     {
@@ -432,8 +454,8 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
         }
 
         var row = itemIndex / _columns;
-        var top = VerticalPadding + (row * (ItemHeight + Gap));
-        var bottom = top + ItemHeight;
+        var top = VerticalPadding + (row * (_layoutHeight + Gap));
+        var bottom = top + _layoutHeight;
 
         if (top < VerticalOffset)
         {
@@ -444,8 +466,8 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
             SetVerticalOffset(bottom - ViewportHeight);
         }
 
-        var x = _gridLeft + ((itemIndex % _columns) * (ItemWidth + Gap));
+        var x = _gridLeft + ((itemIndex % _columns) * (_layoutWidth + Gap));
         var y = top - VerticalOffset;
-        return new Rect(x, y, ItemWidth, ItemHeight);
+        return new Rect(x, y, _layoutWidth, _layoutHeight);
     }
 }

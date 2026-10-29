@@ -9,6 +9,44 @@ namespace Viciotek.Tests;
 
 public sealed class VirtualizationTests
 {
+    [Theory]
+    [InlineData(500)]
+    [InlineData(5000)]
+    public Task ResponsiveGallery_KeepsLargeCoversAndBoundedContainers(int count) => WpfTest.RunAsync(async () =>
+    {
+        var factory = new FrameworkElementFactory(typeof(VirtualizingWrapPanel));
+        factory.SetValue(VirtualizingWrapPanel.ResponsiveProperty, true);
+        factory.SetValue(VirtualizingWrapPanel.ItemWidthProperty, 280d);
+        factory.SetValue(VirtualizingWrapPanel.ItemHeightProperty, 420d);
+        var gallery = new GameGallery { Width = 1280, Height = 800,
+            ItemsSource = Enumerable.Range(0, count).Select(i => $"Game {i}").ToArray(),
+            ItemsPanel = new ItemsPanelTemplate(factory) };
+        ScrollViewer.SetCanContentScroll(gallery, true);
+        var window = new Window { Content = gallery, SizeToContent = SizeToContent.WidthAndHeight,
+            WindowStyle = WindowStyle.None, ShowActivated = false, ShowInTaskbar = false };
+        try
+        {
+            window.Show();
+            await WpfTest.WaitUntilAsync(() => FindPanel(gallery)?.RealizedItemCount > 0);
+            var panel = FindPanel(gallery)!;
+            foreach (var (width, columns) in new[] { (760, 2), (1024, 3), (1280, 4), (1920, 6), (760, 2) })
+            {
+                gallery.Width = width;
+                gallery.UpdateLayout();
+                await WpfTest.WaitUntilAsync(() => panel.Columns == columns);
+                Assert.InRange(panel.EffectiveItemWidth, 280, 322);
+                Assert.Equal(1.5, panel.EffectiveItemHeight / panel.EffectiveItemWidth, 6);
+                AssertBounded(panel);
+                gallery.ScrollIntoView(gallery.Items[count - 1]);
+                await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                gallery.UpdateLayout();
+                Assert.NotNull(gallery.ItemContainerGenerator.ContainerFromIndex(count - 1));
+                AssertBounded(panel);
+            }
+        }
+        finally { window.Close(); }
+    });
+
     [Fact]
     public Task InitiallyEmptyRemoteGallery_RealizesResultsWithoutResizeOrScroll() => WpfTest.RunAsync(async () =>
     {
