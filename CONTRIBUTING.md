@@ -1,4 +1,4 @@
-# Desarrollo y flujo Git
+﻿# Desarrollo y flujo Git
 
 ## Preparación (Windows 11 x64)
 
@@ -47,7 +47,7 @@ Los hooks bloquean archivos de datos/artefactos y secretos detectados en staging
 $tools = @(.\tools\Get-BuildTools.ps1)
 $iscc = ($tools | Where-Object Tool -eq InnoSetup).Path
 .\tools\Build-Installer.ps1 -CompilerPath $iscc
-.\tools\SmokeInstaller.ps1 -CompilerPath $iscc -PublishDirectory dist\Viciotek-1.1.0-win-x64
+.\tools\SmokeInstaller.ps1 -CompilerPath $iscc -PublishDirectory dist\Viciotek-1.1.1-win-x64
 ```
 
 El bootstrap descarga herramientas fijadas por versión/SHA256; Inno Setup se verifica también con Authenticode y se extrae en modo portátil. No se instala globalmente. Los tests redirigen accesos directos y desactivan el registro de desinstalación mediante una compilación de smoke separada; no instalan en el escritorio real ni alteran la biblioteca personal. El instalador de distribución no contiene esos valores de prueba.

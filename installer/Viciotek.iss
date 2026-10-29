@@ -22,10 +22,18 @@
 [Setup]
 AppId={{#ProductId}
 AppName=VICIOTEK
+AppVerName=VICIOTEK {#AppVersion}
 AppVersion={#AppVersion}
 AppPublisher=Lucas Siano
 AppPublisherURL=https://github.com/luction97/Viciotek
 AppSupportURL=https://github.com/luction97/Viciotek/issues
+AppUpdatesURL=https://github.com/luction97/Viciotek/releases
+AppComments=Biblioteca personal de videojuegos para Windows 11.
+VersionInfoCompany=Lucas Siano
+VersionInfoDescription=Instalador de VICIOTEK
+VersionInfoProductName=VICIOTEK
+VersionInfoProductVersion={#AppVersion}
+VersionInfoVersion={#AppVersion}
 VersionInfoCopyright=Copyright (C) 2026 Lucas Siano. Todos los derechos reservados.
 DefaultDirName={localappdata}\Programs\VICIOTEK
 DefaultGroupName=VICIOTEK

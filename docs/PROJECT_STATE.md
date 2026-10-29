@@ -1,6 +1,15 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-28. Producto: **VICIOTEK 1.1.0**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.1**, C#/WPF/.NET 8 para Windows 11.
+
+## Icono actualizado y preparación comercial — 1.1.1
+- **Icono oficial:** `src/Viciotek/Assets/icono/viciotek.png` (1254×1254 ARGB, 931988 bytes) y `Assets/viciotek.ico` regenerado con `tools/Generate-Icon.ps1` (9 marcos: 16/20/24/32/40/48/64/128/256; 114162 bytes; DIB en 16–64 y PNG en 128/256). Se usa en ejecutable, ventana principal, `About`, instalador y accesos directos. El PNG original no se modificó.
+- **UI:** el logo se carga por URI absoluta `pack://application:,,,/Assets/icono/viciotek.png` para evitar rutas relativas según el XAML; el título de ventana y el diálogo Acerca de lo muestran.
+- **Datos:** la carpeta personal previa se movió a `%LOCALAPPDATA%\Viciotek` (28 archivos, hashes verificados) y `%LOCALAPPDATA%\Ludere` quedó vacía/eliminada. No hay referencias absolutas a la carpeta anterior en `library.json`.
+- **Instalador:** `AppVerName`, `AppUpdatesURL`, metadatos `VersionInfo*`, publicador y soporte configurados; se mantiene `AppId` y la regla de no borrar datos. Smoke aprobado (instalación, actualización, bloqueo con app abierta, desinstalación conservando datos y archivos ajenos).
+- **Validación:** build `-warnaserror` 0/0, **200/200 tests** (`BrandAssetsTests` incluido), SteamGridSmoke PASS, Gitleaks/política PASS, instalador y ZIPs con smoke PASS.
+- **Artefactos (HEAD local):** instalador `Viciotek-1.1.1-setup-win-x64.exe` (SHA256 `C9633F7F1826EBA9FB578E660ED3947377CE7E50EB5A28B2AFBA15D00767A6E2`), portable ZIP (`33639B019D4E99ED7453824AF7732E24A4E25C57807E43A96A71AAC2FD91A28E`) y framework-dependent ZIP (`3DAFAE6CB8490419152745AF44364447C4100E01CDBC86126C64CFFFD6FFC6F8`), cada uno con `.sha256`.
+- **Pendiente:** firma digital, rulesets, reporte privado y Releases siguen siendo configuración manual del propietario.
 
 ## Renombre integral y publicación — 1.1.0
 - **Sin rastro del nombre anterior:** solución `Viciotek.sln`, proyectos `src/Viciotek` y `tests/Viciotek.Tests`, namespace `Viciotek`, XAML, scripts, CI, documentación, variable `VICIOTEK_DATA_DIR`, log `viciotek.log` y carpeta `%LOCALAPPDATA%\Viciotek`. `git grep -i` sobre archivos versionados: **0 coincidencias**. Los binarios y sandboxes 1.0.x se regeneraron o retiraron.
@@ -90,9 +99,9 @@
 - Evidencia previa conservada: galería de 500 juegos/hover/menú contextual en capturas; `.lnk/.url` reales con argumentos/directorio/duplicados; drop desde Explorer persistió portada inicialmente ausente. En esta revisión los reemplazos sucesivos se verificaron con binding/bitmap WPF real, no mediante automatización de Explorer.
 
 ## Entrega local
-- `dist/Viciotek-1.1.0-setup-win-x64.exe` y `.sha256`: instalador por usuario con acceso directo de escritorio/Inicio; incluye .NET x64 autocontenido.
-- `dist/Viciotek-1.1.0-win-x64/Viciotek.exe` y `dist/Viciotek-1.1.0-win-x64.zip`: portable con runtime x64 incluido.
-- `dist/Viciotek-1.1.0-win-x64-framework-dependent/` y ZIP equivalente: requiere .NET 8 Desktop Runtime x64. Se conservaron las distribuciones anteriores sin sobrescribirlas.
+- `dist/Viciotek-1.1.1-setup-win-x64.exe` y `.sha256`: instalador por usuario con acceso directo de escritorio/Inicio; incluye .NET x64 autocontenido.
+- `dist/Viciotek-1.1.1-win-x64/Viciotek.exe` y `dist/Viciotek-1.1.1-win-x64.zip`: portable con runtime x64 incluido.
+- `dist/Viciotek-1.1.1-win-x64-framework-dependent/` y ZIP equivalente: requiere .NET 8 Desktop Runtime x64. Se eliminaron las distribuciones 1.1.0 anteriores.
 - Cada ZIP y el instalador tienen archivo `.sha256`; extraer la carpeta completa, no mover solo el EXE. Documentación incluida; sin firma digital todavía. **Candidato local, no certificación de producción.**
 
 ## Límites y pendientes

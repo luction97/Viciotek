@@ -277,10 +277,13 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                <Image Source="Assets/viciotek.ico"
-                       Width="21"
+                <Image Width="21"
                        Height="21"
-                       RenderOptions.BitmapScalingMode="HighQuality" />
+                       RenderOptions.BitmapScalingMode="HighQuality">
+                    <Image.Source>
+                        <BitmapImage UriSource="pack://application:,,,/Assets/icono/viciotek.png" DecodePixelWidth="64" />
+                    </Image.Source>
+                </Image>
                 <TextBlock Text="VICIOTEK"
                            Margin="10,0,0,0"
                            VerticalAlignment="Center"

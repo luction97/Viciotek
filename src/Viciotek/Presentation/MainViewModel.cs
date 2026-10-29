@@ -94,7 +94,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public bool IsSteamGridConfigured => _steamGrid.IsConfigured;
     public bool AnimationsEnabled => _settings.AnimationsEnabled;
     bool IGameCardActions.CanFindCover => IsSteamGridConfigured;
-    public string AppVersion => typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "1.1.0";
+    public string AppVersion => typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "1.1.1";
     public GameCardViewModel? SelectedGame { get; set; }
 
     public event EventHandler? CloseRequested;
