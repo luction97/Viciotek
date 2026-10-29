@@ -13,6 +13,39 @@ namespace Viciotek.Tests;
 public sealed class PresentationAuditTests
 {
     [Fact]
+    public Task Welcome_TracksImportSearchAndLastRemoval() => WpfTest.RunAsync(async () =>
+    {
+        var directory = TestHelpers.CreateTempDirectory();
+        try
+        {
+            var paths = new AppPaths(directory);
+            paths.EnsureCreated();
+            using var viewModel = new MainViewModel([], new AppSettings(), new LibraryStore(paths),
+                new SettingsStore(paths), new GameImporter(new FakeShortcutResolver()), new RecordingLauncher(),
+                new CoverStore(paths), new SteamGridDbClient(null), new FakeDialogs(), null);
+            Assert.True(viewModel.ShowEmptyState);
+            Assert.False(viewModel.ShowNoResults);
+            var notifications = new List<string?>();
+            viewModel.PropertyChanged += (_, args) => notifications.Add(args.PropertyName);
+            var executable = Path.Combine(directory, "Example.exe");
+            await File.WriteAllBytesAsync(executable, [0]);
+            await viewModel.ImportFilesAsync([executable]);
+            Assert.False(viewModel.ShowEmptyState);
+            Assert.False(viewModel.ShowNoResults);
+            Assert.Contains(nameof(viewModel.ShowEmptyState), notifications);
+            viewModel.SearchQuery = "no matching game";
+            Assert.False(viewModel.ShowEmptyState);
+            Assert.True(viewModel.ShowNoResults);
+            viewModel.ClearSearchCommand.Execute(null);
+            Assert.False(viewModel.ShowNoResults);
+            await viewModel.RemoveAsync(Assert.Single(viewModel.Games));
+            Assert.True(viewModel.ShowEmptyState);
+            Assert.False(viewModel.ShowNoResults);
+        }
+        finally { Directory.Delete(directory, recursive: true); }
+    });
+
+    [Fact]
     public Task SearchEnter_LaunchesFirstVisibleResultAndIgnoresStaleSelection() => WpfTest.RunAsync(async () =>
     {
         var directory = TestHelpers.CreateTempDirectory();

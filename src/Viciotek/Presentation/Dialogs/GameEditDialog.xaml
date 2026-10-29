@@ -5,14 +5,7 @@
                           Title="Editar juego"
                           Width="640"
                           Height="590">
-    <Border Margin="20"
-            Background="{StaticResource SurfaceBrush}"
-            BorderBrush="{StaticResource BorderStrongBrush}"
-            BorderThickness="1"
-            CornerRadius="14">
-        <Border.Effect>
-            <DropShadowEffect Color="#000000" BlurRadius="38" ShadowDepth="12" Opacity="0.6" />
-        </Border.Effect>
+    <Border Style="{StaticResource DialogSurfaceStyle}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="60" />
@@ -54,7 +47,7 @@
                              MaxLength="200"
                              TextChanged="Field_TextChanged" />
 
-                    <TextBlock Text="DESTINO"
+                    <TextBlock Text="ARCHIVO O ENLACE DEL JUEGO"
                                Style="{StaticResource FieldLabelStyle}"
                                Margin="0,18,0,7" />
                     <Grid>
@@ -75,14 +68,14 @@
                     <TextBlock x:Name="TargetHint"
                                Style="{StaticResource FieldHintStyle}" />
 
-                    <TextBlock Text="ARGUMENTOS"
+                    <TextBlock Text="OPCIONES DE INICIO (OPCIONAL)"
                                Style="{StaticResource FieldLabelStyle}"
                                Margin="0,18,0,7" />
                     <TextBox x:Name="ArgumentsBox"
                              Style="{StaticResource FormTextBoxStyle}"
                              TextChanged="Field_TextChanged" />
 
-                    <TextBlock Text="DIRECTORIO DE TRABAJO"
+                    <TextBlock Text="CARPETA DEL JUEGO (OPCIONAL)"
                                Style="{StaticResource FieldLabelStyle}"
                                Margin="0,18,0,7" />
                     <Grid>
@@ -109,9 +102,7 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <Border Grid.Row="2"
-                    BorderBrush="{StaticResource BorderBrush}"
-                    BorderThickness="0,1,0,0">
+            <Border Grid.Row="2">
                 <Grid Margin="26,0">
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"

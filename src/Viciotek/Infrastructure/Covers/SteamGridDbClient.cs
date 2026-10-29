@@ -227,7 +227,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
 
     public async Task<VerificationResult> VerifyAsync(string? apiKey, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(apiKey)) return new(false, "Configurá una clave de API.");
+        if (string.IsNullOrWhiteSpace(apiKey)) return new(false, "Pegá tu código de conexión de SteamGridDB.");
         try
         {
             var data = await GetDataAsync("search/autocomplete/a", cancellationToken, useCache: false,
@@ -235,7 +235,17 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
             if (data.ValueKind != JsonValueKind.Array) return new(false, "Servicio temporalmente no disponible.");
             return new(true, "Conexión correcta.");
         }
-        catch (SteamGridDbException exception) { return new(false, exception.Message); }
+        catch (SteamGridDbException exception)
+        {
+            return new(false, exception.StatusCode switch
+            {
+                HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
+                    "Ese código no es válido. Copialo otra vez desde SteamGridDB e intentá de nuevo.",
+                HttpStatusCode.TooManyRequests => "SteamGridDB recibió muchos intentos. Esperá un momento y volvé a intentar.",
+                >= HttpStatusCode.InternalServerError => "SteamGridDB no está disponible por el momento. Intentá de nuevo más tarde.",
+                _ => exception.Message
+            });
+        }
     }
 
     public sealed record SteamGridGrid(int Id, string Url, int Width, int Height, string? ThumbnailUrl = null);

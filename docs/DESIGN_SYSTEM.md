@@ -2,15 +2,21 @@
 
 Fuente de verdad: `src/Viciotek/Presentation/Theme/Theme.xaml` y `MainWindow.xaml`.
 
-- Fondo `#0A0B0E`; superficies `#121419`/`#171A20`; texto principal `#F3F4F6`, secundario `#A2A8B3`; acento cálido `#E7BE7B`.
+- Fondo `#0A0B0E`; superficies `#121419`/`#171A20`; texto principal `#F3F4F6`, secundario `#A2A8B3`; acciones y enlaces en azul suave `#83B9F5` (`ActionAccentBrush`); recursos legados de portadas intactos.
 - Segoe UI Variable Text/Display; iconos Segoe Fluent Icons con alternativa MDL2.
 - Barra superior de 48 DIP: marca, búsqueda, botón `+` (abre la modal de agregar), engranaje de Preferencias y controles de ventana discretos.
 - Portadas 200×300 DIP, radio 10 DIP, separación 16 DIP; margen horizontal mínimo 40 DIP y vertical 24 DIP. Columnas centradas según ancho.
 - Imagen llena todo el marco con recorte central 2:3. No deformar ni introducir bandas para conservar una imagen panorámica completa.
 - Solo el nombre aparece temporalmente al hover o foco de teclado, sobre un degradado inferior corto. Sin instrucciones de clic, leyendas permanentes ni animaciones de texto.
-- Hover de portada: elevación suave (escala) y borde de acento; desactivable en Preferencias. Sin sombras costosas ni blur.
-- Selección/drop con borde de acento; foco de teclado contrastado; menú contextual oscuro. Fallback de icono y monograma cuando no hay portada.
+- Hover de portada: elevación vertical de 6 DIP en 180 ms (ease-out) y borde de acento, también al foco de teclado; desactivable en Preferencias. Sin escala, deformación, sombras costosas ni blur; no se modifica el bitmap ni su resolución.
+- Un único contorno dentro de la tarjeta animada para hover, selección, foco y drop. Hover/selección: azul de marca `#149DFF` (`CardAccentBrush`) 1.5 DIP; foco: blanco 1.5 DIP con prioridad sobre ambos; drop: el mismo azul 2 DIP. Acento específico de portadas, sin cambiar `AccentBrush` global. Sin anillo adicional en el ListBoxItem exterior. Menú contextual oscuro. Fallback de icono y monograma cuando no hay portada.
 - Sin sombras costosas, blur, sidebar, contadores, noticias ni anuncios.
 - Chrome WPF propio con esquinas DWM. Manifest PerMonitorV2; validación multimonitor/DPI todavía incompleta.
-- Estado vacío: «Tu biblioteca» y una acción para agregar. El botón `+` abre una modal que explica cómo agregar juegos; las instrucciones no aparecen en la pantalla principal. Toasts para errores o información no evidente.
-- Menú de tarjeta: personalización local directa; búsqueda automática solo visible con SteamGridDB configurado. Un lápiz de portada aparece solo en hover/foco para cambiar la imagen sin abrir el menú. Diálogos breves, conservando validaciones y aviso de almacenamiento sin cifrar.
+- Estado vacío centrado: «Tu biblioteca empieza acá», descripción breve, «Agregar mi primer juego» y ayuda de arrastre. Solo visible sin juegos; las búsquedas sin coincidencias conservan su estado propio. El botón abre la modal existente.
+- Menú de tarjeta: personalización local directa mediante clic derecho → «Cambiar portada…» o drop de imagen; sin botón flotante sobre la portada que intercepte la selección del juego. Búsqueda automática solo visible con SteamGridDB configurado. Diálogos breves, conservando validaciones y aviso de protección de la clave con DPAPI.
+
+- Iconos de acción sin fondo ni borde visible: área de 32 DIP, hover de color, tooltip y foco blanco de teclado. Acciones de diálogo como texto azul suave y secundarias neutras, sin relleno ni borde; hover tenue en cápsula. Único CTA claro en la bienvenida, con radio 18 DIP. Todos los modales usan DialogSurfaceStyle: superficie neutra #191A1E, radio 20 DIP, sin borde exterior, sombras ni separador de pie. Menús contextuales sin borde exterior. El foco de teclado y los campos enfocados conservan indicación visible.
+
+- Preferencias: interruptores visuales de 30×18 DIP sobre CheckBox nativo, con estados por posición y color; conservan semántica accesible y teclado. Campos editables oscuros sin contorno permanente; la ruta local es texto seleccionable sin caja. No se alteran recursos ni comportamientos de portadas.
+
+- SteamGridDB: dos pasos breves dentro de Preferencias (sitio oficial → pegar código). Usar «código de conexión» y mencionar «API Key» solo para reconocer el texto del proveedor. Pegar solo lee el portapapeles tras el clic explícito. Conectar verifica y confirma preferencias en una acción; Comprobar conserva la edición. Estado guardado no implica verificación al arrancar. Mensajes de conexión junto al campo, con reintento y anuncio accesible.

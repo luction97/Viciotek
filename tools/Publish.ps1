@@ -24,6 +24,7 @@ $selfContained = if ($Variant -eq 'Portable') { 'true' } else { 'false' }
     -p:PublishSingleFile=false -p:PublishTrimmed=false -p:DebugType=None -p:DebugSymbols=false `
     --nologo -o $folder
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish fallo ($LASTEXITCODE)." }
+& (Join-Path $PSScriptRoot 'Test-EmbeddedIcon.ps1') -Executable (Join-Path $folder 'Viciotek.exe')
 
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot '..\README.md') -Destination (Join-Path $folder 'README.md')
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot '..\COPYRIGHT.md') -Destination (Join-Path $folder 'COPYRIGHT.md')

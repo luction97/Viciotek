@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using Viciotek.Infrastructure.Covers;
@@ -26,13 +27,26 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         AutoFetchCheckBox.IsChecked = settings.AutoFetchCovers;
         AnimationsCheckBox.IsChecked = settings.AnimationsEnabled;
         DataPathBox.Text = paths.Root;
-        VerifyButton.IsEnabled = steamGrid is not null;
+        UpdateConnectionAction();
+        if (!string.IsNullOrWhiteSpace(settings.SteamGridDbApiKey))
+            ShowConnectionStatus("Conexión guardada en este equipo.");
         Closed += (_, _) => { _lifetime.Cancel(); _lifetime.Dispose(); };
     }
 
     public AppSettings? Result { get; private set; }
 
-    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    private async void SaveButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_verifying) return;
+        var code = ApiKeyBox.Password.Trim();
+        if (code.Length > 0 && code != (_settings.SteamGridDbApiKey ?? string.Empty).Trim())
+        {
+            if (!await CheckConnectionAsync()) return;
+        }
+        SaveAndClose();
+    }
+
+    private void SaveAndClose()
     {
         var updated = _settings.Clone();
         updated.SteamGridDbApiKey = string.IsNullOrWhiteSpace(ApiKeyBox.Password)
@@ -64,29 +78,88 @@ public partial class PreferencesDialog : ViciotekDialogWindow
 
     private async void VerifyConnection_Click(object sender, RoutedEventArgs e)
     {
-        if (_steamGrid is null || _verifying) return;
+        var saveAfterConnecting = ApiKeyBox.Password.Trim() != (_settings.SteamGridDbApiKey ?? string.Empty).Trim();
+        if (await CheckConnectionAsync() && saveAfterConnecting) SaveAndClose();
+    }
+
+    private async Task<bool> CheckConnectionAsync()
+    {
+        if (_steamGrid is null || _verifying) return false;
+        var code = ApiKeyBox.Password.Trim();
+        if (code.Length == 0)
+        {
+            ShowConnectionStatus("Copiá el código de SteamGridDB y pegalo acá para conectar.", error: true);
+            return false;
+        }
         _verifying = true;
-        VerifyButton.IsEnabled = false;
-        ShowStatus("Verificando…");
+        ApiKeyBox.IsEnabled = PasteButton.IsEnabled = SaveButton.IsEnabled = VerifyButton.IsEnabled = false;
+        VerifyButton.Content = "Conectando…";
+        ShowConnectionStatus("Comprobando tu código con SteamGridDB…");
         try
         {
-            var result = await _steamGrid.VerifyAsync(ApiKeyBox.Password, _lifetime.Token);
-            if (_lifetime.IsCancellationRequested) return;
-            ShowStatus(result.Message);
-            StatusText.Foreground = result.Success
-                ? new SolidColorBrush(Color.FromRgb(0x7F, 0xC7, 0x9A))
-                : (SolidColorBrush)FindResource("DangerBrush");
+            var result = await _steamGrid.VerifyAsync(code, _lifetime.Token);
+            if (_lifetime.IsCancellationRequested) return false;
+            ShowConnectionStatus(result.Success ? "Conexión comprobada. Ya podés buscar portadas." : result.Message,
+                error: !result.Success);
+            return result.Success;
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException) { return false; }
         catch (Exception)
         {
-            ShowStatus("Sin conexión a internet.");
+            ShowConnectionStatus("No pudimos conectar. Revisá tu conexión a internet e intentá de nuevo.", error: true);
+            return false;
         }
         finally
         {
             _verifying = false;
-            if (IsVisible) VerifyButton.IsEnabled = true;
+            if (IsVisible)
+            {
+                ApiKeyBox.IsEnabled = PasteButton.IsEnabled = SaveButton.IsEnabled = true;
+                UpdateConnectionAction();
+            }
         }
+    }
+
+    private void ApiKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
+    {
+        // InitializeComponent can raise this event before the remaining named controls exist.
+        if (VerifyButton is null || ConnectionStatusText is null || _verifying) return;
+        ConnectionStatusText.Visibility = Visibility.Collapsed;
+        UpdateConnectionAction();
+    }
+
+    private void UpdateConnectionAction()
+    {
+        var code = ApiKeyBox.Password.Trim();
+        VerifyButton.IsEnabled = !_verifying && _steamGrid is not null && code.Length > 0;
+        VerifyButton.Content = code.Length > 0 && code == (_settings?.SteamGridDbApiKey ?? string.Empty).Trim()
+            ? "Comprobar" : "Conectar";
+    }
+
+    private void PasteCode_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var code = Clipboard.ContainsText() ? Clipboard.GetText().Trim() : string.Empty;
+            if (code.Length == 0)
+            {
+                ShowConnectionStatus("Primero copiá tu código en SteamGridDB. Después volvé y elegí Pegar.", error: true);
+                return;
+            }
+            ApiKeyBox.Password = code;
+            ApiKeyBox.Focus();
+        }
+        catch (ExternalException)
+        {
+            ShowConnectionStatus("No pudimos pegar el código. Probá con Ctrl+V en el campo de conexión.", error: true);
+        }
+    }
+
+    private void ShowConnectionStatus(string message, bool error = false)
+    {
+        ConnectionStatusText.Text = message;
+        ConnectionStatusText.Foreground = (SolidColorBrush)FindResource(error ? "DangerBrush" : "TextSecondaryBrush");
+        ConnectionStatusText.Visibility = Visibility.Visible;
     }
 
     private void OpenDataFolder_Click(object sender, RoutedEventArgs e)

@@ -8,14 +8,7 @@
                           AllowDrop="True"
                           DragOver="OnDragOver"
                           Drop="OnDrop">
-    <Border Margin="20"
-            Background="{StaticResource SurfaceBrush}"
-            BorderBrush="{StaticResource BorderStrongBrush}"
-            BorderThickness="1"
-            CornerRadius="14">
-        <Border.Effect>
-            <DropShadowEffect Color="#000000" BlurRadius="38" ShadowDepth="12" Opacity="0.6" />
-        </Border.Effect>
+    <Border Style="{StaticResource DialogSurfaceStyle}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="60" />
@@ -46,19 +39,13 @@
             </Grid>
 
             <StackPanel Grid.Row="1" Margin="26,4,26,20" VerticalAlignment="Center">
-                <Border Width="64"
-                        Height="64"
-                        CornerRadius="18"
-                        Background="{StaticResource AccentSoftBrush}"
-                        HorizontalAlignment="Center">
-                    <TextBlock Text="&#xE710;"
-                               FontFamily="{StaticResource IconFont}"
-                               FontSize="20"
-                               Foreground="{StaticResource AccentBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
-                </Border>
-                <TextBlock Text="Arrastrá accesos directos, ejecutables o enlaces de tus launchers a esta ventana."
+                <TextBlock Text="&#xE710;"
+                           FontFamily="{StaticResource IconFont}"
+                           FontSize="20"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+                <TextBlock Text="Arrastrá tus juegos acá"
                            Margin="0,22,0,0"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
@@ -68,17 +55,16 @@
                            FontSize="13.5"
                            LineHeight="21"
                            Foreground="{StaticResource TextPrimaryBrush}" />
-                <TextBlock Text=".lnk, .exe o .url"
+                <TextBlock Text="Accesos directos o ejecutables (.lnk, .exe o .url)"
                            Margin="0,10,0,0"
                            HorizontalAlignment="Center"
                            FontFamily="{StaticResource AppFont}"
                            FontSize="11.5"
-                           Foreground="{StaticResource TextTertiaryBrush}" />
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           Foreground="{StaticResource TextSecondaryBrush}" />
             </StackPanel>
 
-            <Border Grid.Row="2"
-                    BorderBrush="{StaticResource BorderBrush}"
-                    BorderThickness="0,1,0,0">
+            <Border Grid.Row="2">
                 <Grid Margin="26,0">
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"
@@ -89,7 +75,7 @@
                                 Padding="18,0"
                                 IsCancel="True"
                                 Click="Cancel_Click" />
-                        <Button Content="Elegir archivos…"
+                        <Button Content="Elegir juego"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 Margin="8,0,0,0"
                                 IsDefault="True"

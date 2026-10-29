@@ -8,5 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Viciotek\Viciotek.csproj" />
+    <!-- The test host resolves absolute application pack URIs against its own assembly. -->
+    <Resource Include="..\..\src\Viciotek\Assets\viciotek.png" Link="Assets\viciotek.png" />
   </ItemGroup>
 </Project>

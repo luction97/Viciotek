@@ -13,15 +13,20 @@ public sealed class MinimalInterfaceTests
             .Where(attribute => attribute.Name.LocalName is "Text" or "Content")
             .Select(attribute => attribute.Value));
         Assert.DoesNotContain("clic", text, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("arrastr", text, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("También podés arrastrar un acceso directo o ejecutable", text);
+        Assert.Contains("Tu biblioteca empieza acá", text);
+        Assert.Contains(document.Descendants(ui + "Button"), item =>
+            (string?)item.Attribute("Content") == "Agregar mi primer juego" &&
+            (string?)item.Attribute("Command") == "{Binding AddGamesCommand}");
         Assert.DoesNotContain("soltá", text, StringComparison.OrdinalIgnoreCase);
         Assert.Contains(document.Descendants(ui + "MenuItem"), item => (string?)item.Attribute("Header") == "Cambiar portada…");
         Assert.Contains(document.Descendants(ui + "Button"), item =>
             (string?)item.Attribute("AutomationProperties.Name") == "Preferencias" &&
             (string?)item.Attribute("Command") == "{Binding OpenPreferencesCommand}");
-        Assert.Contains(document.Descendants(ui + "Button"), item =>
-            (string?)item.Attribute("AutomationProperties.Name") == "Cambiar portada" &&
-            (string?)item.Attribute("Command") == "{Binding ChangeCoverCommand}" &&
-            item.Descendants(ui + "Setter").Any(setter => (string?)setter.Attribute("Property") == "Visibility" && (string?)setter.Attribute("Value") == "Hidden"));
+        Assert.DoesNotContain(document.Descendants(ui + "Button"), item =>
+            (string?)item.Attribute("Command") == "{Binding ChangeCoverCommand}");
+        Assert.Contains(document.Descendants(ui + "MenuItem"), item =>
+            (string?)item.Attribute("Header") == "Cambiar portada…" &&
+            (string?)item.Attribute("Command") == "{Binding ChangeCoverCommand}");
     }
 }

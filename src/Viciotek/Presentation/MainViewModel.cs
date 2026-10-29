@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Data;
@@ -94,7 +94,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public bool IsSteamGridConfigured => _steamGrid.IsConfigured;
     public bool AnimationsEnabled => _settings.AnimationsEnabled;
     bool IGameCardActions.CanFindCover => IsSteamGridConfigured;
-    public string AppVersion => typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "1.1.1";
+    public string AppVersion => typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "1.1.4";
     public GameCardViewModel? SelectedGame { get; set; }
 
     public event EventHandler? CloseRequested;
@@ -123,6 +123,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public string NoResultsText => "Sin resultados";
 
     public bool ShowEmptyState => Games.Count == 0;
+    public bool ShowCoverSetupHint => ShowEmptyState && !IsSteamGridConfigured;
     public bool ShowNoResults => Games.Count > 0 && !_hasVisibleGames;
 
     public bool IsImporting
@@ -324,7 +325,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
         if (!_steamGrid.IsConfigured)
         {
-            ShowToast("Configurá tu clave de SteamGridDB en Preferencias (Ctrl+,) para buscar portadas.", isError: false);
+            ShowToast("Conectá SteamGridDB en Preferencias (Ctrl+,) para buscar portadas.", isError: false);
             return;
         }
 
@@ -363,7 +364,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
         if (!_steamGrid.IsConfigured)
         {
-            ShowToast("Configurá tu clave de SteamGridDB en Preferencias (Ctrl+,) para buscar portadas.", isError: false);
+            ShowToast("Conectá SteamGridDB en Preferencias (Ctrl+,) para buscar portadas.", isError: false);
             return;
         }
 
@@ -605,6 +606,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             _settings.AnimationsEnabled = updated.AnimationsEnabled;
             _steamGrid.UpdateApiKey(_settings.SteamGridDbApiKey);
             OnPropertyChanged(nameof(IsSteamGridConfigured));
+        OnPropertyChanged(nameof(ShowCoverSetupHint));
             OnPropertyChanged(nameof(AnimationsEnabled));
             foreach (var card in Games) card.RefreshCoverAvailability();
             DismissToast();
@@ -939,6 +941,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     {
         _hasVisibleGames = Games.Count > 0 && !GamesView.IsEmpty;
         OnPropertyChanged(nameof(ShowEmptyState));
+        OnPropertyChanged(nameof(ShowCoverSetupHint));
         OnPropertyChanged(nameof(ShowNoResults));
         OnPropertyChanged(nameof(NoResultsText));
     }

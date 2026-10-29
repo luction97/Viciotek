@@ -4,15 +4,8 @@
                           xmlns:local="clr-namespace:Viciotek.Presentation.Dialogs"
                           Title="Preferencias"
                           Width="660"
-                          Height="560">
-    <Border Margin="20"
-            Background="{StaticResource SurfaceBrush}"
-            BorderBrush="{StaticResource BorderStrongBrush}"
-            BorderThickness="1"
-            CornerRadius="14">
-        <Border.Effect>
-            <DropShadowEffect Color="#000000" BlurRadius="38" ShadowDepth="12" Opacity="0.6" />
-        </Border.Effect>
+                          Height="620">
+    <Border Style="{StaticResource DialogSurfaceStyle}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="60" />
@@ -45,86 +38,76 @@
             <ScrollViewer Grid.Row="1"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Margin="26,4,26,26">
-                    <TextBlock Text="PORTADAS AUTOMÁTICAS"
-                               Style="{StaticResource FieldLabelStyle}"
-                               FontSize="11" />
-
-                    <TextBlock Text="CLAVE DE STEAMGRIDDB (OPCIONAL)"
-                               Style="{StaticResource FieldLabelStyle}"
-                               Margin="0,0,0,7" />
-                    <PasswordBox x:Name="ApiKeyBox"
-                                 AutomationProperties.Name="Clave de SteamGridDB"
-                                 Style="{StaticResource FormPasswordBoxStyle}" />
-                    <Button Content="Obtener clave ↗"
-                            Style="{StaticResource LinkButtonStyle}"
-                            HorizontalAlignment="Left"
-                            Padding="0"
-                            Margin="0,7,0,0"
-                            Click="OpenSteamGridDb_Click" />
-                    <Button x:Name="VerifyButton"
-                            Content="Verificar conexión"
-                            Style="{StaticResource GhostButtonStyle}"
-                            Height="30"
-                            Padding="12,0"
-                            HorizontalAlignment="Left"
-                            Margin="0,10,0,0"
-                            IsEnabled="False"
-                            Click="VerifyConnection_Click" />
-                    <TextBlock Text="Protegida para este usuario de Windows."
+                <StackPanel Margin="26,4,26,8">
+                    <TextBlock Text="SteamGridDB" FontSize="13" FontWeight="Medium"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+                    <TextBlock Text="Encontrá portadas automáticamente para tus juegos. Es opcional."
                                Style="{StaticResource FieldHintStyle}"
-                               Margin="0,7,0,0" />
-
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,12" />
+                    <Button Content="1. Abrir SteamGridDB ↗" Style="{StaticResource LinkButtonStyle}"
+                            HorizontalAlignment="Left" Padding="0" Click="OpenSteamGridDb_Click" />
+                    <TextBlock Text="Iniciá sesión y copiá el código «API Key». Si no tenés uno, generá tu código en esa página."
+                               Style="{StaticResource FieldHintStyle}" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,10" />
+                    <Label Content="2. Pegá tu _código de conexión" Target="{Binding ElementName=ApiKeyBox}"
+                           Foreground="{StaticResource TextSecondaryBrush}" Padding="0,0,0,6" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <PasswordBox x:Name="ApiKeyBox"
+                                     AutomationProperties.Name="Código de conexión de SteamGridDB"
+                                     PasswordChanged="ApiKeyBox_PasswordChanged"
+                                     Style="{StaticResource FormPasswordBoxStyle}" />
+                        <Button x:Name="PasteButton" Grid.Column="1" Content="Pegar"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Margin="8,0,0,0" VerticalAlignment="Center" ToolTip="Pegar código"
+                                Click="PasteCode_Click" />
+                        <Button x:Name="VerifyButton" Grid.Column="2" Content="Conectar"
+                                Style="{StaticResource PrimaryButtonStyle}" Margin="4,0,0,0"
+                                IsEnabled="False" Click="VerifyConnection_Click" />
+                    </Grid>
+                    <TextBlock Text="No es tu contraseña. El código se guarda protegido en este equipo."
+                               Style="{StaticResource FieldHintStyle}"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6,0,0" />
+                    <TextBlock x:Name="ConnectionStatusText" TextWrapping="Wrap" FontSize="12"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0"
+                               Visibility="Collapsed" AutomationProperties.LiveSetting="Polite" />
                     <CheckBox x:Name="AutoFetchCheckBox"
                               Content="Buscar portadas automáticamente al agregar juegos"
-                              Style="{StaticResource CheckBoxStyle}"
-                              Margin="0,22,0,0" />
+                              Style="{StaticResource CheckBoxStyle}" Margin="0,10,0,0" />
 
-                    <Border Height="1"
-                            Background="{StaticResource BorderBrush}"
-                            Margin="0,24,0,22" />
-
-                    <TextBlock Text="INTERFAZ"
-                               Style="{StaticResource FieldLabelStyle}"
-                               FontSize="11" />
+                    <TextBlock Text="Interfaz" FontSize="13" FontWeight="Medium"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,24,0,0" />
                     <CheckBox x:Name="AnimationsCheckBox"
                               Content="Efecto al pasar el cursor sobre las portadas"
-                              Style="{StaticResource CheckBoxStyle}"
-                              Margin="0,14,0,0" />
+                              Style="{StaticResource CheckBoxStyle}" Margin="0,10,0,0" />
 
-                    <TextBlock Text="DATOS LOCALES"
-                               Style="{StaticResource FieldLabelStyle}"
-                               FontSize="11"
-                               Margin="0,24,0,0" />
+                    <Label Content="_Datos locales" Target="{Binding ElementName=DataPathBox}"
+                           FontSize="13" FontWeight="Medium" Padding="0"
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,24,0,8" />
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Name="DataPathBox"
-                                 Style="{StaticResource FormTextBoxStyle}"
-                                 IsReadOnly="True" />
-                        <Button Grid.Column="1"
-                                Content="Abrir carpeta"
-                                Style="{StaticResource GhostButtonStyle}"
-                                Height="38"
-                                Margin="8,0,0,0"
-                                Click="OpenDataFolder_Click" />
+                        <TextBox x:Name="DataPathBox" AutomationProperties.Name="Carpeta de datos locales"
+                                 Style="{StaticResource FormTextBoxStyle}" IsReadOnly="True" Background="Transparent" BorderBrush="Transparent" Padding="0" />
+                        <Button Grid.Column="1" Content="Abrir carpeta"
+                                Style="{StaticResource GhostButtonStyle}" Height="38"
+                                Margin="8,0,0,0" Click="OpenDataFolder_Click" />
                     </Grid>
-
-                    <TextBlock x:Name="StatusText"
-                               Style="{StaticResource DialogErrorStyle}"
-                               Foreground="{StaticResource TextSecondaryBrush}"
-                               Margin="0,16,0,0"
+                    <TextBlock x:Name="StatusText" Style="{StaticResource DialogErrorStyle}"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0"
                                Visibility="Collapsed" />
                 </StackPanel>
             </ScrollViewer>
 
-            <Border Grid.Row="2"
-                    BorderBrush="{StaticResource BorderBrush}"
-                    BorderThickness="0,1,0,0">
+            <Border Grid.Row="2">
                 <Grid Margin="26,0">
-                    <Button Content="Acerca de VICIOTEK"
+                    <Button Content="Acerca de"
                             Style="{StaticResource LinkButtonStyle}"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center"
@@ -137,7 +120,7 @@
                                 Height="36"
                                 Padding="18,0"
                                 IsCancel="True" />
-                        <Button Content="Guardar"
+                        <Button x:Name="SaveButton" Content="Guardar"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 Margin="8,0,0,0"
                                 IsDefault="True"

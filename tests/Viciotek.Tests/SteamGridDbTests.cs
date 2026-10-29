@@ -38,6 +38,20 @@ public sealed class SteamGridDbClientTests
         Assert.Equal(0, handler.Count);
     }
 
+    [Theory]
+    [InlineData(HttpStatusCode.Unauthorized, "código no es válido")]
+    [InlineData(HttpStatusCode.Forbidden, "código no es válido")]
+    [InlineData(HttpStatusCode.TooManyRequests, "Esperá un momento")]
+    [InlineData(HttpStatusCode.ServiceUnavailable, "más tarde")]
+    public async Task VerifyAsync_FailureExplainsNextStepWithoutTechnicalJargon(HttpStatusCode status, string instruction)
+    {
+        using var client = new SteamGridDbClient("test-key", new StatusHandler(status));
+        var result = await client.VerifyAsync(CancellationToken.None);
+        Assert.False(result.Success);
+        Assert.Contains(instruction, result.Message);
+        Assert.DoesNotContain("API", result.Message);
+    }
+
     [Fact]
     public async Task SearchGamesAsync_ParsesGameMatches()
     {

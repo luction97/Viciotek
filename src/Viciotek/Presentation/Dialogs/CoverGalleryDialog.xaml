@@ -7,14 +7,7 @@
                           Title="Buscar portada"
                           Width="760"
                           Height="620">
-    <Border Margin="20"
-            Background="{StaticResource SurfaceBrush}"
-            BorderBrush="{StaticResource BorderStrongBrush}"
-            BorderThickness="1"
-            CornerRadius="14">
-        <Border.Effect>
-            <DropShadowEffect Color="#000000" BlurRadius="38" ShadowDepth="12" Opacity="0.6" />
-        </Border.Effect>
+    <Border Style="{StaticResource DialogSurfaceStyle}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="60" />
@@ -155,9 +148,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="5"
-                    BorderBrush="{StaticResource BorderBrush}"
-                    BorderThickness="0,1,0,0">
+            <Border Grid.Row="5">
                 <Grid Margin="26,0">
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"

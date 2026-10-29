@@ -160,12 +160,63 @@ internal static class Program
         {
             var box = dialog.FindName("ApiKeyBox") as PasswordBox;
             Require(box is not null, "La clave no está oculta mediante PasswordBox.");
-            box!.Password = "entered-fixture-key";
+            box!.Password = "saved-fixture-key";
             ((Button)dialog.FindName("VerifyButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            await WaitUntilAsync(() => ((TextBlock)dialog.FindName("StatusText")).Text == "Conexión correcta.");
-            Require(handler.UsedEnteredKey, "Verificar conexión usó la clave anterior en lugar de la escrita.");
+            await WaitUntilAsync(() => ((TextBlock)dialog.FindName("ConnectionStatusText")).Text.StartsWith("Conexión comprobada."));
+            Require(dialog.Result is null, "Comprobar una conexión guardada no debe guardar ni cerrar.");
         }
         finally { dialog.Close(); }
+
+        foreach (var saveWithEnter in new[] { false, true })
+        {
+            var original = new AppSettings();
+            var connecting = new PreferencesDialog(original, paths, client) { ShowActivated = false };
+            Exception? failure = null;
+            var completed = new TaskCompletionSource();
+            connecting.Loaded += async (_, _) =>
+            {
+                try
+                {
+                    var box = (PasswordBox)connecting.FindName("ApiKeyBox");
+                    var button = (Button)connecting.FindName("VerifyButton");
+                    var status = (TextBlock)connecting.FindName("ConnectionStatusText");
+                    Require(!button.IsEnabled, "Conectar debe estar deshabilitado sin código.");
+                    box.Password = "invalid-fixture-key";
+                    button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                    await WaitUntilAsync(() => status.Text.Contains("no es válido") && button.IsEnabled);
+                    Require(connecting.Result is null && original.SteamGridDbApiKey is null,
+                        "Un código rechazado no debe guardarse.");
+                    box.Password = "  entered-fixture-key  ";
+                    // Both Conectar and Enter/Guardar must verify the written code before saving.
+                    ((Button)connecting.FindName(saveWithEnter ? "SaveButton" : "VerifyButton"))
+                        .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                    await WaitUntilAsync(() => !connecting.IsVisible);
+                    Require(connecting.Result?.SteamGridDbApiKey == "entered-fixture-key" && handler.UsedEnteredKey,
+                        "La conexión debe verificar el código escrito y devolverlo sin espacios.");
+                    Require(original.SteamGridDbApiKey is null, "Preferencias no debe mutar la configuración original.");
+                }
+                catch (Exception exception) { failure = exception; connecting.Close(); }
+                finally { completed.TrySetResult(); }
+            };
+            var accepted = connecting.ShowDialog();
+            await completed.Task;
+            if (failure is not null) throw failure;
+            Require(accepted == true, "Conectar debe confirmar y cerrar con una sola acción.");
+        }
+
+        using var pendingHandler = new PendingPreferenceHandler();
+        using var pendingClient = new SteamGridDbClient(null, pendingHandler);
+        var canceled = new PreferencesDialog(new AppSettings(), paths, pendingClient) { ShowActivated = false };
+        canceled.Show();
+        ((PasswordBox)canceled.FindName("ApiKeyBox")).Password = "pending-fixture-key";
+        ((Button)canceled.FindName("VerifyButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        await WaitUntilAsync(() => pendingHandler.Started);
+        Require(!((Button)canceled.FindName("SaveButton")).IsEnabled &&
+            !((PasswordBox)canceled.FindName("ApiKeyBox")).IsEnabled,
+            "La conexión no debe permitir ediciones ni guardados simultáneos.");
+        canceled.Close();
+        await WaitUntilAsync(() => pendingHandler.Canceled);
+        Require(canceled.Result is null, "Cerrar una conexión pendiente no debe guardar el código.");
     }
 
     private static async Task DropAndWaitAsync(MainWindow window, MainViewModel vm, string path, int count)
@@ -286,7 +337,22 @@ internal static class Program
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
         {
             UsedEnteredKey = request.Headers.Authorization?.Parameter == "entered-fixture-key";
-            return Task.FromResult(Json("""{"success":true,"data":[]}"""));
+            return Task.FromResult(request.Headers.Authorization?.Parameter == "invalid-fixture-key"
+                ? new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                : Json("""{"success":true,"data":[]}"""));
+        }
+    }
+
+    private sealed class PendingPreferenceHandler : HttpMessageHandler
+    {
+        public bool Started { get; private set; }
+        public bool Canceled { get; private set; }
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
+        {
+            Started = true;
+            try { await Task.Delay(Timeout.Infinite, token); }
+            catch (OperationCanceledException) { Canceled = true; throw; }
+            throw new InvalidOperationException("El handler solo comprueba cancelación.");
         }
     }
 

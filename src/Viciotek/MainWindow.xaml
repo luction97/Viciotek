@@ -1,4 +1,4 @@
-﻿<Window x:Class="Viciotek.MainWindow"
+<Window x:Class="Viciotek.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:Viciotek.Presentation.Controls"
@@ -30,6 +30,7 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
+        <SolidColorBrush x:Key="CardAccentBrush" Color="#149DFF" />
         <Style x:Key="GameCardItemStyle" TargetType="{x:Type ListBoxItem}">
             <Setter Property="Width" Value="200" />
             <Setter Property="Height" Value="300" />
@@ -48,23 +49,7 @@
                         <Grid Background="Transparent">
                             <ContentPresenter HorizontalAlignment="Stretch"
                                               VerticalAlignment="Stretch" />
-                            <Border x:Name="SelectionRing"
-                                    CornerRadius="11"
-                                    BorderThickness="1.5"
-                                    BorderBrush="{StaticResource AccentBrush}"
-                                    Opacity="0.8"
-                                    Visibility="Collapsed"
-                                    IsHitTestVisible="False" />
                         </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible" />
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible" />
-                                <Setter TargetName="SelectionRing" Property="BorderBrush" Value="{StaticResource TextPrimaryBrush}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -184,7 +169,8 @@
                     </Grid>
                 </controls:RoundedClipBorder>
 
-                <Border CornerRadius="10"
+                <!-- One outline inside the animated card; focus overrides selection/hover. -->
+                <Border x:Name="CardOutline" CornerRadius="10"
                         IsHitTestVisible="False">
                     <Border.Style>
                         <Style TargetType="{x:Type Border}">
@@ -194,7 +180,21 @@
                                 <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
                                              Value="True">
                                     <Setter Property="BorderThickness" Value="1.5" />
-                                    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource CardAccentBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                                             Value="True">
+                                    <Setter Property="BorderThickness" Value="1.5" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource CardAccentBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                                             Value="True">
+                                    <Setter Property="BorderThickness" Value="1.5" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource TextPrimaryBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsCoverDropTarget}" Value="True">
+                                    <Setter Property="BorderThickness" Value="2" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource CardAccentBrush}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -202,8 +202,6 @@
                 </Border>
 
                 <Border CornerRadius="10"
-                        BorderThickness="2"
-                        BorderBrush="{StaticResource AccentBrush}"
                         Background="#2E000000"
                         IsHitTestVisible="False">
                     <Border.Style>
@@ -217,29 +215,6 @@
                         </Style>
                     </Border.Style>
                 </Border>
-
-                <Button Command="{Binding ChangeCoverCommand}"
-                        Width="28" Height="28" Margin="8"
-                        HorizontalAlignment="Right" VerticalAlignment="Top"
-                        FontFamily="{StaticResource IconFont}" FontSize="12"
-                        Content="&#xE70F;" ToolTip="Portada"
-                        AutomationProperties.Name="Cambiar portada">
-                    <Button.Style>
-                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource IconButtonStyle}">
-                            <Setter Property="Background" Value="#DB0A0B0E" />
-                            <Setter Property="BorderBrush" Value="#3DFFFFFF" />
-                            <Setter Property="Visibility" Value="Hidden" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
 
                 <Grid.ContextMenu>
                     <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
@@ -295,7 +270,7 @@
 
             <Grid Grid.Column="1" Margin="24,0">
                 <TextBox x:Name="SearchBox"
-                         MaxWidth="440"
+                         MaxWidth="360"
                          HorizontalAlignment="Stretch"
                          VerticalAlignment="Center"
                          Style="{StaticResource SearchTextBoxStyle}"
@@ -322,7 +297,8 @@
                     FontFamily="{StaticResource IconFont}"
                     FontSize="14"
                     Content="&#xE710;"
-                    ToolTip="Agregar juegos"
+                    Foreground="{StaticResource TextPrimaryBrush}"
+                    ToolTip="Agregar juegos (Ctrl+O)"
                     AutomationProperties.Name="Agregar juegos"
                     WindowChrome.IsHitTestVisibleInChrome="True" />
 
@@ -347,8 +323,6 @@
                         WindowChrome.IsHitTestVisibleInChrome="True" />
             </StackPanel>
         </Grid>
-
-        <Border Grid.Row="0" Height="1" VerticalAlignment="Bottom" Background="{StaticResource HairlineWhiteBrush}" />
 
         <!-- Gallery -->
         <Grid Grid.Row="1">
@@ -378,37 +352,37 @@
                             VerticalAlignment="Center"
                             MaxWidth="460"
                             Margin="32">
-                    <Border Width="76"
-                            Height="76"
-                            CornerRadius="20"
-                            Background="{StaticResource AccentSoftBrush}"
-                            HorizontalAlignment="Center">
-                        <Path Data="M 14,2 L 14,26 M 2,14 L 26,14"
-                              Stroke="{StaticResource AccentBrush}"
-                              StrokeThickness="1.8"
-                              StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round"
-                              Width="28"
-                              Height="28"
-                              Stretch="Uniform"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center" />
-                    </Border>
-                    <TextBlock Text="Tu biblioteca"
-                               Margin="0,24,0,0"
+                    <TextBlock Text="Tu biblioteca empieza acá"
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
                                FontFamily="{StaticResource DisplayFont}"
                                FontSize="27"
                                FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimaryBrush}" />
-                    <Button Content="Agregar juegos"
+                    <TextBlock Text="Reuní todos tus videojuegos en un solo lugar."
+                               Margin="0,12,0,0" TextAlignment="Center" TextWrapping="Wrap"
+                               FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" />
+                    <Button Content="Agregar mi primer juego"
                             Command="{Binding AddGamesCommand}"
-                            Style="{StaticResource PrimaryButtonStyle}"
+                            Style="{StaticResource WelcomeButtonStyle}"
                             Height="38"
                             Padding="22,0"
                             HorizontalAlignment="Center"
                             Margin="0,24,0,0" />
+                    <TextBlock Text="También podés arrastrar un acceso directo o ejecutable"
+                               Margin="0,16,0,0" TextAlignment="Center" TextWrapping="Wrap"
+                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" />
+                    <StackPanel Margin="0,28,0,0"
+                                Visibility="{Binding ShowCoverSetupHint, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="¿Querés portadas automáticas?" TextAlignment="Center"
+                                   FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock Text="Abrí SteamGridDB, iniciá sesión y copiá tu código. Después pegalo en Preferencias y elegí Conectar."
+                                   Margin="0,7,0,0" TextAlignment="Center" TextWrapping="Wrap"
+                                   FontSize="12" LineHeight="19" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <Button Content="Configurar portadas" Command="{Binding OpenPreferencesCommand}"
+                                Style="{StaticResource LinkButtonStyle}" HorizontalAlignment="Center"
+                                Margin="0,8,0,0" />
+                    </StackPanel>
                 </StackPanel>
             </Grid>
 

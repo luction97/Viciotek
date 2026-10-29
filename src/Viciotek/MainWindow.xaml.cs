@@ -70,7 +70,8 @@ public partial class MainWindow : Window
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         _viewModel.ShowPendingNotice();
-        SearchBox.Focus();
+        // Keep search opt-in: opening the library must not show a caret or select text.
+        Keyboard.Focus(this);
     }
 
     private void OnStateChanged(object? sender, EventArgs e)

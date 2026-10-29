@@ -7,7 +7,7 @@ namespace Viciotek.Presentation.Controls;
 
 /// <summary>
 /// Subtle, game-like hover lift for cover cards. Attach it to the card root
-/// and set <c>RenderTransformOrigin="0.5,0.5"</c>. When <see cref="Enabled"/>
+/// without scaling or resampling the artwork. When <see cref="Enabled"/>
 /// is false the card stays flat, letting the user disable motion effects.
 /// </summary>
 public static class CardHoverBehavior
@@ -16,7 +16,7 @@ public static class CardHoverBehavior
         "Enabled",
         typeof(bool),
         typeof(CardHoverBehavior),
-        new PropertyMetadata(true, OnEnabledChanged));
+        new PropertyMetadata(false, OnEnabledChanged));
 
     private static readonly DependencyProperty AttachedProperty = DependencyProperty.RegisterAttached(
         "Attached",
@@ -24,8 +24,8 @@ public static class CardHoverBehavior
         typeof(CardHoverBehavior),
         new PropertyMetadata(false));
 
-    private const double HoverScale = 1.045;
-    private const int DurationMilliseconds = 150;
+    private const double HoverOffset = -6;
+    private const int DurationMilliseconds = 180;
 
     public static bool GetEnabled(DependencyObject element) => (bool)element.GetValue(EnabledProperty);
 
@@ -49,14 +49,23 @@ public static class CardHoverBehavior
         {
             Reset(element);
         }
+        else if (element.IsLoaded)
+        {
+            OnLoaded(element, new RoutedEventArgs());
+        }
     }
 
     private static void OnLoaded(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement element)
         {
+            element.MouseEnter -= OnMouseEnter;
+            element.MouseLeave -= OnMouseLeave;
+            element.IsKeyboardFocusWithinChanged -= OnKeyboardFocusChanged;
             element.MouseEnter += OnMouseEnter;
             element.MouseLeave += OnMouseLeave;
+            element.IsKeyboardFocusWithinChanged += OnKeyboardFocusChanged;
+            UpdateHover(element);
         }
     }
 
@@ -66,6 +75,7 @@ public static class CardHoverBehavior
         {
             element.MouseEnter -= OnMouseEnter;
             element.MouseLeave -= OnMouseLeave;
+            element.IsKeyboardFocusWithinChanged -= OnKeyboardFocusChanged;
             Reset(element);
         }
     }
@@ -74,7 +84,7 @@ public static class CardHoverBehavior
     {
         if (sender is FrameworkElement element && GetEnabled(element))
         {
-            Animate(element, HoverScale);
+            Animate(element, HoverOffset);
         }
     }
 
@@ -82,38 +92,55 @@ public static class CardHoverBehavior
     {
         if (sender is FrameworkElement element)
         {
-            Animate(element, 1.0);
+            UpdateHover(element);
         }
+    }
+
+    private static void OnKeyboardFocusChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (sender is FrameworkElement element)
+        {
+            UpdateHover(element);
+        }
+    }
+
+    private static void UpdateHover(FrameworkElement element)
+    {
+        if (!GetEnabled(element))
+        {
+            Reset(element);
+            return;
+        }
+        Animate(element, element.IsMouseOver || element.IsKeyboardFocusWithin ? HoverOffset : 0);
     }
 
     private static void Animate(FrameworkElement element, double target)
     {
-        if (element.RenderTransform is not ScaleTransform transform)
+        if (element.RenderTransform is not TranslateTransform transform)
         {
-            transform = new ScaleTransform(1.0, 1.0);
+            transform = new TranslateTransform();
             element.RenderTransform = transform;
         }
 
-        var animation = new DoubleAnimation(target, TimeSpan.FromMilliseconds(DurationMilliseconds))
+        var animation = new DoubleAnimation(transform.Y, target, TimeSpan.FromMilliseconds(DurationMilliseconds))
         {
-            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
+            FillBehavior = FillBehavior.Stop
         };
-        transform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
-        transform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
+        transform.Y = target;
+        transform.BeginAnimation(TranslateTransform.YProperty, animation);
     }
 
     private static void Reset(FrameworkElement element)
     {
-        if (element.RenderTransform is ScaleTransform transform)
+        if (element.RenderTransform is TranslateTransform transform)
         {
-            transform.BeginAnimation(ScaleTransform.ScaleXProperty, null);
-            transform.BeginAnimation(ScaleTransform.ScaleYProperty, null);
-            transform.ScaleX = 1.0;
-            transform.ScaleY = 1.0;
+            transform.BeginAnimation(TranslateTransform.YProperty, null);
+            transform.Y = 0;
         }
         else
         {
-            element.RenderTransform = new ScaleTransform(1.0, 1.0);
+            element.RenderTransform = new TranslateTransform();
         }
     }
 }
