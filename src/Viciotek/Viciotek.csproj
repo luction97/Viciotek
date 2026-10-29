@@ -9,7 +9,7 @@
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <AssemblyName>Viciotek</AssemblyName>
     <RootNamespace>Viciotek</RootNamespace>
-    <ApplicationIcon>Assets\viciotek.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\icono\viciotek.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Version>1.1.1</Version>
     <FileVersion>1.1.1.0</FileVersion>
@@ -25,8 +25,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\viciotek.ico" />
-    <Resource Include="Assets\icono\viciotek.png" />
+    <Resource Include="Assets\icono\viciotek.ico" />
+    <Resource Include="Assets\viciotek.png" />
     <InternalsVisibleTo Include="Viciotek.Tests" />
   </ItemGroup>
 

@@ -48,14 +48,14 @@ de abrir 1.1.0.
 
 ## Ícono
 
-El ícono oficial es `Assets/icono/viciotek.png` (1254×1254 ARGB, 931988 bytes, con
-transparencia). `tools/Generate-Icon.ps1` regenera `Assets/viciotek.ico` con marcos
-16/20/24/32/40/48/64/128/256 (114162 bytes): DIB 32 bpp en 16–64 y PNG en 128/256,
-redimensionado bicúbico de alta calidad. El ejecutable (`ApplicationIcon`), la ventana
-principal, el diálogo Acerca de y el instalador (`SetupIconFile`) usan ese ícono; el
-PNG original se conserva sin modificaciones. La UI carga el logo por URI absoluta
-`pack://application:,,,/Assets/icono/viciotek.png` para que la ruta no dependa del
-XAML que lo referencia.
+El ícono oficial es `Assets/icono/viciotek.ico` (91834 bytes, 9 marcos PNG de 16 a 256).
+El logo oficial es `Assets/viciotek.png` (1024×1024 ARGB, 547306 bytes, con transparencia)
+y `Assets/viciotek-512.png` (512×512) como variante compacta. El ejecutable
+(`ApplicationIcon`), la ventana principal, el diálogo Acerca de y el instalador
+(`SetupIconFile`) usan `Assets/icono/viciotek.ico`; la UI carga el logo por URI absoluta
+`pack://application:,,,/Assets/viciotek.png`. `tools/Generate-Icon.ps1` queda disponible
+para regenerar el ICO desde un PNG, pero no se ejecuta automáticamente porque el ICO
+oficial ahora se mantiene como archivo fuente.
 
 ## SteamGridDB y distribución comercial
 

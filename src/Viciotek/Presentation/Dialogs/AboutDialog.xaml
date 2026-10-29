@@ -49,7 +49,7 @@
                        HorizontalAlignment="Center"
                        RenderOptions.BitmapScalingMode="HighQuality">
                     <Image.Source>
-                        <BitmapImage UriSource="pack://application:,,,/Assets/icono/viciotek.png" DecodePixelWidth="192" />
+                        <BitmapImage UriSource="pack://application:,,,/Assets/viciotek.png" DecodePixelWidth="192" />
                     </Image.Source>
                 </Image>
                 <TextBlock Text="VICIOTEK"

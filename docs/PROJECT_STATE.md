@@ -3,12 +3,12 @@
 Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.1**, C#/WPF/.NET 8 para Windows 11.
 
 ## Icono actualizado y preparación comercial — 1.1.1
-- **Icono oficial:** `src/Viciotek/Assets/icono/viciotek.png` (1254×1254 ARGB, 931988 bytes) y `Assets/viciotek.ico` regenerado con `tools/Generate-Icon.ps1` (9 marcos: 16/20/24/32/40/48/64/128/256; 114162 bytes; DIB en 16–64 y PNG en 128/256). Se usa en ejecutable, ventana principal, `About`, instalador y accesos directos. El PNG original no se modificó.
+- **Icono oficial:** `src/Viciotek/Assets/icono/viciotek.ico` (91834 bytes, 9 marcos PNG de 16 a 256). Logo oficial: `src/Viciotek/Assets/viciotek.png` (1024×1024 ARGB, 547306 bytes) y variante `viciotek-512.png` (512×512). Se usa en ejecutable, ventana principal, `About`, instalador y accesos directos. El ICO y el PNG son archivos fuente y no se regeneran automáticamente.
 - **UI:** el logo se carga por URI absoluta `pack://application:,,,/Assets/icono/viciotek.png` para evitar rutas relativas según el XAML; el título de ventana y el diálogo Acerca de lo muestran.
 - **Datos:** la carpeta personal previa se movió a `%LOCALAPPDATA%\Viciotek` (28 archivos, hashes verificados) y `%LOCALAPPDATA%\Ludere` quedó vacía/eliminada. No hay referencias absolutas a la carpeta anterior en `library.json`.
 - **Instalador:** `AppVerName`, `AppUpdatesURL`, metadatos `VersionInfo*`, publicador y soporte configurados; se mantiene `AppId` y la regla de no borrar datos. Smoke aprobado (instalación, actualización, bloqueo con app abierta, desinstalación conservando datos y archivos ajenos).
 - **Validación:** build `-warnaserror` 0/0, **200/200 tests** (`BrandAssetsTests` incluido), SteamGridSmoke PASS, Gitleaks/política PASS, instalador y ZIPs con smoke PASS.
-- **Artefactos (HEAD `586fc86`):** instalador `Viciotek-1.1.1-setup-win-x64.exe` (SHA256 `74240FAB36FC6CDC2D608D2C045A3266CA686157AAA73D284B198C37DE4FD569`), portable ZIP (`2A9823D14BA309DDE891B571EBF2996D2CE408FDB8144AD122CC8C4DC668CBE5`) y framework-dependent ZIP (`B8D32642B0C2707279A4F3D4FC614E67843717281602D322999ACC66AE900EC1`), cada uno con `.sha256`. `ProductVersion` = `1.1.1+586fc86aede904469d052acea309e81aaad2ba89`.
+- **Artefactos (HEAD local):** instalador `Viciotek-1.1.1-setup-win-x64.exe` (SHA256 `88C678787C79F5AC3911921B9CC13D991AFCCBBABDA65C2C69D70AF291A8269C`), portable ZIP (`64BBB9DF3E42F0C9B816EA75D0E8453F0EC7EA151F88F767DF89A4FA2BAEEC1F`) y framework-dependent ZIP (`0EB85CC76CB6F381CFCE2C05414DCD56280E393CF369EBC364F1A3CAC2A109BD`), cada uno con `.sha256`.
 - **Pendiente:** firma digital, rulesets, reporte privado y Releases siguen siendo configuración manual del propietario.
 
 ## Renombre integral y publicación — 1.1.0

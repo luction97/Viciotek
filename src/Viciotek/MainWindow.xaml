@@ -4,7 +4,7 @@
         xmlns:controls="clr-namespace:Viciotek.Presentation.Controls"
         xmlns:presentation="clr-namespace:Viciotek.Presentation"
         Title="VICIOTEK"
-        Icon="Assets/viciotek.ico"
+        Icon="Assets/icono/viciotek.ico"
         Width="1280"
         Height="800"
         MinWidth="760"
@@ -281,7 +281,7 @@
                        Height="21"
                        RenderOptions.BitmapScalingMode="HighQuality">
                     <Image.Source>
-                        <BitmapImage UriSource="pack://application:,,,/Assets/icono/viciotek.png" DecodePixelWidth="64" />
+                        <BitmapImage UriSource="pack://application:,,,/Assets/viciotek.png" DecodePixelWidth="64" />
                     </Image.Source>
                 </Image>
                 <TextBlock Text="VICIOTEK"

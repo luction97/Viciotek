@@ -9,7 +9,7 @@ public sealed class BrandAssetsTests
     [Fact]
     public void OfficialIcon_ContainsShellFramesAndPngSource()
     {
-        var bytes = File.ReadAllBytes(RepositoryFile("src/Viciotek/Assets/viciotek.ico"));
+        var bytes = File.ReadAllBytes(RepositoryFile("src/Viciotek/Assets/icono/viciotek.ico"));
 
         Assert.Equal(1, BitConverter.ToUInt16(bytes, 2));
         var count = BitConverter.ToUInt16(bytes, 4);
@@ -30,14 +30,7 @@ public sealed class BrandAssetsTests
             Assert.InRange(start + length, start + 1, bytes.Length);
             var isPng = bytes[start] == 0x89 && bytes[start + 1] == 0x50 &&
                         bytes[start + 2] == 0x4E && bytes[start + 3] == 0x47;
-            if (width <= 64)
-            {
-                Assert.False(isPng, $"El marco {width}px debe ser DIB para el shell.");
-            }
-            else
-            {
-                Assert.True(isPng, $"El marco {width}px debe ser PNG.");
-            }
+            Assert.True(isPng, $"El marco {width}px debe usar PNG.");
         }
 
         Assert.Equal(ExpectedIconSizes, sizes);
@@ -46,7 +39,7 @@ public sealed class BrandAssetsTests
     [Fact]
     public void OfficialLogo_IsSquareAndHighResolution()
     {
-        using var stream = File.OpenRead(RepositoryFile("src/Viciotek/Assets/icono/viciotek.png"));
+        using var stream = File.OpenRead(RepositoryFile("src/Viciotek/Assets/viciotek.png"));
         var frame = BitmapDecoder.Create(
             stream,
             BitmapCreateOptions.PreservePixelFormat,
