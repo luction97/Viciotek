@@ -20,10 +20,12 @@ public sealed class PresentationAuditTests
         {
             var paths = new AppPaths(directory);
             paths.EnsureCreated();
+            var dialogs = new FakeDialogs();
             using var viewModel = new MainViewModel([], new AppSettings(), new LibraryStore(paths),
                 new SettingsStore(paths), new GameImporter(new FakeShortcutResolver()), new RecordingLauncher(),
-                new CoverStore(paths), new SteamGridDbClient(null), new FakeDialogs(), null);
+                new CoverStore(paths), new SteamGridDbClient(null), dialogs, null);
             Assert.True(viewModel.ShowEmptyState);
+            Assert.True(viewModel.ShowCoverSetupHint);
             Assert.False(viewModel.ShowNoResults);
             var notifications = new List<string?>();
             viewModel.PropertyChanged += (_, args) => notifications.Add(args.PropertyName);
@@ -31,6 +33,7 @@ public sealed class PresentationAuditTests
             await File.WriteAllBytesAsync(executable, [0]);
             await viewModel.ImportFilesAsync([executable]);
             Assert.False(viewModel.ShowEmptyState);
+            Assert.False(viewModel.ShowCoverSetupHint);
             Assert.False(viewModel.ShowNoResults);
             Assert.Contains(nameof(viewModel.ShowEmptyState), notifications);
             viewModel.SearchQuery = "no matching game";
@@ -41,6 +44,12 @@ public sealed class PresentationAuditTests
             await viewModel.RemoveAsync(Assert.Single(viewModel.Games));
             Assert.True(viewModel.ShowEmptyState);
             Assert.False(viewModel.ShowNoResults);
+            Assert.True(viewModel.ShowCoverSetupHint);
+            dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "test-key" };
+            await viewModel.OpenPreferencesAsync();
+            Assert.True(viewModel.ShowEmptyState);
+            Assert.False(viewModel.ShowCoverSetupHint);
+            Assert.Contains(nameof(viewModel.ShowCoverSetupHint), notifications);
         }
         finally { Directory.Delete(directory, recursive: true); }
     });
