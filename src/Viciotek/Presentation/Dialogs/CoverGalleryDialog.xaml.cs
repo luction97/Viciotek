@@ -31,6 +31,14 @@ public partial class CoverGalleryDialog : ViciotekDialogWindow
 
     private async void SearchBox_KeyDown(object sender, KeyEventArgs e)
     {
+        if (e.Key == Key.Down && Suggestions.HasItems)
+        {
+            e.Handled = true;
+            Suggestions.SelectedIndex = 0;
+            Suggestions.UpdateLayout();
+            (Suggestions.ItemContainerGenerator.ContainerFromIndex(0) as ListBoxItem)?.Focus();
+            return;
+        }
         if (e.Key != Key.Enter) return;
         e.Handled = true;
         await _viewModel.SearchAsync();

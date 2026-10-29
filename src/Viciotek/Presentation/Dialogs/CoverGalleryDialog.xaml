@@ -40,56 +40,43 @@
                         Click="Cancel_Click" />
             </Grid>
 
-            <Grid Grid.Row="1" Margin="26,4,26,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Grid>
+            <Border Grid.Row="1" Grid.RowSpan="2" Margin="26,4,26,14" Background="#111318" CornerRadius="12" Padding="12,4">
+                <StackPanel>
                     <TextBox x:Name="SearchBox" Style="{StaticResource FormTextBoxStyle}"
-                             AutomationProperties.Name="Nombre del juego"
-                             KeyDown="SearchBox_KeyDown"
-                             Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBlock x:Name="SearchPlaceholder" Text="Ingresá el nombre del juego"
-                               Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False"
-                               Foreground="{StaticResource TextTertiaryBrush}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
+                             MaxLength="200"
+                             IsReadOnly="{Binding IsApplying}"
+                             Background="Transparent" BorderThickness="0" FontSize="14" Padding="0"
+                             AutomationProperties.Name="Nombre del juego" ToolTip="Busca mientras escribís. Enter busca también nombres cortos."
+                             KeyDown="SearchBox_KeyDown" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
+                    <ListBox x:Name="Suggestions" ItemsSource="{Binding Matches}" DisplayMemberPath="Name"
+                             MaxHeight="144" Margin="0,2,0,6" BorderThickness="0" Background="Transparent"
+                             Foreground="{StaticResource TextPrimaryBrush}" FontSize="14"
+                             AutomationProperties.Name="Juegos encontrados" SelectionChanged="Game_SelectionChanged">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="10,8" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Template"><Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="MatchRow" Padding="{TemplateBinding Padding}" Background="Transparent" CornerRadius="6">
+                                            <ContentPresenter />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="{StaticResource ActionAccentBrush}" /></Trigger>
+                                            <Trigger Property="IsSelected" Value="True"><Setter TargetName="MatchRow" Property="Background" Value="{StaticResource SurfaceHoverBrush}" /></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value></Setter>
                             </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Grid>
-                <Button Grid.Column="1"
-                        Content="Buscar"
-                        Style="{StaticResource GhostButtonStyle}"
-                        Height="38"
-                        Margin="8,0,0,0"
-                        Command="{Binding SearchCommand}" />
-            </Grid>
-
-            <ListBox Grid.Row="2" Margin="26,0,26,8" MaxHeight="88"
-                     ItemsSource="{Binding Matches}" DisplayMemberPath="Name"
-                     Foreground="{StaticResource TextPrimaryBrush}" Background="{StaticResource BgBrush}"
-                     BorderThickness="0" SelectionChanged="Game_SelectionChanged">
-                <ListBox.Style>
-                    <Style TargetType="ListBox">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding Matches.Count}" Value="0">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsLoading}" Value="True">
-                                <Setter Property="IsEnabled" Value="False" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ListBox.Style>
-            </ListBox>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.Style><Style TargetType="ListBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Matches.Count}" Value="0"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                            </Style.Triggers>
+                        </Style></ListBox.Style>
+                    </ListBox>
+                </StackPanel>
+            </Border>
             <TextBlock Grid.Row="3" Text="{Binding Status}" Margin="26,0,26,8" TextWrapping="Wrap"
                        Foreground="{StaticResource TextSecondaryBrush}" />
 

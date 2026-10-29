@@ -1,6 +1,14 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.12**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.13**, C#/WPF/.NET 8 para Windows 11.
+
+## Búsqueda de portadas mientras escribís — 1.1.13
+- Consulta automática desde 3 caracteres tras 350 ms sin cambios. Enter permite buscar nombres cortos. Campo editable mientras carga; solicitudes anteriores canceladas y respuestas fuera de orden descartadas, incluso al cambiar rápidamente de sugerencia. Sin consultas periódicas ni red adicional al inicio.
+- Sugerencias integradas en la misma superficie oscura del buscador: filas de 14 DIP, hover de texto, selección discreta y navegación con flechas. Se elimina el botón Buscar y el recuadro nativo separado. Galería, virtualización y portadas de biblioteca sin cambios.
+- CONFIRMADO: build Release -warnaserror sin advertencias/errores; 227/227 tests y SteamGridSmoke offline PASS. Cuatro regresiones nuevas cubren umbral/pausa, respuesta tardía, cambio de sugerencia en carga y cierre antes de consultar. Render real WPF con Dispatcher inspeccionado para la lista de sugerencias.
+- Límite: pruebas HTTP simuladas; no se usaron claves personales ni se midió latencia con el proveedor real. Sin validación nueva de DPI/multimonitor.
+- Entrega CONFIRMADA: portable y framework-dependent 1.1.13 con SmokePublished PASS; instalador generado, payload/iconos y SHA256 verificados. SmokeInstaller BLOQUEADO en la primera instalación: install.log detecta instancia personal 1.1.12 activa y cancela (salida 1). No se cerró esa instancia ni se tocaron datos personales. Sin push.
+- Próximo paso concreto: repetir SmokeInstaller al cerrar la instancia personal; comprobar con cuenta propia coincidencias/portadas y completar DPI/multimonitor.
 
 ## Edición simple y elección unificada de portada — 1.1.12
 - Editar juego muestra Nombre y Opciones avanzadas plegado; archivo/enlace, parámetros y carpeta siguen disponibles con sus validaciones. Renombrar sin cambiar datos de inicio conserva sus valores exactos y no exige que el ejecutable siga presente. Nombre vacío sigue rechazado; errores de campos avanzados abren la sección.

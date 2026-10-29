@@ -26,6 +26,10 @@ public sealed class CoverGalleryViewModel : ObservableObject
     private readonly CancellationTokenSource _lifetime;
     private CancellationTokenSource? _previewCancellation;
     private readonly SemaphoreSlim _downloadGate = new(2, 2);
+    private CancellationTokenSource? _debounce;
+    private CancellationTokenSource? _searchCancellation;
+    private Task _scheduled = Task.CompletedTask;
+    private int _searchRevision;
     private Task _active = Task.CompletedTask;
     private Task _previews = Task.CompletedTask;
     private string _searchQuery;
@@ -54,9 +58,29 @@ public sealed class CoverGalleryViewModel : ObservableObject
     public string SearchQuery
     {
         get => _searchQuery;
-        set { if (SetProperty(ref _searchQuery, value)) SearchCommand.RaiseCanExecuteChanged(); }
+        set
+        {
+            if (IsApplying) return;
+            if (!SetProperty(ref _searchQuery, value ?? string.Empty) || _closed) return;
+            SearchCommand.RaiseCanExecuteChanged();
+            _searchRevision++;
+            _searchCancellation?.Cancel();
+            _previewCancellation?.Cancel();
+            _debounce?.Cancel();
+            _debounce?.Dispose();
+            Matches.Clear();
+            Candidates.Clear();
+            Selected = null;
+            SelectedGame = null;
+            Status = SearchQuery.Trim().Length < 3 ? "Escribí al menos 3 caracteres para buscar." : "Buscando…";
+            if (SearchQuery.Trim().Length < 3) return;
+            _debounce = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+            _scheduled = SearchAfterPauseAsync(_debounce.Token);
+        }
     }
     public string? Status { get => _status; private set => SetProperty(ref _status, value); }
+    private bool _isApplying;
+    public bool IsApplying { get => _isApplying; private set => SetProperty(ref _isApplying, value); }
     public bool IsLoading
     {
         get => _isLoading;
@@ -90,32 +114,81 @@ public sealed class CoverGalleryViewModel : ObservableObject
         });
     }
 
-    public Task SearchAsync() => RunAsync(async () =>
+    private async Task SearchAfterPauseAsync(CancellationToken token)
     {
-        if (string.IsNullOrWhiteSpace(SearchQuery)) return;
-        await ClearPreviewsAsync();
-        Matches.Clear();
-        SelectedGame = null;
+        try { await Task.Delay(350, token); token.ThrowIfCancellationRequested(); await SearchAsync(); }
+        catch (OperationCanceledException) { }
+    }
+
+    public Task SearchAsync()
+    {
         var query = SearchQuery.Trim();
-        var matches = await _client.SearchGamesAsync(query, _lifetime.Token);
-        _matchedQuery = query;
-        foreach (var match in matches) Matches.Add(match);
-        var exact = GameIdentitySearch.ExactMatches(query, matches);
-        if (exact.Count == 1) await LoadGridsAsync(exact[0]);
-        else Status = matches.Count == 0 ? "Sin resultados. Probá con otro nombre." : "Elegí el videojuego para ver sus portadas.";
-    });
+        return RunLatestAsync(async (revision, token) =>
+        {
+            await ClearPreviewsAsync();
+            if (token.IsCancellationRequested || revision != _searchRevision) return;
+            Matches.Clear();
+            SelectedGame = null;
+            if (query.Length == 0) return;
+            var matches = await _client.SearchGamesAsync(query, token);
+            if (token.IsCancellationRequested || revision != _searchRevision) return;
+            _matchedQuery = query;
+            foreach (var match in matches) Matches.Add(match);
+            var exact = GameIdentitySearch.ExactMatches(query, matches);
+            if (exact.Count == 1) await LoadGridsAsync(exact[0], revision, token);
+            else Status = matches.Count == 0 ? "Sin resultados. Probá con otro nombre." : "Elegí el juego para ver sus portadas.";
+        });
+    }
 
-    public Task SelectGameAsync(SteamGridGame game) => RunAsync(async () =>
+    public Task SelectGameAsync(SteamGridGame game)
     {
-        if (!Matches.Contains(game)) return;
-        await ClearPreviewsAsync();
-        await LoadGridsAsync(game);
-    });
+        if (!Matches.Contains(game)) return Task.CompletedTask;
+        return RunLatestAsync(async (revision, token) =>
+        {
+            await ClearPreviewsAsync();
+            await LoadGridsAsync(game, revision, token);
+        });
+    }
 
-    private async Task LoadGridsAsync(SteamGridGame game)
+    private Task RunLatestAsync(Func<int, CancellationToken, Task> action)
     {
+        if (_closed || IsApplying) return Task.CompletedTask;
+        _debounce?.Cancel();
+        _searchCancellation?.Cancel();
+        var revision = ++_searchRevision;
+        var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _searchCancellation = cancellation;
+        var previous = _active;
+        return _active = ExecuteAsync();
+
+        async Task ExecuteAsync()
+        {
+            try
+            {
+                await previous;
+                if (cancellation.IsCancellationRequested || revision != _searchRevision) return;
+                IsLoading = true;
+                Status = "Buscando…";
+                await action(revision, cancellation.Token);
+            }
+            catch (OperationCanceledException) { }
+            catch (SteamGridDbException exception) { if (revision == _searchRevision) Status = exception.Message; }
+            catch (Exception) { if (revision == _searchRevision) Status = "No pudimos buscar. Intentá de nuevo."; }
+            finally
+            {
+                if (ReferenceEquals(_searchCancellation, cancellation)) { _searchCancellation = null; IsLoading = false; }
+                cancellation.Dispose();
+            }
+        }
+    }
+    private async Task LoadGridsAsync(SteamGridGame game, int? revision = null, CancellationToken? requestToken = null)
+    {
+        var currentRevision = revision ?? _searchRevision;
+        var token = requestToken ?? _searchCancellation?.Token ?? _lifetime.Token;
+        if (currentRevision != _searchRevision) return;
+        var grids = await _client.GetGridsAsync(game.Id, token);
+        if (_closed || token.IsCancellationRequested || currentRevision != _searchRevision) return;
         SelectedGame = game;
-        var grids = await _client.GetGridsAsync(game.Id, _lifetime.Token);
         foreach (var grid in grids) Candidates.Add(new(grid));
         Status = grids.Count == 0 ? "Este juego no tiene portadas verticales. Probá con otro nombre." : null;
         _previewCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
@@ -158,18 +231,26 @@ public sealed class CoverGalleryViewModel : ObservableObject
 
     public Task ConfirmAsync() => RunAsync(async () =>
     {
-        var selected = Selected;
-        var game = SelectedGame;
-        if (selected is null || game is null) return;
-        var bytes = await _client.DownloadImageAsync(selected.Url, _lifetime.Token);
-        if (await _apply(new(bytes, game, _matchedQuery), _lifetime.Token)) Completed?.Invoke();
-        else Status = "No se pudo guardar la portada. Intentá nuevamente.";
+        IsApplying = true;
+        try
+        {
+            var selected = Selected;
+            var game = SelectedGame;
+            if (selected is null || game is null) return;
+            var bytes = await _client.DownloadImageAsync(selected.Url, _lifetime.Token);
+            if (await _apply(new(bytes, game, _matchedQuery), _lifetime.Token)) Completed?.Invoke();
+            else Status = "No se pudo guardar la portada. Intentá nuevamente.";
+        }
+        finally { IsApplying = false; }
     });
 
     private Task RunAsync(Func<Task> action)
     {
         if (_closed || IsLoading) return Task.CompletedTask;
         IsLoading = true;
+        var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _searchCancellation = cancellation;
+        var revision = _searchRevision;
         Status = null;
         return _active = ExecuteAsync();
 
@@ -177,9 +258,13 @@ public sealed class CoverGalleryViewModel : ObservableObject
         {
             try { await action(); }
             catch (OperationCanceledException) { }
-            catch (SteamGridDbException exception) { Status = exception.Message; }
-            catch (Exception) { Status = "No se pudo obtener la portada. Intentá nuevamente."; }
-            finally { IsLoading = false; }
+            catch (SteamGridDbException exception) { if (revision == _searchRevision) Status = exception.Message; }
+            catch (Exception) { if (revision == _searchRevision) Status = "No se pudo obtener la portada. Intentá nuevamente."; }
+            finally
+            {
+                if (ReferenceEquals(_searchCancellation, cancellation)) { _searchCancellation = null; IsLoading = false; }
+                cancellation.Dispose();
+            }
         }
     }
 
@@ -198,7 +283,9 @@ public sealed class CoverGalleryViewModel : ObservableObject
         if (_closed) return;
         _closed = true;
         _lifetime.Cancel();
-        await _active;
+        _debounce?.Cancel();
+        await Task.WhenAll(_active, _scheduled);
+        _debounce?.Dispose();
         await ClearPreviewsAsync();
         _downloadGate.Dispose();
         _lifetime.Dispose();
