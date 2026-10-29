@@ -12,6 +12,9 @@ public sealed class CoverImageLoader
 {
     private const int DecodePixelWidth = 320;
     private readonly LruCache<(string Path, string? Version), BitmapSource> _cache = new(32);
+    // Reuse bitmaps still owned by visible cards, even after strong-LRU eviction.
+    // Weak entries are bounded and never retain additional pixel buffers.
+    private readonly LruCache<(string Path, string? Version), WeakReference<BitmapSource>> _recent = new(128);
     private readonly SemaphoreSlim _decodeGate = new(2, 2);
     private readonly Func<string, BitmapSource?> _decode;
     private readonly CoverStore? _covers;
@@ -23,6 +26,15 @@ public sealed class CoverImageLoader
     public CoverImageLoader(CoverStore covers) : this(Decode) => _covers = covers;
 
     internal CoverImageLoader(Func<string, BitmapSource?> decode) => _decode = decode;
+
+    internal bool TryGetCached(string? path, string? version, out BitmapSource? image)
+    {
+        image = null;
+        if (string.IsNullOrWhiteSpace(path)) return false;
+        var key = (path, version);
+        if (_cache.TryGet(key, out image)) return true;
+        return _recent.TryGet(key, out var weak) && weak is not null && weak.TryGetTarget(out image);
+    }
 
     public Task<BitmapSource?> LoadAsync(string? path, CancellationToken cancellationToken = default) =>
         LoadAsync(path, version: null, cancellationToken);
@@ -37,7 +49,7 @@ public sealed class CoverImageLoader
         // Thumbnail paths are stable per game. The original cover's unique
         // filename is the revision, so replacement never reuses stale pixels.
         var key = (path, version);
-        if (_cache.TryGet(key, out var cached))
+        if (TryGetCached(path, version, out var cached))
         {
             return cached;
         }
@@ -47,7 +59,7 @@ public sealed class CoverImageLoader
         await _decodeGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            if (_cache.TryGet(key, out cached))
+            if (TryGetCached(path, version, out cached))
             {
                 return cached;
             }
@@ -68,6 +80,7 @@ public sealed class CoverImageLoader
             if (image is not null)
             {
                 _cache.Set(key, image);
+                _recent.Set(key, new WeakReference<BitmapSource>(image));
             }
 
             return image;

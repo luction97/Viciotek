@@ -225,6 +225,9 @@ public partial class MainWindow : Window
 
     protected override async void OnPreviewKeyDown(KeyEventArgs e)
     {
+        // Explicit actions use the latest text, including a pending delayed edit.
+        if (SearchBox.IsKeyboardFocusWithin && e.Key is Key.Enter or Key.Escape or Key.Down)
+            SearchBox.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
         var control = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
         var focusedButton = Keyboard.FocusedElement is ButtonBase;
 

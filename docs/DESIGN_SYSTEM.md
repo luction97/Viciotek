@@ -26,3 +26,5 @@ Fuente de verdad: `src/Viciotek/Presentation/Theme/Theme.xaml` y `MainWindow.xam
 - Propuesta aprobada, 1.1.9: marca espaciada con punto azul, buscador discreto con Ctrl F, agregar antes de configuración. Modal con superficie #191B20, ancho visible 550 DIP, título 19 DIP, proveedor con icono y pasos alineados, acento #92BAF0, Listo como acción clara y Acerca de visible. Responsive solo en biblioteca principal; galería de selección de portadas conserva su geometría.
 
 - 1.1.10: botones de texto sin relleno/borde ni forma de hover en todos los estados de puntero; se ilumina el contenido y se conserva el foco de teclado. Configuración 660 DIP, título 22, texto/acciones 14 y código 15 DIP. Slider en Más opciones con 4 presets (200/240/280/320 DIP), vista previa reversible y guardado explícito. Responsive 2:3 y virtualización conservados.
+
+- 1.1.11: sin animaciones ni esqueletos adicionales al filtrar. Portadas disponibles se presentan antes del layout; pulsaciones agrupadas 120 ms con acciones de teclado inmediatas. Bienvenida reducida a título, agregar, arrastre y acceso opcional a portadas; instrucciones detalladas solo dentro de Configuración.

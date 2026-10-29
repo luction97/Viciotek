@@ -108,6 +108,27 @@ public sealed class PresentationAuditTests
         }
     });
 
+    [Fact]
+    public Task EquivalentSearchText_DoesNotResetTheGallery() => WpfTest.RunAsync(async () =>
+    {
+        var directory = TestHelpers.CreateTempDirectory();
+        try
+        {
+            var paths = new AppPaths(directory);
+            paths.EnsureCreated();
+            using var vm = CreateViewModel(paths, new FakeDialogs());
+            var resets = 0;
+            ((System.Collections.Specialized.INotifyCollectionChanged)vm.GamesView).CollectionChanged += (_, _) => resets++;
+            vm.SearchQuery = "knight";
+            var initial = resets;
+            vm.SearchQuery = "  KNÍGHT  ";
+            Assert.Equal(initial, resets);
+            vm.ClearSearchCommand.Execute(null);
+            Assert.False(vm.ShowNoResults);
+            await Task.CompletedTask;
+        }
+        finally { Directory.Delete(directory, true); }
+    });
     private sealed class RecordingLauncher : IGameLauncher
     {
         public List<Guid> Launched { get; } = [];

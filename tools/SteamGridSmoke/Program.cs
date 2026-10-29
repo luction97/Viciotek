@@ -89,6 +89,16 @@ internal static class Program
         window.Show();
         try
         {
+            var search = (TextBox)window.FindName("SearchBox");
+            search.SetCurrentValue(TextBox.TextProperty, "pending search");
+            viewModel.ClearSearchCommand.Execute(null);
+            await Task.Delay(180);
+            Require(search.Text.Length == 0 && viewModel.SearchQuery.Length == 0,
+                "Limpiar debe descartar también una búsqueda pendiente del debounce.");
+            search.SetCurrentValue(TextBox.TextProperty, "latest text");
+            search.GetBindingExpression(TextBox.TextProperty)!.UpdateSource();
+            Require(viewModel.SearchQuery == "latest text", "Una acción explícita debe aplicar el texto actual sin esperar.");
+            viewModel.ClearSearchCommand.Execute(null);
             await VerifyPreferencesAsync(paths);
             var installation = Path.Combine(root, "Hades", "Binaries", "Win64");
             Directory.CreateDirectory(installation);

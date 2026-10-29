@@ -1,6 +1,16 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.10**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.11**, C#/WPF/.NET 8 para Windows 11.
+
+## Auditoría del parpadeo al buscar — 1.1.11
+- Causa CONFIRMADA: GamesView.Refresh emite Reset, el panel recrea contenedores y CoverImage.OnUnloaded limpia Source; la restauración se aplazaba a DispatcherPriority.Loaded, incluso con bitmap en caché. Las dos regresiones iniciales fallaron antes del arreglo por Source=null.
+- CoverImage restaura sincrónicamente una portada disponible al cambiar sus bindings/Loaded, antes del primer layout. Cancela trabajos/refresh pendientes y respeta path+revisión. La decodificación e I/O de misses continúan fuera del hilo UI, con dos workers máximos y cancelación.
+- LRU fuerte conserva capacidad 32. Índice débil acotado a 128 permite reencontrar bitmaps aún retenidos por controles visibles sin añadir retención fuerte de imágenes ni escalar con toda la biblioteca. Una portada no disponible o ya recolectada requiere carga asíncrona normal; no se promete eliminar la latencia de archivos fríos.
+- Búsqueda agrupa pulsaciones mediante Delay=120 ms en el binding. Enter/Escape/Abajo fuerzan actualización inmediata antes de la acción; Limpiar cancela también texto pendiente. Consultas equivalentes por mayúsculas/tildes/espacios exteriores no reinician la colección.
+- Bienvenida: se retira el eslogan redundante y el instructivo largo duplicado. Quedan acción principal, ayuda breve de arrastre y una frase/acceso para conectar portadas; los pasos detallados se mantienen en Configuración. Agregar juegos omite la lista técnica de extensiones sin cambiar formatos admitidos.
+- CONFIRMADO: build Release -warnaserror 0 errores/advertencias; 223/223 tests. Caché inmediata antes de Loaded, 75 portadas por encima de la LRU fuerte, revisión correcta y filtrados sucesivos de ListBox virtualizado con Source correcto al terminar layout y cero decodificaciones extra. Búsquedas equivalentes no generan Reset.
+- SteamGridSmoke offline PASS, ampliado con limpiar durante debounce y aplicar texto pendiente sin espera; regresiones de importación, conexión y cierre conservadas. No se leyeron datos personales. Pruebas de continuidad son WPF/Dispatcher; no se midió presentación GPU, RAM total ni teclado físico con biblioteca personal.
+- Próximo paso: generar/validar distribución 1.1.11 y registrar resultados; comprobar con biblioteca propia el comportamiento en frío y caliente. Sin push; firma/runtime y matriz DPI siguen pendientes antes de venta.
 
 ## Tipografía, hover de texto y tamaño de portadas — 1.1.10
 - Configuración ampliada de 590 a 660 DIP, mínimo 540 DIP, título 22 DIP, texto base/descripciones/acciones 14 DIP y campo del código 15 DIP. Conserva Segoe UI Variable, layout rounding y altura natural limitada al área de trabajo.

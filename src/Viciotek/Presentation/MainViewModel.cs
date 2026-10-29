@@ -83,7 +83,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
         AddGamesCommand = new AsyncRelayCommand(AddGamesFromDialogAsync);
         OpenPreferencesCommand = new AsyncRelayCommand(OpenPreferencesAsync);
-        ClearSearchCommand = new RelayCommand(ClearSearch, () => SearchQuery.Length > 0);
+        ClearSearchCommand = new RelayCommand(ClearSearch);
     }
 
     public ObservableCollection<GameCardViewModel> Games { get; }
@@ -120,11 +120,13 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                 return;
             }
 
-            _normalizedSearchQuery = SearchText.Normalize(_searchQuery);
+            var normalized = SearchText.Normalize(_searchQuery);
+            ClearSearchCommand.RaiseCanExecuteChanged();
+            if (normalized == _normalizedSearchQuery) return;
+            _normalizedSearchQuery = normalized;
             GamesView.Refresh();
             UpdateViewState();
             OnPropertyChanged(nameof(NoResultsText));
-            ClearSearchCommand.RaiseCanExecuteChanged();
             ScrollToTopRequested?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -928,6 +930,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     private void ClearSearch()
     {
         SearchQuery = string.Empty;
+        // Also discard a pending delayed text edit when the model is still empty.
+        OnPropertyChanged(nameof(SearchQuery));
     }
 
     private bool FilterGame(object item) =>

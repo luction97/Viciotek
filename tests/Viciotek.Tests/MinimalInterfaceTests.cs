@@ -13,7 +13,7 @@ public sealed class MinimalInterfaceTests
             .Where(attribute => attribute.Name.LocalName is "Text" or "Content")
             .Select(attribute => attribute.Value));
         Assert.DoesNotContain("clic", text, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("También podés arrastrar un acceso directo o ejecutable", text);
+        Assert.Contains("O arrastrá un acceso directo acá", text);
         Assert.Contains("Tu biblioteca empieza acá", text);
         Assert.Contains(document.Descendants(ui + "Button"), item =>
             (string?)item.Attribute("Content") == "Agregar mi primer juego" &&

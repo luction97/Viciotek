@@ -34,3 +34,6 @@ Los campos de identidad son opcionales y aditivos. Las asociaciones confirmadas 
 La clave SteamGridDB se protege con DPAPI al guardar (`SettingsStore.PrepareForStorage`). `LibraryInstance` mantiene un único escritor por directorio mediante un handle Windows sobre `.instance.lock`, adquirido antes de leer JSON. La segunda apertura intenta activar la ventana existente y termina sin cargar/guardar la biblioteca. Windows libera el handle al terminar el proceso; no hay servidor, sondeo ni bloqueo obsoleto que deba borrarse. La activación del primer plano depende de las reglas del SO.
 
 La UI virtualiza contenedores, no metadatos: toda la biblioteca JSON se carga en memoria. Versiones antiguas (1.0.0) no respetan este bloqueo: no ejecutarlas simultáneamente sobre los mismos datos.
+
+## Continuidad visual de búsqueda (1.1.11)
+El binding agrupa pulsaciones durante 120 ms; acciones explícitas aplican el texto pendiente de inmediato. CoverImage hidrata el bitmap disponible durante los bindings, sin esperar Loaded. La LRU fuerte sigue en 32 y un índice débil acotado a 128 reencuentra bitmaps de controles vivos sin retener buffers adicionales. Fallos de caché mantienen la carga asíncrona cancelable. No se cambia colección fuente, virtualización ni almacenamiento.

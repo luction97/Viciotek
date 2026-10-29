@@ -55,7 +55,7 @@
                            FontSize="13.5"
                            LineHeight="21"
                            Foreground="{StaticResource TextPrimaryBrush}" />
-                <TextBlock Text="Accesos directos o ejecutables (.lnk, .exe o .url)"
+                <TextBlock Text="Accesos directos o archivos del juego"
                            Margin="0,10,0,0"
                            HorizontalAlignment="Center"
                            FontFamily="{StaticResource AppFont}"

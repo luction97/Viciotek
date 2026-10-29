@@ -72,6 +72,18 @@ public sealed class CoverImage : Image
 
     private void ScheduleRefresh()
     {
+        // Filtering recreates item templates. A cached image must be present
+        // during binding/layout, rather than one Dispatcher turn after rendering.
+        if (Loader is { } loader && loader.TryGetCached(CoverPath, CoverVersion, out var cached))
+        {
+            _loadCancellation?.Cancel();
+            _loadCancellation = null;
+            _refreshOperation?.Abort();
+            _refreshOperation = null;
+            Source = cached;
+            _loadingCompletion?.TrySetResult();
+            return;
+        }
         if (!IsLoaded || _refreshOperation is not null)
         {
             return;
