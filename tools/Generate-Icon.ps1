@@ -1,6 +1,6 @@
 param(
     [string]$Source = (Join-Path $PSScriptRoot '..\src\Viciotek\Assets\viciotek.png'),
-    [string]$Destination = (Join-Path $PSScriptRoot '..\src\Viciotek\Assets\icono\viciotek.ico')
+    [string]$Destination = (Join-Path $PSScriptRoot '..\src\Viciotek\Assets\viciotek.ico')
 )
 
 # Genera el ICO oficial de VICIOTEK a partir del PNG de marca.

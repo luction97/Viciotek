@@ -38,6 +38,7 @@ try {
     $arguments = @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-',"/DIR=`"$install`"", "/LOG=`"$(Join-Path $root 'install.log')`"")
     $installExit = Invoke-TestInstaller $installer $arguments
     $exe = Join-Path $install 'Viciotek.exe'
+    & (Join-Path $PSScriptRoot 'Test-EmbeddedIcon.ps1') -Executable $exe
     $desktopLink = Join-Path $root 'desktop\VICIOTEK.lnk'
     $menuLink = Join-Path $root 'start-menu\VICIOTEK.lnk'
     Assert-True (Test-Path -LiteralPath $exe) 'No se instalo el ejecutable.'
@@ -90,6 +91,7 @@ try {
         Assert-True ((Get-FileHash -LiteralPath (Join-Path $data $name) -Algorithm SHA256).Hash -eq $before[$name]) "La actualizacion altero $name."
     }
     $uninstaller = (Get-ChildItem -LiteralPath $install -Filter 'unins*.exe' -File).FullName
+    & (Join-Path $PSScriptRoot 'Test-EmbeddedIcon.ps1') -Executable $uninstaller
     $uninstallExit = Invoke-TestInstaller $uninstaller @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/LOG=`"$(Join-Path $root 'uninstall.log')`"")
     Assert-True (-not (Test-Path -LiteralPath $exe)) 'La desinstalacion dejo el ejecutable.'
     Assert-True (-not (Test-Path -LiteralPath $desktopLink)) 'La desinstalacion dejo el acceso de escritorio.'

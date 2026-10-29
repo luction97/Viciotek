@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)][string]$Executable,
-    [string]$Icon = (Join-Path $PSScriptRoot '..\src\Viciotek\Assets\icono\viciotek.ico')
+    [string]$Icon = (Join-Path $PSScriptRoot '..\src\Viciotek\Assets\viciotek.ico')
 )
 
 $ErrorActionPreference = 'Stop'

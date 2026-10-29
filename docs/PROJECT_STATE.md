@@ -1,7 +1,15 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.14**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.15**, C#/WPF/.NET 8 para Windows 11.
 
+## Marca oficial integrada y publicación conjunta — 1.1.15
+- El propietario autoriza integrar su kit final y reanudar publicación. Icono canónico Assets/viciotek.ico: ocho marcos PNG 16/24/32/40/48/64/128/256 suministrados, sin regenerar ni redibujar. Referencias actualizadas en csproj, ventana, instalador y herramientas de generación/verificación. Se registra la eliminación del icono anterior, ya retirada por el propietario.
+- Logo RGBA suministrado en Acerca de (URI del ensamblado explícita) y junto a la marca de la barra (24 DIP, decodificación acotada a 48 px). Imágenes de panel lateral/cabecera originales incorporadas a Inno Setup. Accesos y Programas usan el icono del ejecutable. Vista previa y ZIP de entrega conservados fuera de Git/payload.
+- LEEME-integracion adaptado a las rutas reales de Viciotek; incluye Branding/instalador-panel.png. Propuesta anterior de marca identificada como histórica. Sin cambios a las imágenes, geometría o lógica de portadas.
+- CONFIRMADO: build Release -warnaserror sin advertencias/errores; 234/234 pruebas aprobadas. Regresión de marca adaptada a los ocho marcos originales y transparencia de las cuatro esquinas. SteamGridSmoke offline PASS. Los ajustes de galería y modales de las secciones siguientes quedan incluidos en esta versión y ya pasan la suite completa.
+- CONFIRMADO: renders WPF de ventana real y Acerca de inspeccionados con el ensamblado actual. Ambos ZIPs pasan SmokePublished. SmokeInstaller completo PASS: instalar, actualizar, bloquear con app abierta, desinstalar y preservar datos/archivo ajeno. Icono original comprobado por hash de sus ocho marcos en ejecutables portable/framework-dependent, Setup, ejecutable instalado y desinstalador. Accesos apuntan al ejecutable instalado y el escritorio real no se modifica. Firma digital, latencia con cuenta real y matriz DPI/multimonitor siguen pendientes; no se afirma certificación comercial ni presupuesto de RAM.
+- Entrega 1.1.15: instalador, portable y framework-dependent disponibles en dist con SHA256; fuentes guardadas en Git sin push. Los ajustes anteriormente pausados quedan publicados en esta entrega.
+- Próximo paso concreto: instalar 1.1.15 con la aplicación cerrada, comprobar visualmente la actualización del icono en Windows y completar DPI/firma antes de comercialización.
 ## Agrupación minimalista de modales y galería más alta — fuentes posteriores a 1.1.14
 - DialogSectionStyle compartido: superficie #14161A sin borde, radio 12 y padding 18. Configuración agrupa proveedor/pasos/código/estado y opciones desplegadas; Editar agrupa nombre y datos avanzados. Se reducen mínimos, pie y márgenes vacíos; tipografía de Editar y títulos alineada con el resto. Sin nuevos textos, controles, funciones ni cambios al hover de botones.
 - Menú contextual con iconos Fluent nativos, columnas de icono/título/atajo, texto 14 DIP y separación tenue explícita. Comandos existentes intactos; la plantilla de imagen y contornos de tarjetas no cambian.

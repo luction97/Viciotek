@@ -4,12 +4,12 @@ namespace Viciotek.Tests;
 
 public sealed class BrandAssetsTests
 {
-    private static readonly int[] ExpectedIconSizes = [16, 20, 24, 32, 40, 48, 64, 128, 256];
+    private static readonly int[] ExpectedIconSizes = [16, 24, 32, 40, 48, 64, 128, 256];
 
     [Fact]
     public void OfficialIcon_ContainsShellFramesAndPngSource()
     {
-        var bytes = File.ReadAllBytes(RepositoryFile("src/Viciotek/Assets/icono/viciotek.ico"));
+        var bytes = File.ReadAllBytes(RepositoryFile("src/Viciotek/Assets/viciotek.ico"));
 
         Assert.Equal(1, BitConverter.ToUInt16(bytes, 2));
         var count = BitConverter.ToUInt16(bytes, 4);
@@ -47,6 +47,14 @@ public sealed class BrandAssetsTests
 
         Assert.Equal(frame.PixelWidth, frame.PixelHeight);
         Assert.True(frame.PixelWidth >= 256, $"El logo mide {frame.PixelWidth}px.");
+        var rgba = new FormatConvertedBitmap(frame, System.Windows.Media.PixelFormats.Bgra32, null, 0);
+        var corner = new byte[4];
+        foreach (var point in new[] { (0, 0), (frame.PixelWidth - 1, 0), (0, frame.PixelHeight - 1),
+                     (frame.PixelWidth - 1, frame.PixelHeight - 1) })
+        {
+            rgba.CopyPixels(new System.Windows.Int32Rect(point.Item1, point.Item2, 1, 1), corner, 4, 0);
+            Assert.Equal(0, corner[3]); // Preserve the supplied transparent exterior.
+        }
     }
 
     private static string RepositoryFile(string relativePath)

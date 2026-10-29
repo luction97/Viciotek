@@ -1,6 +1,6 @@
 # Dirección visual de marca
 
-Preparación conceptual para VICIOTEK; no reemplaza el logo oficial ni los iconos distribuidos.
+Propuesta histórica de dirección visual. El 2026-10-29 el propietario aprobó y proporcionó otro emblema circular con aro blanco, corona abstracta, mando en V y detalles azules. Ese kit es la marca vigente desde 1.1.15; integrar sus recursos originales sin redibujarlos, según Assets/LEEME-integracion.md.
 
 ## Diagnóstico
 La biblioteca usa superficies oscuras, contornos discretos y tipografía neutra. El logo actual conserva reconocimiento gaming, pero sus azules saturados, brillos, degradados y volumen tienen más peso visual que los controles de la aplicación.

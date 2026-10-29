@@ -1,4 +1,4 @@
-﻿#ifndef AppVersion
+#ifndef AppVersion
   #error AppVersion is required; use tools/Build-Installer.ps1
 #endif
 #ifndef PublishDir
@@ -48,9 +48,11 @@ AllowRootDirectory=no
 AllowUNCPath=no
 OutputDir={#OutputRoot}
 OutputBaseFilename=Viciotek-{#AppVersion}-setup-win-x64{#OutputSuffix}
-SetupIconFile=..\src\Viciotek\Assets\icono\viciotek.ico
+SetupIconFile=..\src\Viciotek\Assets\viciotek.ico
 UninstallDisplayIcon={app}\Viciotek.exe
 WizardStyle=modern dynamic
+WizardImageFile=..\src\Viciotek\Assets\Branding\instalador-panel.png
+WizardSmallImageFile=..\src\Viciotek\Assets\instalador-cabecera.png
 Compression=lzma2
 SolidCompression=yes
 CloseApplications=no

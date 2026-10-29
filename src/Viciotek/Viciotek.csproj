@@ -9,10 +9,10 @@
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <AssemblyName>Viciotek</AssemblyName>
     <RootNamespace>Viciotek</RootNamespace>
-    <ApplicationIcon>Assets\icono\viciotek.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\viciotek.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.1.14</Version>
-    <FileVersion>1.1.14.0</FileVersion>
+    <Version>1.1.15</Version>
+    <FileVersion>1.1.15.0</FileVersion>
     <Product>VICIOTEK</Product>
     <Description>Biblioteca personal de videojuegos.</Description>
     <Company>Lucas Siano</Company>
@@ -25,7 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\icono\viciotek.ico" />
+    <Resource Include="Assets\viciotek.ico" />
     <Resource Include="Assets\viciotek.png" />
     <InternalsVisibleTo Include="Viciotek.Tests" />
   </ItemGroup>

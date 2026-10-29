@@ -63,3 +63,7 @@ _ReSharper*/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Original branding delivery bundle and review sheet; not runtime/build inputs.
+src/Viciotek/Assets/VICIOTEK-kit-logo-e-instalador.zip
+src/Viciotek/Assets/vista-previa.png
