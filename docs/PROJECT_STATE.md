@@ -10,7 +10,8 @@
 - CONFIRMADO: build Release -warnaserror 0 errores/advertencias; 212/212 tests. Nuevas regresiones STA/Dispatcher con 500 y 5000 entradas, anchos 760/1024/1280/1920/760, 2/3/4/6/2 columnas, proporción 1.5, contenedores acotados y acceso al último elemento después de redimensionar.
 - SteamGridSmoke offline PASS: importación, galería, configuración, conexión/cancelación y reapertura offline. Renders WPF de configuración y biblioteca en 1280/800 DIP, con portadas sintéticas exclusivamente del sandbox; evidencia en artifacts/ux-1.1.9. Los ejemplos no se incorporan a la aplicación.
 - DESCONOCIDO: RAM con portadas reales y matriz completa de DPI/multimonitor; no se afirma cumplimiento del presupuesto de memoria ni mejora de arranque. Se preservan datos personales, no se cierran instancias ajenas y no se hace push.
-- Próximo paso: generar y comprobar la distribución 1.1.9; repetir smoke completo del instalador si una instancia personal bloquea la prueba. Firma y revisión del runtime siguen pendientes antes de venta.
+- Entrega CONFIRMADA: ambos ZIPs 1.1.9 pasan SmokePublished; instalador pasa SmokeInstaller completo (instalación, actualización, bloqueo con app abierta, desinstalación y conservación de datos/archivo ajeno). SHA256 e iconos oficiales verificados. Fuentes en commit d6dc587; sin push y sin cambios de datos personales.
+- Próximo paso: abrir 1.1.9 con la biblioteca real y validar DPI/multimonitor. Firma y revisión del runtime siguen pendientes antes de venta.
 
 ## Buscador y Configuración simplificados — 1.1.8
 - Alcance limitado al buscador y la configuración. Portadas, biblioteca, ejecución y persistencia conservadas.
