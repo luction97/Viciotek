@@ -37,18 +37,37 @@ public sealed class VirtualizationTests
         var items = new ObservableCollection<string>(Enumerable.Range(0, 500).Select(i => $"Game {i}"));
         var gallery = new GameGallery
         {
+            Width = 1280,
+            Height = 800,
             ItemsSource = items,
             ItemsPanel = new ItemsPanelTemplate(new FrameworkElementFactory(typeof(VirtualizingWrapPanel)))
         };
         ScrollViewer.SetCanContentScroll(gallery, true);
-        var window = new Window { Width = 1280, Height = 800, Content = gallery, ShowActivated = false, ShowInTaskbar = false };
+        // El contenido fija su ancho: los runners de CI usan una pantalla de
+        // 1024x768 y Windows recorta la ventana, no el layout del panel.
+        var window = new Window
+        {
+            SizeToContent = SizeToContent.WidthAndHeight,
+            WindowStyle = WindowStyle.None,
+            ResizeMode = ResizeMode.NoResize,
+            WindowStartupLocation = WindowStartupLocation.Manual,
+            Left = 0,
+            Top = 0,
+            Content = gallery,
+            ShowActivated = false,
+            ShowInTaskbar = false
+        };
         try
         {
             window.Show();
             await WpfTest.WaitUntilAsync(() => FindPanel(gallery)?.RealizedItemCount > 0);
             var panel = Assert.IsType<VirtualizingWrapPanel>(FindPanel(gallery));
-            Assert.Equal(5, panel.Columns);
-            Assert.Equal(20, panel.RealizedItemCount);
+            Assert.True(
+                panel.Columns == 5,
+                $"Se esperaban 5 columnas; gallery={gallery.ActualWidth}, panel={panel.ActualWidth}, columnas={panel.Columns}.");
+            Assert.True(
+                panel.RealizedItemCount == 20,
+                $"Se esperaban 20 contenedores; realizados={panel.RealizedItemCount}.");
             AssertBounded(panel);
 
             foreach (var index in new[] { 250, 499, 0 })
@@ -60,8 +79,11 @@ public sealed class VirtualizationTests
                 AssertBounded(panel);
             }
 
-            window.Width = 820;
+            gallery.Width = 820;
             await WpfTest.WaitUntilAsync(() => panel.Columns == 3);
+            Assert.True(
+                panel.Columns == 3,
+                $"Se esperaban 3 columnas; gallery={gallery.ActualWidth}, panel={panel.ActualWidth}, columnas={panel.Columns}.");
             AssertBounded(panel);
 
             items.Clear();
