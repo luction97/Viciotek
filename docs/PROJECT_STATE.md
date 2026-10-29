@@ -10,7 +10,9 @@
 - CONFIRMADO: build Release -warnaserror sin errores/advertencias; 210/210 tests. Regresión STA del cursor real mediante GetRectFromCharacterIndex, placeholder, foco, borrado y tamaños. SteamGridSmoke offline PASS; agrega opciones plegadas/desplegadas, conservación de valores y Acerca de visible.
 - CONFIRMADO visualmente: renders WPF inicial, error, opciones abiertas y buscador enfocado; sin borde y cursor junto a la lupa. Evidencia en artifacts/ux-1.1.8. No se valida matriz multimonitor ni se usan credenciales personales.
 - Entrega 1.1.8 en carpeta nueva; se conserva la instancia personal 1.1.7 activa. Se guardan fuentes en Git local, sin push. La limpieza bloqueada del entorno descrita en 1.1.7 no se reintenta en esta pasada.
-- Próximo paso concreto: smokes de paquetes e instalador; el smoke completo del instalador requiere cerrar la instancia personal. Firma y revisión del runtime siguen pendientes antes de venta.
+- CONFIRMADO: ambos ZIPs 1.1.8 pasan SmokePublished; SHA256 y 9 marcos oficiales del icono verificados en ejecutables y Setup. Comparación SHA256 del XML protegido confirma portadas intactas respecto de la base.
+- SmokeInstaller intentado: BLOQUEADO en instalación, salida 1. install.log confirma «VICIOTEK está ejecutándose» por la instancia personal 33412 de 1.1.7. No se alcanzaron actualización/desinstalación. No se cerró esa instancia.
+- Próximo paso concreto: cerrar manualmente 1.1.7, abrir 1.1.8 y repetir smoke del instalador. Firma y revisión del runtime siguen pendientes antes de venta. Cambios guardados en Git local, sin push.
 
 ## Conexión guiada de SteamGridDB — 1.1.7
 - Preferencias presenta dos pasos: abrir el sitio oficial de SteamGridDB, iniciar sesión/copiar el código que allí se llama «API Key», y pegarlo/conectar. La etiqueta local es «código de conexión»; hay un botón Pegar, explicación de que no es la contraseña y aviso de almacenamiento protegido.
