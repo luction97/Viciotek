@@ -8,7 +8,7 @@
 - **Datos:** la carpeta personal previa se movió a `%LOCALAPPDATA%\Viciotek` (28 archivos, hashes verificados) y `%LOCALAPPDATA%\Ludere` quedó vacía/eliminada. No hay referencias absolutas a la carpeta anterior en `library.json`.
 - **Instalador:** `AppVerName`, `AppUpdatesURL`, metadatos `VersionInfo*`, publicador y soporte configurados; se mantiene `AppId` y la regla de no borrar datos. Smoke aprobado (instalación, actualización, bloqueo con app abierta, desinstalación conservando datos y archivos ajenos).
 - **Validación:** build `-warnaserror` 0/0, **200/200 tests** (`BrandAssetsTests` incluido), SteamGridSmoke PASS, Gitleaks/política PASS, instalador y ZIPs con smoke PASS.
-- **Artefactos (HEAD local):** instalador `Viciotek-1.1.1-setup-win-x64.exe` (SHA256 `C9633F7F1826EBA9FB578E660ED3947377CE7E50EB5A28B2AFBA15D00767A6E2`), portable ZIP (`33639B019D4E99ED7453824AF7732E24A4E25C57807E43A96A71AAC2FD91A28E`) y framework-dependent ZIP (`3DAFAE6CB8490419152745AF44364447C4100E01CDBC86126C64CFFFD6FFC6F8`), cada uno con `.sha256`.
+- **Artefactos (HEAD `586fc86`):** instalador `Viciotek-1.1.1-setup-win-x64.exe` (SHA256 `74240FAB36FC6CDC2D608D2C045A3266CA686157AAA73D284B198C37DE4FD569`), portable ZIP (`2A9823D14BA309DDE891B571EBF2996D2CE408FDB8144AD122CC8C4DC668CBE5`) y framework-dependent ZIP (`B8D32642B0C2707279A4F3D4FC614E67843717281602D322999ACC66AE900EC1`), cada uno con `.sha256`. `ProductVersion` = `1.1.1+586fc86aede904469d052acea309e81aaad2ba89`.
 - **Pendiente:** firma digital, rulesets, reporte privado y Releases siguen siendo configuración manual del propietario.
 
 ## Renombre integral y publicación — 1.1.0
