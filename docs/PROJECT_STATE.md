@@ -1,6 +1,16 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.9**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.10**, C#/WPF/.NET 8 para Windows 11.
+
+## Tipografía, hover de texto y tamaño de portadas — 1.1.10
+- Configuración ampliada de 590 a 660 DIP, mínimo 540 DIP, título 22 DIP, texto base/descripciones/acciones 14 DIP y campo del código 15 DIP. Conserva Segoe UI Variable, layout rounding y altura natural limitada al área de trabajo.
+- Todos los templates de Button usan superficie transparente sin borde. Hover cambia exclusivamente opacidad/color del contenido, sin HoverLayer ovalado ni fondo. Incluye Listo, bienvenida y botones de ventana; foco de teclado visible separado del hover. Más opciones también ilumina solo su texto.
+- Más opciones → Biblioteca incluye slider horizontal con cuatro posiciones: Pequeñas/Medianas/Grandes/Muy grandes, anchos preferidos 200/240/280/320 DIP (2:3). Snaps, teclado, clic y arrastre nativos de Slider; valor descriptivo visible.
+- Vista previa al deslizar sobre la biblioteca real. Se guarda con Listo; cerrar/cancelar o fallar el guardado revierte el tamaño temporal. CoverSizePreset aditivo en settings.json, valor inicial 2 para configuraciones anteriores y valores inválidos acotados. library.json y portadas originales sin cambios.
+- MainViewModel expone tamaños derivados; el panel virtualizado los recibe por binding y mantiene cálculo responsive y anclaje al redimensionar. Preview mediante callback del servicio de diálogos, sin referencias a la ventana ni cambio de arquitectura.
+- CONFIRMADO: build Release -warnaserror sin errores/advertencias; 219/219 tests. Responsive con 500/5000 juegos, cuatro presets y retorno al pequeño, ventanas 400/760/1024/1920/760, último elemento visible sin desbordamientos, proporción y contenedores acotados. Regresiones de cancelación, notificaciones, persistencia/recarga de los cuatro presets y configuración antigua/valores inválidos.
+- SteamGridSmoke offline PASS. Revisión visual mediante renders WPF de modal normal/expandida, slider y biblioteca con presets pequeño/grande; solo sandbox y portadas sintéticas. No se modificaron datos personales ni cerraron procesos ajenos. RAM real y matriz DPI/multimonitor no medidas.
+- Próximo paso: generar 1.1.10 y validar los ZIPs/instalador. Guardar en Git local después de tests aprobados, sin push. Firma y revisión del runtime siguen pendientes antes de venta.
 
 ## Propuesta premium aprobada y portadas responsivas — 1.1.9
 - Implementación WPF de la propuesta aprobada: barra de 64 DIP, marca espaciada con punto azul, búsqueda sin borde con atajo Ctrl F y botones de agregar/configurar. Se conservan controles de ventana nativos y acciones reales.

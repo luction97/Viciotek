@@ -64,8 +64,12 @@ public sealed class DialogService : IDialogService
     }
 
     public AppSettings? EditPreferences(AppSettings settings)
+        => EditPreferences(settings, _ => { });
+
+    public AppSettings? EditPreferences(AppSettings settings, Action<int> previewCoverSize)
     {
         var dialog = new PreferencesDialog(settings, _paths, _steamGrid);
+        dialog.CoverSizePreview += previewCoverSize;
         return ShowDialog(dialog) == true ? dialog.Result : null;
     }
 

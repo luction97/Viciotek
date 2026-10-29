@@ -26,6 +26,8 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         ApiKeyBox.Password = settings.SteamGridDbApiKey ?? string.Empty;
         AutoFetchCheckBox.IsChecked = settings.AutoFetchCovers;
         AnimationsCheckBox.IsChecked = settings.AnimationsEnabled;
+        CoverSizeSlider.Value = settings.CoverSizePreset;
+        UpdateCoverSizeLabel();
         DataPathBox.Text = paths.Root;
         UpdateConnectionAction();
         if (!string.IsNullOrWhiteSpace(settings.SteamGridDbApiKey))
@@ -34,6 +36,17 @@ public partial class PreferencesDialog : ViciotekDialogWindow
     }
 
     public AppSettings? Result { get; private set; }
+    public event Action<int>? CoverSizePreview;
+
+    private void CoverSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (CoverSizeLabel is null) return;
+        UpdateCoverSizeLabel();
+        CoverSizePreview?.Invoke((int)CoverSizeSlider.Value);
+    }
+
+    private void UpdateCoverSizeLabel() => CoverSizeLabel.Text = (int)CoverSizeSlider.Value switch
+    { 0 => "Pequeñas", 1 => "Medianas", 2 => "Grandes", _ => "Muy grandes" };
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
@@ -54,6 +67,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
             : ApiKeyBox.Password.Trim();
         updated.AutoFetchCovers = AutoFetchCheckBox.IsChecked == true;
         updated.AnimationsEnabled = AnimationsCheckBox.IsChecked == true;
+        updated.CoverSizePreset = (int)CoverSizeSlider.Value;
         Result = updated;
         DialogResult = true;
     }

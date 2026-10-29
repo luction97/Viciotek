@@ -12,6 +12,46 @@ public sealed class VirtualizationTests
     [Theory]
     [InlineData(500)]
     [InlineData(5000)]
+    public Task CoverPresets_ResizeWhileScrolledWithoutOverflow(int count) => WpfTest.RunAsync(async () =>
+    {
+        var factory = new FrameworkElementFactory(typeof(VirtualizingWrapPanel));
+        factory.SetValue(VirtualizingWrapPanel.ResponsiveProperty, true);
+        var gallery = new GameGallery { Width = 1280, Height = 800,
+            ItemsSource = Enumerable.Range(0, count).ToArray(), ItemsPanel = new ItemsPanelTemplate(factory) };
+        ScrollViewer.SetCanContentScroll(gallery, true);
+        var window = new Window { Content = gallery, SizeToContent = SizeToContent.WidthAndHeight,
+            WindowStyle = WindowStyle.None, ShowActivated = false, ShowInTaskbar = false };
+        try
+        {
+            window.Show();
+            await WpfTest.WaitUntilAsync(() => FindPanel(gallery)?.RealizedItemCount > 0);
+            var panel = FindPanel(gallery)!;
+            foreach (var preset in new[] { 0, 1, 2, 3, 0 })
+            foreach (var width in new[] { 400, 760, 1024, 1920, 760 })
+            {
+                var preferred = Viciotek.Infrastructure.Library.AppSettings.CoverWidthFor(preset);
+                panel.ItemWidth = preferred;
+                panel.ItemHeight = preferred * 1.5;
+                gallery.Width = width;
+                gallery.UpdateLayout();
+                gallery.ScrollIntoView(gallery.Items[count - 1]);
+                await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                gallery.UpdateLayout();
+                Assert.Equal(1.5, panel.EffectiveItemHeight / panel.EffectiveItemWidth, 6);
+                Assert.InRange(panel.EffectiveItemWidth, 1, preferred * 1.15);
+                var last = Assert.IsAssignableFrom<FrameworkElement>(gallery.ItemContainerGenerator.ContainerFromIndex(count - 1));
+                var position = last.TranslatePoint(new Point(), panel);
+                Assert.True(position.X >= 0 && position.X + last.ActualWidth <= panel.ViewportWidth + 0.1);
+                Assert.True(position.Y >= -0.1 && position.Y + last.ActualHeight <= panel.ViewportHeight + 0.1);
+                AssertBounded(panel);
+            }
+        }
+        finally { window.Close(); }
+    });
+
+    [Theory]
+    [InlineData(500)]
+    [InlineData(5000)]
     public Task ResponsiveGallery_KeepsLargeCoversAndBoundedContainers(int count) => WpfTest.RunAsync(async () =>
     {
         var factory = new FrameworkElementFactory(typeof(VirtualizingWrapPanel));

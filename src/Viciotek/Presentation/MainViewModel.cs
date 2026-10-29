@@ -93,6 +93,15 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public RelayCommand ClearSearchCommand { get; }
     public bool IsSteamGridConfigured => _steamGrid.IsConfigured;
     public bool AnimationsEnabled => _settings.AnimationsEnabled;
+    private int? _previewCoverSize;
+    public double PreferredCoverWidth => AppSettings.CoverWidthFor(_previewCoverSize ?? _settings.CoverSizePreset);
+    public double PreferredCoverHeight => PreferredCoverWidth * 1.5;
+    public void PreviewCoverSize(int? preset)
+    {
+        _previewCoverSize = preset.HasValue ? Math.Clamp(preset.Value, 0, 3) : null;
+        OnPropertyChanged(nameof(PreferredCoverWidth));
+        OnPropertyChanged(nameof(PreferredCoverHeight));
+    }
     bool IGameCardActions.CanFindCover => IsSteamGridConfigured;
     public string AppVersion => typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "1.1.4";
     public GameCardViewModel? SelectedGame { get; set; }
@@ -589,7 +598,13 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
     private async Task OpenPreferencesCoreAsync()
     {
-        var updated = _dialogs.EditPreferences(_settings.Clone());
+        try { await EditPreferencesCoreAsync(); }
+        finally { PreviewCoverSize(null); }
+    }
+
+    private async Task EditPreferencesCoreAsync()
+    {
+        var updated = _dialogs.EditPreferences(_settings.Clone(), preset => PreviewCoverSize(preset));
         if (updated is null)
         {
             return;
@@ -604,9 +619,10 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             _settings.SteamGridDbApiKey = updated.SteamGridDbApiKey;
             _settings.AutoFetchCovers = updated.AutoFetchCovers;
             _settings.AnimationsEnabled = updated.AnimationsEnabled;
+            _settings.CoverSizePreset = updated.CoverSizePreset;
             _steamGrid.UpdateApiKey(_settings.SteamGridDbApiKey);
             OnPropertyChanged(nameof(IsSteamGridConfigured));
-        OnPropertyChanged(nameof(ShowCoverSetupHint));
+            OnPropertyChanged(nameof(ShowCoverSetupHint));
             OnPropertyChanged(nameof(AnimationsEnabled));
             foreach (var card in Games) card.RefreshCoverAvailability();
             DismissToast();

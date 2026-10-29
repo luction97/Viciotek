@@ -328,8 +328,8 @@
                                   PreviewMouseRightButtonDown="Gallery_PreviewMouseRightButtonDown">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <controls:VirtualizingWrapPanel ItemWidth="280" Responsive="True"
-                                                       ItemHeight="420"
+                        <controls:VirtualizingWrapPanel ItemWidth="{Binding DataContext.PreferredCoverWidth, RelativeSource={RelativeSource AncestorType={x:Type controls:GameGallery}}}" Responsive="True"
+                                                       ItemHeight="{Binding DataContext.PreferredCoverHeight, RelativeSource={RelativeSource AncestorType={x:Type controls:GameGallery}}}"
                                                        Gap="16"
                                                        HorizontalPadding="40"
                                                        VerticalPadding="34" />

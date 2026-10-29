@@ -194,7 +194,13 @@ public sealed class PresentationAuditTests
             var dialogs = new FakeDialogs();
             using var viewModel = CreateViewModel(paths, dialogs);
             Assert.True(viewModel.AnimationsEnabled);
-            dialogs.SettingsResult = new AppSettings { AnimationsEnabled = false };
+            Assert.Equal(280, viewModel.PreferredCoverWidth);
+            viewModel.PreviewCoverSize(0);
+            Assert.Equal(200, viewModel.PreferredCoverWidth);
+            Assert.Equal(2, new AppSettings().CoverSizePreset);
+            await viewModel.OpenPreferencesAsync(); // canceled: discard the live preview
+            Assert.Equal(280, viewModel.PreferredCoverWidth);
+            dialogs.SettingsResult = new AppSettings { AnimationsEnabled = false, CoverSizePreset = 3 };
             var notified = false;
             viewModel.PropertyChanged += (_, args) => notified |= args.PropertyName == nameof(viewModel.AnimationsEnabled);
 
@@ -203,6 +209,9 @@ public sealed class PresentationAuditTests
             Assert.False(viewModel.AnimationsEnabled);
             Assert.True(notified);
             Assert.False(new SettingsStore(paths).Load().Settings.AnimationsEnabled);
+            Assert.Equal(320, viewModel.PreferredCoverWidth);
+            Assert.Equal(480, viewModel.PreferredCoverHeight);
+            Assert.Equal(3, new SettingsStore(paths).Load().Settings.CoverSizePreset);
         }
         finally
         {

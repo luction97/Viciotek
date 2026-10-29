@@ -10,6 +10,9 @@ public sealed class AppSettings
     public string? ProtectedApiKey { get; set; }
     public bool AutoFetchCovers { get; set; } = true;
     public bool AnimationsEnabled { get; set; } = true;
+    private int _coverSizePreset = 2;
+    public int CoverSizePreset { get => _coverSizePreset; set => _coverSizePreset = Math.Clamp(value, 0, 3); }
+    public static double CoverWidthFor(int preset) => preset switch { 0 => 200, 1 => 240, 3 => 320, _ => 280 };
     public double WindowWidth { get; set; } = 1280;
     public double WindowHeight { get; set; } = 800;
     public bool WindowMaximized { get; set; }
