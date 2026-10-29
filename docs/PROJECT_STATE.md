@@ -2,6 +2,13 @@
 
 Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.14**, C#/WPF/.NET 8 para Windows 11.
 
+## Agrupación minimalista de modales y galería más alta — fuentes posteriores a 1.1.14
+- DialogSectionStyle compartido: superficie #14161A sin borde, radio 12 y padding 18. Configuración agrupa proveedor/pasos/código/estado y opciones desplegadas; Editar agrupa nombre y datos avanzados. Se reducen mínimos, pie y márgenes vacíos; tipografía de Editar y títulos alineada con el resto. Sin nuevos textos, controles, funciones ni cambios al hover de botones.
+- Menú contextual con iconos Fluent nativos, columnas de icono/título/atajo, texto 14 DIP y separación tenue explícita. Comandos existentes intactos; la plantilla de imagen y contornos de tarjetas no cambian.
+- Galería preferida 1000×960 DIP, acotada al área de trabajo como antes. Mantiene portadas 120×180, sugerencias 56 DIP y panel virtualizado. Cinco regresiones de layout aprobadas: 18 completas a 1000×960/900, 12 a 1000×780/700, cuatro a 760×600; 500 candidatos, pie sin solapamiento y último resultado accesible.
+- CONFIRMADO mediante harness aislado: XAML/code-behind actuales de Configuración, Editar y galería compilan; renders de estados normales/desplegados, menú y galería alta inspeccionados. El harness referencia el último ensamblado disponible y reporta avisos CS0436 por tipos UI duplicados en él; no sustituye la compilación/suite completa de solución.
+- Logo y publicación siguen pausados por instrucción del propietario. Se conservan sus recursos modificados sin incluirlos en este commit. No se generó nuevo ejecutable/instalador ni se tocaron datos personales.
+- Próximo paso concreto: completar integración de marca, build/suite completos y distribución cuando el propietario dé su instrucción.
 ## Prioridad de SteamGridDB al cambiar portada — ajuste posterior a 1.1.14
 - Buscar en SteamGridDB… aparece primero con PrimaryButtonStyle; Elegir una imagen del equipo… queda debajo con GhostButtonStyle. Orden de teclado natural coincide con el orden visual, sin contenedores decorativos nuevos.
 - CONFIRMADO: ChangeCoverCoreAsync ya abre Configuración cuando se elige SteamGridDB sin conexión, vuelve sin buscar al cancelar y abre la galería directamente con conexión. No se cambia lógica de producción.

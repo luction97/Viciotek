@@ -3,14 +3,14 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                           xmlns:local="clr-namespace:Viciotek.Presentation.Dialogs"
                           Title="Editar juego"
-                          Width="640"
-                          SizeToContent="Height" MinHeight="290" MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
+                          Width="640" FontFamily="{StaticResource AppFont}" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}"
+                          SizeToContent="Height" MinHeight="280" MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
     <Border Style="{StaticResource DialogSurfaceStyle}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="60" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="72" />
+                <RowDefinition Height="60" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0"
@@ -20,7 +20,7 @@
                            Margin="26,0,0,0"
                            VerticalAlignment="Center"
                            FontFamily="{StaticResource DisplayFont}"
-                           FontSize="17"
+                           FontSize="21"
                            FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" />
                 <Button Content="&#xE8BB;"
@@ -38,7 +38,8 @@
             <ScrollViewer Grid.Row="1"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Margin="26,4,26,26">
+                <StackPanel Margin="26,4,26,8">
+                    <Border Style="{StaticResource DialogSectionStyle}"><StackPanel>
                     <TextBlock Text="NOMBRE"
                                Style="{StaticResource FieldLabelStyle}"
                                Margin="0,0,0,7" />
@@ -47,10 +48,11 @@
                              MaxLength="200"
                              TextChanged="Field_TextChanged" />
 
-                    <Expander Style="{StaticResource DisclosureStyle}" x:Name="AdvancedOptions" Header="Opciones avanzadas" IsExpanded="False" Margin="0,20,0,0" Foreground="{StaticResource TextSecondaryBrush}"><StackPanel>
+                    </StackPanel></Border>
+                    <Expander Style="{StaticResource DisclosureStyle}" x:Name="AdvancedOptions" Header="Opciones avanzadas" IsExpanded="False" Margin="0,12,0,0" Foreground="{StaticResource TextSecondaryBrush}"><Border Style="{StaticResource DialogSectionStyle}"><StackPanel>
                     <TextBlock Text="ARCHIVO O ENLACE DEL JUEGO"
                                Style="{StaticResource FieldLabelStyle}"
-                               Margin="0,18,0,7" />
+                               Margin="0,0,0,7" />
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -96,7 +98,7 @@
                                 Click="BrowseFolder_Click" />
                     </Grid>
 
-                    </StackPanel></Expander>
+                    </StackPanel></Border></Expander>
                     <TextBlock x:Name="ErrorText"
                                Style="{StaticResource DialogErrorStyle}"
                                Margin="0,16,0,0"

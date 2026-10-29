@@ -218,13 +218,13 @@
 
                 <Grid.ContextMenu>
                     <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                        <MenuItem Header="Jugar" Command="{Binding PlayCommand}" InputGestureText="Entrar" />
-                        <MenuItem Header="Cambiar portada…" Command="{Binding ChangeCoverCommand}" />
-                        <Separator />
-                        <MenuItem Header="Editar…" Command="{Binding EditCommand}" InputGestureText="F2" />
+                        <MenuItem Header="Jugar" Command="{Binding PlayCommand}" InputGestureText="Entrar"><MenuItem.Icon><TextBlock Text="&#xE768;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
+                        <MenuItem Header="Cambiar portada…" Command="{Binding ChangeCoverCommand}"><MenuItem.Icon><TextBlock Text="&#xEB9F;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
+                        <Separator Style="{StaticResource MenuSeparatorStyle}" />
+                        <MenuItem Header="Editar…" Command="{Binding EditCommand}" InputGestureText="F2"><MenuItem.Icon><TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
                         <MenuItem Header="Quitar…"
                                   Command="{Binding RemoveCommand}"
-                                  Style="{StaticResource DangerMenuTextStyle}" />
+                                  Style="{StaticResource DangerMenuTextStyle}"><MenuItem.Icon><TextBlock Text="&#xE74D;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
                     </ContextMenu>
                 </Grid.ContextMenu>
             </Grid>

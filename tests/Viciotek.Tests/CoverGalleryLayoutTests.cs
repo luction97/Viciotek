@@ -13,6 +13,8 @@ namespace Viciotek.Tests;
 public sealed class CoverGalleryLayoutTests
 {
     [Theory]
+    [InlineData(1000, 960, 18)]
+    [InlineData(1000, 900, 18)]
     [InlineData(1000, 780, 12)]
     [InlineData(1000, 700, 12)]
     [InlineData(760, 600, 4)]

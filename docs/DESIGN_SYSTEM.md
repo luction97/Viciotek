@@ -34,3 +34,5 @@ Fuente de verdad: `src/Viciotek/Presentation/Theme/Theme.xaml` y `MainWindow.xam
 - 1.1.14: hover y selección neutros sin modificar geometría, animación, imágenes ni layout. Dirección futura del logo en BRAND_DIRECTION.md; recursos oficiales conservados.
 
 - Galería de búsqueda: modal preferida de 1000×780 DIP, acotada al área de trabajo; sugerencias en dos filas de 28 DIP con scroll. Portadas de 120×180 sin cambios; 12 completas desde 1000×700 DIP, menos columnas/filas cuando el área disponible es menor. Footer separado del viewport virtualizado.
+
+- Modales: grupos de contenido con DialogSectionStyle (#14161A, radio 12, padding 18, sin contorno), sin convertir las acciones en cápsulas. Menú contextual con icono/título/atajo en columnas y separación tenue. Galería preferida 1000×960 DIP acotada al área de trabajo; 18 miniaturas completas a partir de 1000×900, 12 a 1000×700. Miniaturas y biblioteca sin cambios.

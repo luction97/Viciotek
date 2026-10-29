@@ -51,6 +51,11 @@
         </Setter>
     </Style>
 
+    <Style x:Key="DialogSectionStyle" TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="#14161A" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="18" />
+    </Style>
     <!-- ============ Buttons ============ -->
     <Style x:Key="DialogSurfaceStyle" TargetType="{x:Type Border}">
         <Setter Property="Margin" Value="20" />
@@ -609,7 +614,8 @@
     <Style x:Key="MenuTextStyle" TargetType="{x:Type MenuItem}">
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
         <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
-        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="MinWidth" Value="220" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
             <Setter.Value>
@@ -617,17 +623,19 @@
                     <Border x:Name="Root"
                             Background="Transparent"
                             CornerRadius="6"
-                            Padding="12,8"
+                            Padding="10,9"
                             Margin="1,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="24" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <ContentPresenter ContentSource="Header"
+                            <ContentPresenter ContentSource="Icon" VerticalAlignment="Center" />
+                            <ContentPresenter Grid.Column="1" ContentSource="Header"
                                               RecognizesAccessKey="True"
                                               VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="1"
+                            <TextBlock Grid.Column="2"
                                        Text="{TemplateBinding InputGestureText}"
                                        Foreground="{StaticResource TextTertiaryBrush}"
                                        FontSize="11"
@@ -656,9 +664,10 @@
         <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderStrongBrush}" />
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Padding" Value="4" />
+        <Setter Property="Padding" Value="6" />
         <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
-        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="MinWidth" Value="220" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContextMenu}">

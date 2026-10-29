@@ -6,7 +6,7 @@
                           xmlns:controls="clr-namespace:Viciotek.Presentation.Controls"
                           Title="Buscar portada"
                           Width="1000"
-                          Height="780"
+                          Height="960"
                           MaxWidth="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Width}"
                           MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
     <Border Style="{StaticResource DialogSurfaceStyle}">
@@ -27,7 +27,7 @@
                            Margin="26,0,0,0"
                            VerticalAlignment="Center"
                            FontFamily="{StaticResource DisplayFont}"
-                           FontSize="17"
+                           FontSize="21"
                            FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" />
                 <Button Content="&#xE8BB;"

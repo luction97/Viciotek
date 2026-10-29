@@ -6,13 +6,13 @@
                           FontFamily="{StaticResource AppFont}" FontSize="14"
                           Foreground="{StaticResource TextPrimaryBrush}"
                           Width="660"
-                          SizeToContent="Height" MinHeight="540" MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
+                          SizeToContent="Height" MinHeight="480" MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
     <Border Style="{StaticResource DialogSurfaceStyle}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="74" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="72" />
+                <RowDefinition Height="64" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0"
@@ -41,7 +41,8 @@
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Margin="32,6,32,8">
-                    <Grid Margin="0,0,0,24">
+                    <Border Style="{StaticResource DialogSectionStyle}"><StackPanel>
+                    <Grid Margin="0,0,0,18">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="52" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                         <Border Width="38" Height="38" CornerRadius="12" Background="#242932" HorizontalAlignment="Left">
                             <TextBlock Text="&#xEB9F;" FontFamily="{StaticResource IconFont}" FontSize="20"
@@ -60,7 +61,7 @@
                     </Grid>
                     <TextBlock Text="Iniciá sesión y copiá tu código «API Key»."
                                Style="{StaticResource FieldHintStyle}" FontSize="14" LineHeight="20" TextWrapping="Wrap"
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="24,4,0,22" />
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="24,4,0,18" />
                     <StackPanel Orientation="Horizontal"><TextBlock Text="2" Width="24" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" /><Label Content="Pegá el _código para conectar" Target="{Binding ElementName=ApiKeyBox}"
                            Foreground="{StaticResource TextSecondaryBrush}" Padding="0,0,0,10" /></StackPanel>
                     <Grid Margin="24,0,0,0">
@@ -82,8 +83,9 @@
                                 IsEnabled="False" Click="VerifyConnection_Click" />
                     </Grid>
                     <TextBlock x:Name="ConnectionStatusText" TextWrapping="Wrap" FontSize="14"
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="24,10,0,0"
                                Visibility="Collapsed" AutomationProperties.LiveSetting="Polite" />
+                    </StackPanel></Border>
                     <Expander x:Name="LibraryOptions" IsExpanded="False" Margin="0,20,0,4"
                               Foreground="{StaticResource TextPrimaryBrush}"
                               FontSize="14" FocusVisualStyle="{StaticResource FocusRingStyle}">
@@ -126,9 +128,9 @@
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Expander.Template>
-                        <StackPanel>
+                        <Border Style="{StaticResource DialogSectionStyle}"><StackPanel>
                             <TextBlock Text="Biblioteca" FontSize="15" FontWeight="Medium"
-                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,18,0,0" />
+                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0" />
                             <CheckBox x:Name="AutoFetchCheckBox"
                                       Content="Buscar portadas automáticamente al agregar juegos"
                                       Style="{StaticResource CheckBoxStyle}" Margin="0,10,0,0" />
@@ -161,7 +163,7 @@
                                         Style="{StaticResource GhostButtonStyle}" Height="38"
                                         Margin="8,0,0,0" Click="OpenDataFolder_Click" />
                             </Grid>
-                        </StackPanel>
+                        </StackPanel></Border>
                     </Expander>
                     <TextBlock x:Name="StatusText" Style="{StaticResource DialogErrorStyle}"
                                Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0"
