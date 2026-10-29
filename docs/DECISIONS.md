@@ -3,7 +3,7 @@
 1. **WPF/.NET 8**: escritorio Windows nativo, sin Electron ni servidor. No migrar plataforma durante correcciones. Revisar actualización de LTS antes de finalizar soporte de .NET 8.
 2. **Capas en un único ensamblado**: separación por carpetas suficiente para este alcance; no crear proyectos/interfaces sin necesidad.
 3. **Sin dependencias de ejecución externas**: Shell COM/PInvoke, WPF imaging y `System.Text.Json`; xUnit solo para tests.
-4. **Portadas primero**: tarjetas 2:3, tamaño preferido 280×420 DIP y tamaño efectivo según ancho (desde 1.1.9, solicitado por el propietario); separación de 16 DIP; sin textos permanentes debajo, sidebar ni estadísticas.
+4. **Portadas primero**: tarjetas 2:3, tamaño preferido configurable (200/240/280/320 DIP de ancho, 280 por defecto) y tamaño efectivo según ancho (desde 1.1.9, solicitado por el propietario); separación de 16 DIP; sin textos permanentes debajo, sidebar ni estadísticas.
 5. **Virtualización propia**: `VirtualizingWrapPanel` limita contenedores al viewport ampliado. El código elimina/recrea contenedores, no implementa reciclaje explícito; no afirmar lo contrario.
 6. **Miniaturas locales 2:3**: original copiado y JPEG 480×720 con recorte central; UI `UniformToFill`. Decodificación a 320 px, LRU acotada de 32, sin retener archivos abiertos.
 7. **Lanzamiento restringido, no sandbox**: `.lnk` resuelto conserva argumentos/directorio; destino `.exe/.com`; `.url` solo protocolos conocidos. El usuario debe confiar en los ejecutables. Windows puede aceptar un proceso que luego falle.

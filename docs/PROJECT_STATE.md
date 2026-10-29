@@ -10,7 +10,8 @@
 - MainViewModel expone tamaños derivados; el panel virtualizado los recibe por binding y mantiene cálculo responsive y anclaje al redimensionar. Preview mediante callback del servicio de diálogos, sin referencias a la ventana ni cambio de arquitectura.
 - CONFIRMADO: build Release -warnaserror sin errores/advertencias; 219/219 tests. Responsive con 500/5000 juegos, cuatro presets y retorno al pequeño, ventanas 400/760/1024/1920/760, último elemento visible sin desbordamientos, proporción y contenedores acotados. Regresiones de cancelación, notificaciones, persistencia/recarga de los cuatro presets y configuración antigua/valores inválidos.
 - SteamGridSmoke offline PASS. Revisión visual mediante renders WPF de modal normal/expandida, slider y biblioteca con presets pequeño/grande; solo sandbox y portadas sintéticas. No se modificaron datos personales ni cerraron procesos ajenos. RAM real y matriz DPI/multimonitor no medidas.
-- Próximo paso: generar 1.1.10 y validar los ZIPs/instalador. Guardar en Git local después de tests aprobados, sin push. Firma y revisión del runtime siguen pendientes antes de venta.
+- Entrega CONFIRMADA: ZIP portable y framework-dependent 1.1.10 con SmokePublished PASS; SmokeInstaller completo PASS (instalación, actualización, bloqueo con app abierta, desinstalación y conservación de datos/archivo ajeno). SHA256 e iconos oficiales verificados. Fuentes en commit 0225d56, sin push.
+- Próximo paso: abrir 1.1.10 con biblioteca propia y completar matriz DPI/multimonitor. Firma y revisión del runtime siguen pendientes antes de venta.
 
 ## Propuesta premium aprobada y portadas responsivas — 1.1.9
 - Implementación WPF de la propuesta aprobada: barra de 64 DIP, marca espaciada con punto azul, búsqueda sin borde con atajo Ctrl F y botones de agregar/configurar. Se conservan controles de ventana nativos y acciones reales.

@@ -5,7 +5,7 @@ Fuente de verdad: `src/Viciotek/Presentation/Theme/Theme.xaml` y `MainWindow.xam
 - Fondo `#0A0B0E`; superficies `#121419`/`#171A20`; texto principal `#F3F4F6`, secundario `#A2A8B3`; acciones y enlaces en azul suave `#83B9F5` (`ActionAccentBrush`); recursos legados de portadas intactos.
 - Segoe UI Variable Text/Display; iconos Segoe Fluent Icons con alternativa MDL2.
 - Barra superior de 64 DIP: marca, búsqueda, botón `+` (abre la modal de agregar), engranaje de Preferencias y controles de ventana discretos.
-- Portadas 2:3, preferidas 280×420 DIP y ancho efectivo acotado a 322 DIP, radio 10 DIP, separación 16 DIP; margen horizontal mínimo 40 DIP y vertical 34 DIP. Columnas centradas según ancho.
+- Portadas 2:3, preferidas 280×420 DIP y ancho efectivo acotado a 1.15 veces el preset elegido, radio 10 DIP, separación 16 DIP; margen horizontal mínimo 40 DIP y vertical 34 DIP. Columnas centradas según ancho.
 - Imagen llena todo el marco con recorte central 2:3. No deformar ni introducir bandas para conservar una imagen panorámica completa.
 - Solo el nombre aparece temporalmente al hover o foco de teclado, sobre un degradado inferior corto. Sin instrucciones de clic, leyendas permanentes ni animaciones de texto.
 - Hover de portada: elevación vertical de 6 DIP en 180 ms (ease-out) y borde de acento, también al foco de teclado; desactivable en Preferencias. Sin escala, deformación, sombras costosas ni blur; no se modifica el bitmap ni su resolución.
