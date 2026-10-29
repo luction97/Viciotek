@@ -1,7 +1,15 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.13**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.14**, C#/WPF/.NET 8 para Windows 11.
 
+## Refinamiento visual de tarjetas — 1.1.14
+- Hover: contorno neutro #38FFFFFF (22 % blanco), 1 DIP; se conserva la elevación existente de 6 DIP/180 ms y su preferencia de activación. Selección: blanco suave #E0E3E8, 1.5 DIP. Foco de teclado: #F3F4F6, 1.5 DIP. El azul de destino de arrastre conserva su semántica independiente.
+- CONFIRMADO: comparación XML de GameCardTemplate con a255464 idéntica al excluir únicamente CardOutline. Sin cambios en imágenes, clipping, proporciones, tamaño, márgenes, virtualización, selección o lanzamiento. Sin efectos, dependencias, temporizadores ni lógica nueva.
+- Logo oficial PNG/ICO intacto. Dirección futura plana/monocromática en docs/BRAND_DIRECTION.md; se conserva la marca de la barra actual.
+- CONFIRMADO: 227/227 tests, build Release -warnaserror sin advertencias/errores. Regresiones existentes de contorno adaptadas a los estados neutros; prueba WPF confirma mismo tamaño/transformación de portada y contorno. Render de plantilla real con imágenes sintéticas revisado: reposo, hover y selección.
+- Límite: render de estados controlados, no nueva matriz DPI/multimonitor ni medición de RAM/GPU. Sin datos personales ni push.
+- Entrega CONFIRMADA: portable y framework-dependent 1.1.14 con SmokePublished PASS. SmokeInstaller completo PASS: instalar, actualizar, bloquear con app de prueba abierta, desinstalar y preservar datos/archivo desconocido. SHA256 e iconos oficiales verificados. Pruebas aisladas, escritorio personal intacto.
+- Próximo paso concreto: comprobar los estados con biblioteca propia en 1.1.14 y completar matriz DPI pendiente.
 ## Búsqueda de portadas mientras escribís — 1.1.13
 - Consulta automática desde 3 caracteres tras 350 ms sin cambios. Enter permite buscar nombres cortos. Campo editable mientras carga; solicitudes anteriores canceladas y respuestas fuera de orden descartadas, incluso al cambiar rápidamente de sugerencia. Sin consultas periódicas ni red adicional al inicio.
 - Sugerencias integradas en la misma superficie oscura del buscador: filas de 14 DIP, hover de texto, selección discreta y navegación con flechas. Se elimina el botón Buscar y el recuadro nativo separado. Galería, virtualización y portadas de biblioteca sin cambios.

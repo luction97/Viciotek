@@ -5,8 +5,8 @@ _Todos tus vicios, en un solo lugar._
 Biblioteca personal de videojuegos para Windows 11: portadas, búsqueda y lanzamiento sin paneles adicionales. C# / WPF / .NET 8, sin servidor ni Electron.
 
 ## Instalar y ejecutar (Windows 11 x64)
-- **Instalador**: `Viciotek-1.1.13-setup-win-x64.exe`, generado en `dist/`. Instala para el usuario actual en `%LOCALAPPDATA%\Programs\VICIOTEK`, incluye .NET y crea automáticamente un acceso directo **VICIOTEK en el escritorio** y otro en Inicio. No requiere administrador. Permite actualizar/desinstalar desde Windows sin borrar la biblioteca.
-- **Portable x64**: extraer **todo** `Viciotek-1.1.13-win-x64.zip` y abrir `Viciotek.exe`. Incluye .NET; no requiere instalación ni administrador.
+- **Instalador**: `Viciotek-1.1.14-setup-win-x64.exe`, generado en `dist/`. Instala para el usuario actual en `%LOCALAPPDATA%\Programs\VICIOTEK`, incluye .NET y crea automáticamente un acceso directo **VICIOTEK en el escritorio** y otro en Inicio. No requiere administrador. Permite actualizar/desinstalar desde Windows sin borrar la biblioteca.
+- **Portable x64**: extraer **todo** `Viciotek-1.1.14-win-x64.zip` y abrir `Viciotek.exe`. Incluye .NET; no requiere instalación ni administrador.
 - **Framework-dependent x64**: requiere **.NET 8 Desktop Runtime x64** (el runtime básico de .NET no alcanza).
 - Los datos están en `%LOCALAPPDATA%\Viciotek`; una segunda apertura reutiliza la instancia existente. Si venís de una versión anterior, mové el contenido de la carpeta de datos previa a `%LOCALAPPDATA%\Viciotek` antes de abrir 1.1.1: no hay migración automática.
 - Al actualizar, cerrar la versión anterior antes de abrir la nueva: comparten la misma biblioteca y el bloqueo de instancia. No ejecutar como administrador para arrastrar desde un Explorador sin elevación.
@@ -42,7 +42,7 @@ dotnet test Viciotek.sln -c Release --no-build --nologo
 .\tools\Test-Dependencies.ps1
 .\tools\Publish.ps1
 .\tools\Publish.ps1 -Variant FrameworkDependent
-.\tools\SmokePublished.ps1 -ZipPath '.\dist\Viciotek-1.1.13-win-x64.zip'
+.\tools\SmokePublished.ps1 -ZipPath '.\dist\Viciotek-1.1.14-win-x64.zip'
 ```
 Los archivos `packages.lock.json` se versionan. Cada publicación genera carpeta, ZIP y SHA256 bajo `dist/`; para repetir usar `-OutputRoot` nuevo, sin borrar distribuciones existentes. Para el instalador: preparar Inno Setup con `tools/Get-BuildTools.ps1` y ejecutar `tools/Build-Installer.ps1 -CompilerPath <ruta-a-ISCC.exe>`; ver los comandos de build/smoke en [CONTRIBUTING.md](CONTRIBUTING.md).
 

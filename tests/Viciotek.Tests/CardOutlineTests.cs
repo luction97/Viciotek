@@ -42,11 +42,12 @@ public sealed class CardOutlineTests
         Assert.Contains("IsSelected", triggers[1].Attribute("Binding")!.Value);
         Assert.Contains("IsKeyboardFocusWithin", triggers[2].Attribute("Binding")!.Value);
         Assert.Contains("IsCoverDropTarget", triggers[3].Attribute("Binding")!.Value);
-        foreach (var index in new[] { 0, 1, 3 })
+        var brushes = new[] { "CardHoverBrush", "CardSelectionBrush", "TextPrimaryBrush", "CardAccentBrush" };
+        for (var index = 0; index < triggers.Length; index++)
         {
             Assert.Contains(triggers[index].Elements(Ui + "Setter"), s =>
                 (string?)s.Attribute("Property") == "BorderBrush" &&
-                (string?)s.Attribute("Value") == "{StaticResource CardAccentBrush}");
+                (string?)s.Attribute("Value") == $"{{StaticResource {brushes[index]}}}");
         }
         var accent = document.Descendants(Ui + "SolidColorBrush").Single(e =>
             (string?)e.Attribute(Xaml + "Key") == "CardAccentBrush");
@@ -64,13 +65,13 @@ public sealed class CardOutlineTests
             (string?)e.Attribute(Xaml + "Name") == "CardOutline");
         var itemStyle = document.Descendants(Ui + "Style").Single(e =>
             (string?)e.Attribute(Xaml + "Key") == "GameCardItemStyle");
-        var cardAccent = document.Descendants(Ui + "SolidColorBrush").Single(e =>
-            (string?)e.Attribute(Xaml + "Key") == "CardAccentBrush");
+        var cardBrushes = document.Descendants(Ui + "SolidColorBrush").Where(e =>
+            ((string?)e.Attribute(Xaml + "Key"))?.StartsWith("Card", StringComparison.Ordinal) == true);
         // Exercise the production style and outline, not a separately authored imitation.
         var item = (ListBoxItem)XamlReader.Parse($$"""
             <ListBoxItem xmlns="{{Ui}}" xmlns:x="{{Xaml}}">
                 <ListBoxItem.Resources>
-                    {{cardAccent}}
+                    {{string.Join(Environment.NewLine, cardBrushes)}}
                     <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F3F4F6" />
                     {{itemStyle}}
                 </ListBoxItem.Resources>
@@ -92,7 +93,7 @@ public sealed class CardOutlineTests
             var root = (Grid)item.FindName("CardRoot");
             item.IsSelected = true;
             await WpfTest.WaitUntilAsync(() => outline.BorderThickness == new Thickness(1.5));
-            Assert.Same(item.Resources["CardAccentBrush"], outline.BorderBrush);
+            Assert.Same(item.Resources["CardSelectionBrush"], outline.BorderBrush);
             Assert.Equal(cover.ActualWidth, outline.ActualWidth);
             Assert.Equal(cover.ActualHeight, outline.ActualHeight);
             Assert.Equal(cover.TranslatePoint(new Point(), item), outline.TranslatePoint(new Point(), item));
