@@ -4,7 +4,7 @@
                           xmlns:local="clr-namespace:Viciotek.Presentation.Dialogs"
                           Title="Editar juego"
                           Width="640"
-                          Height="590">
+                          SizeToContent="Height" MinHeight="290" MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
     <Border Style="{StaticResource DialogSurfaceStyle}">
         <Grid>
             <Grid.RowDefinitions>
@@ -47,6 +47,7 @@
                              MaxLength="200"
                              TextChanged="Field_TextChanged" />
 
+                    <Expander Style="{StaticResource DisclosureStyle}" x:Name="AdvancedOptions" Header="Opciones avanzadas" IsExpanded="False" Margin="0,20,0,0" Foreground="{StaticResource TextSecondaryBrush}"><StackPanel>
                     <TextBlock Text="ARCHIVO O ENLACE DEL JUEGO"
                                Style="{StaticResource FieldLabelStyle}"
                                Margin="0,18,0,7" />
@@ -95,6 +96,7 @@
                                 Click="BrowseFolder_Click" />
                     </Grid>
 
+                    </StackPanel></Expander>
                     <TextBlock x:Name="ErrorText"
                                Style="{StaticResource DialogErrorStyle}"
                                Margin="0,16,0,0"
@@ -112,7 +114,7 @@
                                 Height="36"
                                 Padding="18,0"
                                 IsCancel="True" />
-                        <Button Content="Guardar"
+                        <Button x:Name="SaveButton" Content="Guardar"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 Margin="8,0,0,0"
                                 IsDefault="True"

@@ -218,10 +218,6 @@
                     <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                         <MenuItem Header="Jugar" Command="{Binding PlayCommand}" InputGestureText="Entrar" />
                         <MenuItem Header="Cambiar portada…" Command="{Binding ChangeCoverCommand}" />
-                        <MenuItem Header="Buscar en SteamGridDB" Command="{Binding SearchCoverCommand}"
-                                  Visibility="{Binding CanFindCover, Converter={StaticResource BoolToVisibility}}" />
-                        <MenuItem Header="Buscar portada automáticamente" Command="{Binding FindCoverCommand}"
-                                  Visibility="{Binding CanAutomaticallyFindCover, Converter={StaticResource BoolToVisibility}}" />
                         <Separator />
                         <MenuItem Header="Editar…" Command="{Binding EditCommand}" InputGestureText="F2" />
                         <MenuItem Header="Quitar…"

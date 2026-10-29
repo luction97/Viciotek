@@ -9,8 +9,10 @@ namespace Viciotek.Presentation.Dialogs;
 
 public partial class GameEditDialog : ViciotekDialogWindow
 {
+    private readonly Game _original;
     public GameEditDialog(Game game)
     {
+        _original = game.Clone();
         InitializeComponent();
         NameBox.Text = game.Name;
         TargetBox.Text = game.LaunchPath;
@@ -30,6 +32,18 @@ public partial class GameEditDialog : ViciotekDialogWindow
 
     private void SaveButton_Click(object sender, RoutedEventArgs e)
     {
+        if (string.IsNullOrWhiteSpace(NameBox.Text))
+        {
+            ShowError("El nombre no puede estar vacío.");
+            return;
+        }
+        if (TargetBox.Text == _original.LaunchPath && ArgumentsBox.Text == (_original.Arguments ?? string.Empty) &&
+            WorkingDirectoryBox.Text == (_original.WorkingDirectory ?? string.Empty))
+        {
+            Result = new(NameBox.Text.Trim(), _original.LaunchPath, _original.LaunchKind, _original.Arguments, _original.WorkingDirectory);
+            DialogResult = true;
+            return;
+        }
         if (!GameEditValidator.TryCreate(
                 NameBox.Text,
                 TargetBox.Text,
@@ -39,6 +53,7 @@ public partial class GameEditDialog : ViciotekDialogWindow
                 out var error) ||
             values is null)
         {
+            AdvancedOptions.IsExpanded = true;
             ShowError(error ?? "Revisá los datos del juego.");
             return;
         }

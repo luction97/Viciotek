@@ -1,0 +1,30 @@
+<local:ViciotekDialogWindow x:Class="Viciotek.Presentation.Dialogs.CoverSourceDialog"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:local="clr-namespace:Viciotek.Presentation.Dialogs"
+ Title="Cambiar portada" Width="520" SizeToContent="Height" MinHeight="300"
+ FontFamily="{StaticResource AppFont}" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}">
+ <Border Style="{StaticResource DialogSurfaceStyle}">
+  <Grid Margin="30,20">
+   <Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition Height="Auto"/><RowDefinition Height="56"/></Grid.RowDefinitions>
+   <Grid Background="Transparent" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+    <TextBlock Text="Cambiar portada" FontSize="21" FontWeight="Medium" VerticalAlignment="Center"/>
+    <Button Content="&#xE8BB;" Style="{StaticResource IconButtonStyle}" FontFamily="{StaticResource IconFont}"
+     HorizontalAlignment="Right" ToolTip="Cerrar" Click="CloseButton_Click"/>
+   </Grid>
+   <StackPanel Grid.Row="1" Margin="0,16,0,8">
+    <Button x:Name="LocalButton" Content="Elegir una imagen del equipo…" Style="{StaticResource PrimaryButtonStyle}" FontSize="14"
+     HorizontalAlignment="Left" Padding="0" Click="Local_Click"/>
+    <Button x:Name="WebButton" Content="Buscar en SteamGridDB…" Style="{StaticResource PrimaryButtonStyle}"
+     FontSize="14" HorizontalAlignment="Left" Padding="0" Margin="0,12,0,0" Click="Web_Click"/>
+    <Expander Style="{StaticResource DisclosureStyle}" x:Name="AutomaticOptions" Header="Más opciones" IsExpanded="False" Margin="0,18,0,0"
+     Foreground="{StaticResource TextSecondaryBrush}">
+     <Button Content="Elegir portada automáticamente" Style="{StaticResource GhostButtonStyle}" Padding="0"
+      HorizontalAlignment="Left" Margin="0,8,0,0" Click="Automatic_Click"/>
+    </Expander>
+   </StackPanel>
+   <Button Grid.Row="2" Content="Cancelar" Style="{StaticResource GhostButtonStyle}" IsCancel="True"
+    HorizontalAlignment="Right" VerticalAlignment="Center" Click="CloseButton_Click"/>
+  </Grid>
+ </Border>
+</local:ViciotekDialogWindow>

@@ -318,6 +318,16 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             return;
         }
 
+        var source = _dialogs.ChooseCoverSource(_steamGrid.IsConfigured, card.Model.CoverFileName is null);
+        if (source is null) return;
+        if (source is CoverSource.SteamGridDb or CoverSource.Automatic)
+        {
+            if (!_steamGrid.IsConfigured) await OpenPreferencesCoreAsync();
+            if (!_steamGrid.IsConfigured) return;
+            if (source == CoverSource.Automatic) await FindCoverCoreAsync(card);
+            else await SearchCoverCoreAsync(card);
+            return;
+        }
         var imagePath = _dialogs.PickCoverFile();
         if (!string.IsNullOrWhiteSpace(imagePath))
         {

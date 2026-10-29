@@ -99,6 +99,7 @@ internal static class Program
             search.GetBindingExpression(TextBox.TextProperty)!.UpdateSource();
             Require(viewModel.SearchQuery == "latest text", "Una acción explícita debe aplicar el texto actual sin esperar.");
             viewModel.ClearSearchCommand.Execute(null);
+            VerifySimplifiedDialogs();
             await VerifyPreferencesAsync(paths);
             var installation = Path.Combine(root, "Hades", "Binaries", "Win64");
             Directory.CreateDirectory(installation);
@@ -160,6 +161,39 @@ internal static class Program
         finally { if (window.IsVisible) await CloseAsync(window, viewModel); }
     }
 
+    private static void VerifySimplifiedDialogs()
+    {
+        var original = new Game { Name = "Before", LaunchPath = @"C:
+ot-installedgame.exe",
+            Arguments = "--keep", WorkingDirectory = @"C:
+ot-installed" };
+        var edit = new GameEditDialog(original) { ShowActivated = false };
+        Exception? failure = null;
+        edit.Loaded += (_, _) =>
+        {
+            try
+            {
+                Require(!((Expander)edit.FindName("AdvancedOptions")).IsExpanded &&
+                    !((TextBox)edit.FindName("TargetBox")).IsVisible, "Editar debe mostrar solo el nombre por defecto.");
+                ((TextBox)edit.FindName("NameBox")).Text = "After";
+                ((Button)edit.FindName("SaveButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            }
+            catch (Exception exception) { failure = exception; edit.Close(); }
+        };
+        var accepted = edit.ShowDialog();
+        if (failure is not null) throw failure;
+        Require(accepted == true && edit.Result?.Name == "After" &&
+            edit.Result.Target == original.LaunchPath && edit.Result.Arguments == original.Arguments &&
+            edit.Result.WorkingDirectory == original.WorkingDirectory, "Renombrar debe conservar todos los datos de lanzamiento.");
+        foreach (var source in new[] { CoverSource.Local, CoverSource.SteamGridDb })
+        {
+            var choice = new CoverSourceDialog(false, true) { ShowActivated = false };
+            choice.Loaded += (_, _) =>
+                ((Button)choice.FindName(source == CoverSource.Local ? "LocalButton" : "WebButton"))
+                    .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Require(choice.ShowDialog() == true && choice.Result == source, "La portada debe ofrecer ambas fuentes aun sin conexión.");
+        }
+    }
     private static async Task VerifyPreferencesAsync(AppPaths paths)
     {
         using var handler = new PreferenceHandler();

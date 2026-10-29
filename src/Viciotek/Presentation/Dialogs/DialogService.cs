@@ -38,6 +38,12 @@ public sealed class DialogService : IDialogService
         return ShowOpenDialog(dialog) == true ? dialog.FileName : null;
     }
 
+    public CoverSource? ChooseCoverSource(bool connected, bool canChooseAutomatically)
+    {
+        var dialog = new CoverSourceDialog(connected, canChooseAutomatically);
+        return ShowDialog(dialog) == true ? dialog.Result : null;
+    }
+
     public async Task PickCoverFromGalleryAsync(Game game, SteamGridDbClient steamGrid,
         Func<CoverSelection, CancellationToken, Task<bool>> apply, bool manualFallback, CancellationToken cancellationToken)
     {
