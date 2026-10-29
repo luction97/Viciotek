@@ -1,0 +1,86 @@
+name: Windows CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: build-test-security-installer
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '8.0.x'
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+      - name: Verified build tools
+        shell: pwsh
+        run: |
+          $tools = @(./tools/Get-BuildTools.ps1 -Destination (Join-Path $env:RUNNER_TEMP 'viciotek-tools'))
+          "INNO_COMPILER=$($tools.Where({ $_.Tool -eq 'InnoSetup' }).Path)" >> $env:GITHUB_ENV
+          "GITLEAKS_EXE=$($tools.Where({ $_.Tool -eq 'Gitleaks' }).Path)" >> $env:GITHUB_ENV
+      - name: Secret and file policy (complete history)
+        shell: pwsh
+        run: |
+          ./tools/Test-RepositorySafety.ps1
+          $ErrorActionPreference = 'Continue'
+          & $env:GITLEAKS_EXE git --redact --ignore-gitleaks-allow --no-banner
+          $gitleaksExit = $LASTEXITCODE
+          $ErrorActionPreference = 'Stop'
+          if ($gitleaksExit -ne 0) { throw 'Secret scan failed.' }
+          ./tools/Test-SecurityControls.ps1 -GitleaksPath $env:GITLEAKS_EXE
+      - name: Locked restore and dependency audit
+        shell: pwsh
+        run: |
+          dotnet restore Viciotek.sln --locked-mode
+          if ($LASTEXITCODE -ne 0) { throw 'Restore failed.' }
+          dotnet restore tools/SteamGridSmoke/SteamGridSmoke.csproj --locked-mode
+          if ($LASTEXITCODE -ne 0) { throw 'Smoke restore failed.' }
+          ./tools/Test-Dependencies.ps1
+      - name: Release build and unit tests
+        shell: pwsh
+        run: |
+          dotnet build Viciotek.sln -c Release --no-restore --nologo -warnaserror
+          if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
+          dotnet test Viciotek.sln -c Release --no-build --nologo
+          if ($LASTEXITCODE -ne 0) { throw 'Tests failed.' }
+      - name: WPF regression (no external API key)
+        shell: pwsh
+        run: |
+          dotnet run --project tools/SteamGridSmoke/SteamGridSmoke.csproj -c Release --no-restore
+          if ($LASTEXITCODE -ne 0) { throw 'WPF smoke failed.' }
+      - name: Build and validate installer
+        shell: pwsh
+        run: |
+          ./tools/Build-Installer.ps1 -CompilerPath $env:INNO_COMPILER
+          [xml]$project = Get-Content src/Viciotek/Viciotek.csproj -Raw
+          $version = [string]$project.Project.PropertyGroup.Version
+          ./tools/SmokePublished.ps1 -ZipPath "dist/Viciotek-$version-win-x64.zip"
+          ./tools/SmokeInstaller.ps1 -CompilerPath $env:INNO_COMPILER -PublishDirectory "dist/Viciotek-$version-win-x64"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: viciotek-windows-unsigned
+          path: |
+            dist/*-setup-win-x64.exe
+            dist/*-setup-win-x64.exe.sha256
+            dist/*-win-x64.zip
+            dist/*-win-x64.zip.sha256
+          retention-days: 7
+          if-no-files-found: error

@@ -1,0 +1,522 @@
+﻿<Window x:Class="Viciotek.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Viciotek.Presentation.Controls"
+        xmlns:presentation="clr-namespace:Viciotek.Presentation"
+        Title="VICIOTEK"
+        Icon="Assets/viciotek.ico"
+        Width="1280"
+        Height="800"
+        MinWidth="760"
+        MinHeight="540"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BgBrush}"
+        FontFamily="{StaticResource AppFont}"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        AllowDrop="True"
+        PreviewDragOver="Window_PreviewDragOver"
+        PreviewDrop="Window_PreviewDrop"
+        DragLeave="Window_DragLeave"
+        TextOptions.TextFormattingMode="Display">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="48"
+                      ResizeBorderThickness="6"
+                      GlassFrameThickness="0"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <Style x:Key="GameCardItemStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Width" Value="200" />
+            <Setter Property="Height" Value="300" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="AutomationProperties.Name" Value="{Binding Name}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Grid Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch" />
+                            <Border x:Name="SelectionRing"
+                                    CornerRadius="11"
+                                    BorderThickness="1.5"
+                                    BorderBrush="{StaticResource AccentBrush}"
+                                    Opacity="0.8"
+                                    Visibility="Collapsed"
+                                    IsHitTestVisible="False" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="SelectionRing" Property="BorderBrush" Value="{StaticResource TextPrimaryBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:Key="GameCardTemplate" DataType="{x:Type presentation:GameCardViewModel}">
+            <Grid Background="Transparent"
+                  RenderTransformOrigin="0.5,0.5"
+                  controls:CardHoverBehavior.Enabled="{Binding DataContext.AnimationsEnabled, RelativeSource={RelativeSource AncestorType={x:Type Window}}}">
+                <controls:RoundedClipBorder Background="{Binding FallbackBrush}" CornerRadius="10">
+                    <Grid>
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <Border Width="66"
+                                    Height="66"
+                                    CornerRadius="17"
+                                    Background="#18FFFFFF"
+                                    HorizontalAlignment="Center">
+                                <Border.Style>
+                                    <Style TargetType="{x:Type Border}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IconPath}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <controls:IconImage Width="36"
+                                                    Height="36"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                                    IconPath="{Binding IconPath}"
+                                                    Loader="{Binding IconLoader, RelativeSource={RelativeSource AncestorType={x:Type controls:GameGallery}}}" />
+                            </Border>
+                            <TextBlock Text="{Binding Monogram}"
+                                       Margin="0,15,0,0"
+                                       HorizontalAlignment="Center"
+                                       FontFamily="{StaticResource DisplayFont}"
+                                       FontSize="43"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Opacity="0.42" />
+                        </StackPanel>
+
+                        <controls:CoverImage Stretch="UniformToFill"
+                                             HorizontalAlignment="Stretch"
+                                             VerticalAlignment="Stretch"
+                                             RenderOptions.BitmapScalingMode="HighQuality"
+                                             CoverPath="{Binding CoverPath}"
+                                             CoverVersion="{Binding CoverVersion}"
+                                             Loader="{Binding CoverLoader, RelativeSource={RelativeSource AncestorType={x:Type controls:GameGallery}}}" />
+
+                        <Grid x:Name="HoverOverlay" IsHitTestVisible="False">
+                            <Grid.Style>
+                                <Style TargetType="{x:Type Grid}">
+                                    <Setter Property="Opacity" Value="0" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                                                     Value="True">
+                                            <Setter Property="Opacity" Value="1" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                                                     Value="True">
+                                            <Setter Property="Opacity" Value="1" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Border Height="84" VerticalAlignment="Bottom" Background="{StaticResource NameOverlayBrush}" />
+                            <StackPanel VerticalAlignment="Bottom" Margin="14,0,14,13">
+                                <TextBlock Text="{Binding Name}"
+                                           FontFamily="{StaticResource AppFont}"
+                                           FontSize="14.5"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           TextTrimming="CharacterEllipsis"
+                                           TextWrapping="NoWrap" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Background="#DB0A0B0E"
+                                Visibility="{Binding IsWorking, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,0">
+                                <TextBlock Text="{Binding ActivityLabel}"
+                                           HorizontalAlignment="Center"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           FontFamily="{StaticResource AppFont}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <Border Width="46"
+                                        Height="2"
+                                        Margin="0,12,0,0"
+                                        CornerRadius="1"
+                                        Background="{StaticResource AccentBrush}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#E60A0B0E"
+                                Visibility="{Binding IsLaunching, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="Iniciando…"
+                                           FontFamily="{StaticResource AppFont}"
+                                           FontSize="12.5"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <Border Width="36"
+                                        Height="2"
+                                        Margin="0,10,0,0"
+                                        CornerRadius="1"
+                                        Background="{StaticResource AccentBrush}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </controls:RoundedClipBorder>
+
+                <Border CornerRadius="10"
+                        IsHitTestVisible="False">
+                    <Border.Style>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="BorderBrush" Value="#16FFFFFF" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                                             Value="True">
+                                    <Setter Property="BorderThickness" Value="1.5" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+
+                <Border CornerRadius="10"
+                        BorderThickness="2"
+                        BorderBrush="{StaticResource AccentBrush}"
+                        Background="#2E000000"
+                        IsHitTestVisible="False">
+                    <Border.Style>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsCoverDropTarget}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+
+                <Button Command="{Binding ChangeCoverCommand}"
+                        Width="28" Height="28" Margin="8"
+                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                        FontFamily="{StaticResource IconFont}" FontSize="12"
+                        Content="&#xE70F;" ToolTip="Portada"
+                        AutomationProperties.Name="Cambiar portada">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource IconButtonStyle}">
+                            <Setter Property="Background" Value="#DB0A0B0E" />
+                            <Setter Property="BorderBrush" Value="#3DFFFFFF" />
+                            <Setter Property="Visibility" Value="Hidden" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Grid.ContextMenu>
+                    <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                        <MenuItem Header="Jugar" Command="{Binding PlayCommand}" InputGestureText="Entrar" />
+                        <MenuItem Header="Cambiar portada…" Command="{Binding ChangeCoverCommand}" />
+                        <MenuItem Header="Buscar en SteamGridDB" Command="{Binding SearchCoverCommand}"
+                                  Visibility="{Binding CanFindCover, Converter={StaticResource BoolToVisibility}}" />
+                        <MenuItem Header="Buscar portada automáticamente" Command="{Binding FindCoverCommand}"
+                                  Visibility="{Binding CanAutomaticallyFindCover, Converter={StaticResource BoolToVisibility}}" />
+                        <Separator />
+                        <MenuItem Header="Editar…" Command="{Binding EditCommand}" InputGestureText="F2" />
+                        <MenuItem Header="Quitar…"
+                                  Command="{Binding RemoveCommand}"
+                                  Style="{StaticResource DangerMenuTextStyle}" />
+                    </ContextMenu>
+                </Grid.ContextMenu>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Title bar -->
+        <Grid Grid.Row="0" Background="{StaticResource BgBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                <Image Source="Assets/viciotek.ico"
+                       Width="21"
+                       Height="21"
+                       RenderOptions.BitmapScalingMode="HighQuality" />
+                <TextBlock Text="VICIOTEK"
+                           Margin="10,0,0,0"
+                           VerticalAlignment="Center"
+                           FontFamily="{StaticResource DisplayFont}"
+                           FontSize="13.5"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" />
+            </StackPanel>
+
+            <Grid Grid.Column="1" Margin="24,0">
+                <TextBox x:Name="SearchBox"
+                         MaxWidth="440"
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Center"
+                         Style="{StaticResource SearchTextBoxStyle}"
+                          Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                          AutomationProperties.Name="Buscar juegos"
+                         WindowChrome.IsHitTestVisibleInChrome="True"
+                         PreviewKeyDown="SearchBox_PreviewKeyDown" />
+            </Grid>
+
+            <Button Grid.Column="2"
+                    Command="{Binding OpenPreferencesCommand}"
+                    Style="{StaticResource IconButtonStyle}"
+                    FontFamily="{StaticResource IconFont}" FontSize="14"
+                    Content="&#xE713;" ToolTip="Preferencias"
+                    AutomationProperties.Name="Preferencias"
+                    VerticalAlignment="Center" Margin="0,0,8,0"
+                    WindowChrome.IsHitTestVisibleInChrome="True" />
+
+            <Button Grid.Column="3"
+                    Command="{Binding AddGamesCommand}"
+                    Style="{StaticResource IconButtonStyle}"
+                    VerticalAlignment="Center"
+                    Margin="0,0,10,0"
+                    FontFamily="{StaticResource IconFont}"
+                    FontSize="14"
+                    Content="&#xE710;"
+                    ToolTip="Agregar juegos"
+                    AutomationProperties.Name="Agregar juegos"
+                    WindowChrome.IsHitTestVisibleInChrome="True" />
+
+            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button x:Name="MinimizeButton"
+                        Content="&#xE921;"
+                        Style="{StaticResource CaptionButtonStyle}"
+                        ToolTip="Minimizar"
+                        Click="MinimizeButton_Click"
+                        WindowChrome.IsHitTestVisibleInChrome="True" />
+                <Button x:Name="MaximizeButton"
+                        Content="&#xE922;"
+                        Style="{StaticResource CaptionButtonStyle}"
+                        ToolTip="Maximizar"
+                        Click="MaximizeButton_Click"
+                        WindowChrome.IsHitTestVisibleInChrome="True" />
+                <Button x:Name="CloseButton"
+                        Content="&#xE8BB;"
+                        Style="{StaticResource CloseCaptionButtonStyle}"
+                        ToolTip="Cerrar"
+                        Click="CloseButton_Click"
+                        WindowChrome.IsHitTestVisibleInChrome="True" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="0" Height="1" VerticalAlignment="Bottom" Background="{StaticResource HairlineWhiteBrush}" />
+
+        <!-- Gallery -->
+        <Grid Grid.Row="1">
+            <controls:GameGallery x:Name="Gallery"
+                                  ItemsSource="{Binding GamesView}"
+                                  ItemTemplate="{StaticResource GameCardTemplate}"
+                                  ItemContainerStyle="{StaticResource GameCardItemStyle}"
+                                  Style="{StaticResource GalleryListBoxStyle}"
+                                  SelectionChanged="Gallery_SelectionChanged"
+                                  MouseDoubleClick="Gallery_MouseDoubleClick"
+                                  PreviewMouseRightButtonDown="Gallery_PreviewMouseRightButtonDown">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <controls:VirtualizingWrapPanel ItemWidth="200"
+                                                       ItemHeight="300"
+                                                       Gap="16"
+                                                       HorizontalPadding="40"
+                                                       VerticalPadding="24" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </controls:GameGallery>
+
+            <!-- Empty library -->
+            <Grid Background="{StaticResource BgBrush}"
+                  Visibility="{Binding ShowEmptyState, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            MaxWidth="460"
+                            Margin="32">
+                    <Border Width="76"
+                            Height="76"
+                            CornerRadius="20"
+                            Background="{StaticResource AccentSoftBrush}"
+                            HorizontalAlignment="Center">
+                        <Path Data="M 14,2 L 14,26 M 2,14 L 26,14"
+                              Stroke="{StaticResource AccentBrush}"
+                              StrokeThickness="1.8"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Width="28"
+                              Height="28"
+                              Stretch="Uniform"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="Tu biblioteca"
+                               Margin="0,24,0,0"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               FontFamily="{StaticResource DisplayFont}"
+                               FontSize="27"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+                    <Button Content="Agregar juegos"
+                            Command="{Binding AddGamesCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Height="38"
+                            Padding="22,0"
+                            HorizontalAlignment="Center"
+                            Margin="0,24,0,0" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Empty search -->
+            <Grid Background="{StaticResource BgBrush}"
+                  Visibility="{Binding ShowNoResults, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="440" Margin="32">
+                    <TextBlock Text="&#xE721;"
+                               HorizontalAlignment="Center"
+                               FontFamily="{StaticResource IconFont}"
+                               FontSize="26"
+                               Foreground="{StaticResource TextTertiaryBrush}" />
+                    <TextBlock Text="{Binding NoResultsText}"
+                               Margin="0,16,0,0"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               FontFamily="{StaticResource AppFont}"
+                               FontSize="14"
+                               Foreground="{StaticResource TextSecondaryBrush}" />
+                    <Button Content="Limpiar búsqueda"
+                            Command="{Binding ClearSearchCommand}"
+                            Style="{StaticResource GhostButtonStyle}"
+                            HorizontalAlignment="Center"
+                            Margin="0,18,0,0" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Drop hint for imported files -->
+            <Border x:Name="DropOverlay"
+                    Margin="18"
+                    Background="#D90A0B0E"
+                    BorderBrush="{StaticResource AccentMutedBrush}"
+                    BorderThickness="1"
+                    CornerRadius="14"
+                    Visibility="Collapsed"
+                    IsHitTestVisible="False"
+                    Panel.ZIndex="20">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Path Data="M 13,2 L 13,22 M 5,14 L 13,22 L 21,14 M 2,30 L 24,30"
+                          Stroke="{StaticResource AccentBrush}"
+                          StrokeThickness="1.7"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          Width="28"
+                          Height="34"
+                          Stretch="Uniform"
+                          HorizontalAlignment="Center" />
+                    <TextBlock Text="Agregar juegos"
+                               Margin="0,20,0,0"
+                               HorizontalAlignment="Center"
+                               FontFamily="{StaticResource DisplayFont}"
+                               FontSize="22"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Toast -->
+            <Border MaxWidth="680"
+                    Margin="24,0,24,24"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Center"
+                    CornerRadius="10"
+                    Padding="16,11"
+                    BorderThickness="1"
+                    Panel.ZIndex="30"
+                    Visibility="{Binding IsToastVisible, Converter={StaticResource BoolToVisibility}}">
+                <Border.Style>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource BorderStrongBrush}" />
+                        <Setter Property="Opacity" Value="0" />
+                        <Setter Property="RenderTransform">
+                            <Setter.Value>
+                                <TranslateTransform Y="7" />
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ToastIsError}" Value="True">
+                                <Setter Property="Background" Value="{StaticResource DangerSurfaceBrush}" />
+                                <Setter Property="BorderBrush" Value="{StaticResource DangerBorderBrush}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsToastVisible}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                             To="1"
+                                                             Duration="0:0:0.16" />
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                             To="0"
+                                                             Duration="0:0:0.2">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut" />
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <TextBlock Text="{Binding ToastMessage}"
+                           TextWrapping="Wrap"
+                           FontFamily="{StaticResource AppFont}"
+                           FontSize="12.5"
+                           LineHeight="18"
+                           Foreground="{StaticResource TextPrimaryBrush}" />
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

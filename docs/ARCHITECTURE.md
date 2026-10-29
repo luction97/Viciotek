@@ -1,0 +1,36 @@
+# Arquitectura
+
+## Estructura vigente
+Un proyecto WPF (`src/Viciotek`) y un proyecto xUnit (`tests/Viciotek.Tests`), ambos `net8.0-windows`. Sin contenedor DI ni paquetes de ejecución; `App.OnStartup` compone servicios y ventana. Producto visible **VICIOTEK**; el ensamblado se publica como `Viciotek.dll/.exe` mientras el espacio de nombres interno sigue siendo `Viciotek`.
+
+- **Domain**: `Game`, identidad de duplicados, nombres, búsqueda, política de protocolos y planificación del lanzamiento.
+- **Application**: `GameImporter`, `IShortcutResolver`, resolución local de identidad (`GameIdentityResolver`/`IGameMetadataReader`), búsqueda conservadora (`GameIdentitySearch`/`ISteamGridDbGames`) y validación de edición.
+- **Infrastructure**: JSON atómico, biblioteca/configuración, Shell COM, procesos, imágenes, LRU y SteamGridDB opcional.
+- **Presentation**: view models, comandos, diálogos, tema y controles WPF. `MainWindow.xaml.cs` traduce eventos de teclado/drop y geometría, no resuelve accesos directos.
+
+## Flujos reales
+- Importación: botón `+` → `AddGamesDialog` (instrucciones o drop) o drop directo → `MainViewModel.ImportFilesAsync` → `GameImporter` en worker → tarjetas → persistencia → búsqueda opcional de portadas.
+- Identificación: `WindowsGameMetadataReader` reúne fuentes locales acotadas; el resolver separa nombre visible, técnico y candidatos. Steam AppID se traduce a Game ID de SteamGridDB mediante `/games/steam/{appId}`; no son IDs intercambiables. Si falla la coincidencia fiable tras hasta tres búsquedas de texto, se abre la galería con entrada manual vacía. HTTP fallido no abre ese respaldo.
+- Lanzamiento: `PlayAsync` → `LaunchPlanner` → `GameLauncher`. Ejecutables con `ArgumentList`, protocolos mediante Shell; fallback Shell para elevación. Se cierra tras aceptación por Windows, no tras comprobar que el juego esté operativo.
+- Portada: archivo/descarga → `CoverStore` → original local + JPEG 480×720 recortado al centro → binding de tarjeta → `CoverImageLoader` → bitmap congelado de 320 px. `CoverVersion` usa el nombre único del original: cambia el binding e indexa la LRU por (ruta, versión), aunque la miniatura conserve su ruta. Desde 1.0.2 la miniatura es por revisión (`covers/<sin-ext>.jpg`); el `gameId.jpg` legado se conserva como alternativa de lectura.
+- Galería: `GameGallery`/`ListBox` → `VirtualizingWrapPanel` con `IScrollInfo`. Genera un rango acotado; elimina contenedores fuera de rango. No usar `ScrollViewer` externo ni `WrapPanel` normal.
+- Interacción de tarjeta: `CardHoverBehavior` eleva la tarjeta al pasar el cursor o enfocarla; el efecto se desactiva con `AppSettings.AnimationsEnabled`. La ventana maximizada se clampa al área de trabajo del monitor (`WindowAppearance`).
+- Red opcional: `SteamGridDbClient` (HTTPS, Bearer) busca juegos y portadas, descarga imágenes y verifica conexión. API serializada y caché de sesión acotada; dos descargas de imagen simultáneas y respeto de Retry-After. `CoverGalleryViewModel` permite elegir juegos ambiguos y carga thumbnails del proveedor sin originales retenidos. La confirmación llama a `MainViewModel.CommitCoverAsync`: prepara `CoverStore`, persiste portada/asociación, actualiza tarjeta y entonces cierra el modal. El cierre cancela y drena búsquedas/miniaturas.
+- Desde 1.0.3, el preset vertical es único (`600x900,342x482,660x930`): 300×450 invalida la consulta completa en la API real. `IsFindingCover`/`IsWorking` dan feedback sin usar el bloqueo de edición `IsBusy`. La verificación de Preferencias autentica la clave escrita en PasswordBox mediante un override por solicitud, sin modificar la clave activa hasta guardar.
+- Seguridad: la clave se protege con DPAPI (`ProtectedSecret`, P/Invoke a crypt32.dll) en `ProtectedApiKey`; `SettingsStore` cifra al guardar y descifra al leer, con migración de texto plano. El `.bak` legado en texto plano también se cifra y verifica con roundtrip DPAPI antes de reemplazarse. No se registran claves.
+- Carga de portadas: cambios de bindings agrupados en un turno del Dispatcher; como máximo dos decodificaciones simultáneas. Las solicitudes en cola de tarjetas descargadas se cancelan antes de leer archivos. La imagen anterior permanece hasta disponer de su reemplazo. Si falta el caché, se regenera desde el original antes de decodificar.
+- Búsqueda: consulta normalizada una vez por cambio; clave y monograma de tarjeta calculados bajo demanda e invalidados al editar. Refresco explícito de la colección filtrada tras renombrar. Enter con búsqueda activa lanza el primer resultado visible.
+- Persistencia: las mutaciones se preparan en memoria, se guarda el JSON y solo después se adopta el cambio; ante fallo de escritura se descarta el trabajo parcial. La limpieza de portadas respeta las referencias del JSON principal y del `.bak`.
+- Instalación (1.0.4+, vigente en 1.1.0): `installer/Viciotek.iss` empaqueta la publicación x64 autocontenida en `%LOCALAPPDATA%\Programs\VICIOTEK` por usuario, con accesos de escritorio/Inicio incondicionales y sin reglas de borrado. `InstallationGuard` crea el mutex `Local\Viciotek.Application.Running` durante toda la sesión para que `AppMutex` bloquee Setup/Uninstall sin cerrar procesos; la exclusión de biblioteca sigue siendo `LibraryInstance` por directorio de datos. `tools/Get-BuildTools.ps1` fija Inno Setup/Gitleaks por SHA256 (compilador además con Authenticode) y `tools/Build-Installer.ps1` valida payload/versión antes de compilar.
+
+## Ciclo de vida de cierre
+`MainWindow.OnClosing` cancela la primera solicitud, deshabilita la ventana y espera `MainViewModel.PrepareCloseAsync`, que cancela el `_lifetime`, descarta el toast y drena las operaciones registradas antes de liberar semáforos y el cliente HTTP. Después se guardan geometría y biblioteca en disco y se cierra. `Dispose` delega en este cierre y es idempotente.
+
+## Datos y límites
+`%LOCALAPPDATA%\Viciotek`: `library.json` (esquema 1), `settings.json`, `.bak`, `covers/`, `covers/thumbs/`, log de errores. `VICIOTEK_DATA_DIR` permite pruebas aisladas. Escrituras temporales, flush y reemplazo atómico; recuperación de respaldo ante JSON dañado.
+
+Los campos de identidad son opcionales y aditivos. Las asociaciones confirmadas persisten en cada `Game`; búsquedas JSON útiles se cachean solo durante la sesión (5 minutos, hasta 64 respuestas/~2 MiB). La edición del título invalida la asociación de búsqueda, no su portada. Las entradas legadas solo se enriquecen al importar o solicitar portadas explícitamente, nunca al arrancar; los nombres personalizados se preservan.
+
+La clave SteamGridDB se protege con DPAPI al guardar (`SettingsStore.PrepareForStorage`). `LibraryInstance` mantiene un único escritor por directorio mediante un handle Windows sobre `.instance.lock`, adquirido antes de leer JSON. La segunda apertura intenta activar la ventana existente y termina sin cargar/guardar la biblioteca. Windows libera el handle al terminar el proceso; no hay servidor, sondeo ni bloqueo obsoleto que deba borrarse. La activación del primer plano depende de las reglas del SO.
+
+La UI virtualiza contenedores, no metadatos: toda la biblioteca JSON se carga en memoria. Versiones antiguas (1.0.0) no respetan este bloqueo: no ejecutarlas simultáneamente sobre los mismos datos.

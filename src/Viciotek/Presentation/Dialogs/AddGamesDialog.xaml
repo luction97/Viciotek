@@ -1,0 +1,102 @@
+<local:ViciotekDialogWindow x:Class="Viciotek.Presentation.Dialogs.AddGamesDialog"
+                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                          xmlns:local="clr-namespace:Viciotek.Presentation.Dialogs"
+                          Title="Agregar juegos"
+                          Width="480"
+                          Height="380"
+                          AllowDrop="True"
+                          DragOver="OnDragOver"
+                          Drop="OnDrop">
+    <Border Margin="20"
+            Background="{StaticResource SurfaceBrush}"
+            BorderBrush="{StaticResource BorderStrongBrush}"
+            BorderThickness="1"
+            CornerRadius="14">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" BlurRadius="38" ShadowDepth="12" Opacity="0.6" />
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="72" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0"
+                  Background="Transparent"
+                  MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <TextBlock Text="Agregar juegos"
+                           Margin="26,0,0,0"
+                           VerticalAlignment="Center"
+                           FontFamily="{StaticResource DisplayFont}"
+                           FontSize="17"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" />
+                <Button Content="&#xE8BB;"
+                        Style="{StaticResource IconButtonStyle}"
+                        FontFamily="{StaticResource IconFont}"
+                        FontSize="10"
+                        Foreground="{StaticResource TextSecondaryBrush}"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Margin="0,0,18,0"
+                        ToolTip="Cerrar"
+                        Click="Cancel_Click" />
+            </Grid>
+
+            <StackPanel Grid.Row="1" Margin="26,4,26,20" VerticalAlignment="Center">
+                <Border Width="64"
+                        Height="64"
+                        CornerRadius="18"
+                        Background="{StaticResource AccentSoftBrush}"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="&#xE710;"
+                               FontFamily="{StaticResource IconFont}"
+                               FontSize="20"
+                               Foreground="{StaticResource AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="Arrastrá accesos directos, ejecutables o enlaces de tus launchers a esta ventana."
+                           Margin="0,22,0,0"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           MaxWidth="360"
+                           FontFamily="{StaticResource AppFont}"
+                           FontSize="13.5"
+                           LineHeight="21"
+                           Foreground="{StaticResource TextPrimaryBrush}" />
+                <TextBlock Text=".lnk, .exe o .url"
+                           Margin="0,10,0,0"
+                           HorizontalAlignment="Center"
+                           FontFamily="{StaticResource AppFont}"
+                           FontSize="11.5"
+                           Foreground="{StaticResource TextTertiaryBrush}" />
+            </StackPanel>
+
+            <Border Grid.Row="2"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="0,1,0,0">
+                <Grid Margin="26,0">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
+                        <Button Content="Cancelar"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Height="36"
+                                Padding="18,0"
+                                IsCancel="True"
+                                Click="Cancel_Click" />
+                        <Button Content="Elegir archivos…"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Margin="8,0,0,0"
+                                IsDefault="True"
+                                Click="ChooseFiles_Click" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</local:ViciotekDialogWindow>

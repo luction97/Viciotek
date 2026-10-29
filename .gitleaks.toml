@@ -1,0 +1,11 @@
+title = "VICIOTEK secret detection"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "steamgriddb-literal-key"
+description = "SteamGridDB credentials must come from user preferences or the environment"
+regex = '''(?i)(?:SteamGridDbApiKey\s*[=:]|SteamGridDbClient\s*\(|VICIOTEK_TEST_API_KEY\s*=)\s*["']([a-f0-9]{24,64})["']'''
+secretGroup = 1
+keywords = ["steamgriddbapikey", "steamgriddbclient", "viciotek_test_api_key"]

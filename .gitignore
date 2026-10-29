@@ -1,0 +1,65 @@
+# .NET / WPF: generated output, test runs, and packages (lock files ARE committed).
+**/[Bb]in/
+**/[Oo]bj/
+**/[Tt]est[Rr]esults/
+/dist/
+/artifacts/
+/packages/
+*.nupkg
+*.snupkg
+*.pdb
+coverage/
+coverage.*
+*.coverage
+*.coveragexml
+
+# IDE and machine-specific configuration.
+.vs/
+.idea/
+.vscode/
+_ReSharper*/
+*.DotSettings.user
+*.user
+*.suo
+*.rsuser
+*.userosscache
+*.sln.docstates
+*.pubxml.user
+*.publishsettings
+
+# Secrets and signing material. Only sanitized example templates may be committed.
+.env
+.env.*
+!.env.example
+!.env.sample
+**/secrets.json
+**/appsettings.Local.json
+*.pfx
+*.p12
+*.key
+*.pem
+*.snk
+
+# Personal libraries, credentials (even encrypted), caches and local diagnostics.
+/data/
+/.local-data/
+/sandbox/
+/.tools/
+**/library.json
+**/settings.json
+**/.instance.lock
+**/*.corrupt-*.json
+/docs/measurements/
+*.bak
+*.tmp
+*.temp
+*.log
+*.dmp
+*.etl
+*.orig
+*.rej
+
+# OS metadata.
+.DS_Store
+Thumbs.db
+Desktop.ini

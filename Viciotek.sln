@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F0EEA99C-C27C-41CF-8854-87A8DEFFCA9E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viciotek", "src\Viciotek\Viciotek.csproj", "{3BA7519C-23D0-4502-BA6E-E3BE2B2C86EB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9E36C1BE-FF83-4994-AF3B-F5B565B6EC6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viciotek.Tests", "tests\Viciotek.Tests\Viciotek.Tests.csproj", "{72C0977F-260B-4D99-8AC6-731FE127C473}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3BA7519C-23D0-4502-BA6E-E3BE2B2C86EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BA7519C-23D0-4502-BA6E-E3BE2B2C86EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BA7519C-23D0-4502-BA6E-E3BE2B2C86EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BA7519C-23D0-4502-BA6E-E3BE2B2C86EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72C0977F-260B-4D99-8AC6-731FE127C473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72C0977F-260B-4D99-8AC6-731FE127C473}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72C0977F-260B-4D99-8AC6-731FE127C473}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72C0977F-260B-4D99-8AC6-731FE127C473}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3BA7519C-23D0-4502-BA6E-E3BE2B2C86EB} = {F0EEA99C-C27C-41CF-8854-87A8DEFFCA9E}
+		{72C0977F-260B-4D99-8AC6-731FE127C473} = {9E36C1BE-FF83-4994-AF3B-F5B565B6EC6A}
+	EndGlobalSection
+EndGlobal

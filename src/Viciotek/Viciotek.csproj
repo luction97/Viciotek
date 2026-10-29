@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <AssemblyName>Viciotek</AssemblyName>
+    <RootNamespace>Viciotek</RootNamespace>
+    <ApplicationIcon>Assets\viciotek.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.1.0</Version>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Product>VICIOTEK</Product>
+    <Description>Biblioteca personal de videojuegos.</Description>
+    <Company>Lucas Siano</Company>
+    <Authors>Lucas Siano</Authors>
+    <Copyright>© 2026 Lucas Siano. Todos los derechos reservados.</Copyright>
+    <NeutralLanguage>es</NeutralLanguage>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Deterministic>true</Deterministic>
+    <TieredPGO>true</TieredPGO>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\viciotek.ico" />
+    <InternalsVisibleTo Include="Viciotek.Tests" />
+  </ItemGroup>
+
+</Project>
