@@ -7,7 +7,8 @@
 - Menú contextual con una sola entrada Cambiar portada… que abre una elección entre imagen del equipo y SteamGridDB. Sin conexión, la opción web permite configurar primero. Elección automática conservada bajo Más opciones cuando corresponde; cancelación no cambia nada. Se reutilizan los flujos de archivo/galería y persistencia existentes.
 - CONFIRMADO: build Release -warnaserror sin advertencias/errores; 223/223 tests y SteamGridSmoke offline PASS, ampliado para nombre con ruta inexistente y conservación de parámetros/carpeta, avanzado inicialmente oculto y elección de ambas fuentes sin credenciales.
 - Renders WPF de los dos diálogos revisados con datos aislados. No se altera geometría, imágenes, búsqueda ni ejecución de portadas. Sin datos personales ni push.
-- Próximo paso: validar paquetes 1.1.12; firma/runtime y matriz DPI siguen pendientes antes de venta.
+- Entrega CONFIRMADA: ambos ZIPs con SmokePublished PASS y SmokeInstaller completo PASS (instalar, actualizar, bloquear con app abierta, desinstalar y conservar datos). SHA256 e iconos oficiales verificados; fuentes en 2fb34c6, sin push.
+- Próximo paso: verificar con juegos propios el flujo completo de elección web/local y completar DPI. Firma/runtime siguen pendientes antes de venta.
 
 ## Auditoría del parpadeo al buscar — 1.1.11
 - Causa CONFIRMADA: GamesView.Refresh emite Reset, el panel recrea contenedores y CoverImage.OnUnloaded limpia Source; la restauración se aplazaba a DispatcherPriority.Loaded, incluso con bitmap en caché. Las dos regresiones iniciales fallaron antes del arreglo por Source=null.
