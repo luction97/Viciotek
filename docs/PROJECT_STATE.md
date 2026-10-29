@@ -2,6 +2,12 @@
 
 Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.14**, C#/WPF/.NET 8 para Windows 11.
 
+## Prioridad de SteamGridDB al cambiar portada — ajuste posterior a 1.1.14
+- Buscar en SteamGridDB… aparece primero con PrimaryButtonStyle; Elegir una imagen del equipo… queda debajo con GhostButtonStyle. Orden de teclado natural coincide con el orden visual, sin contenedores decorativos nuevos.
+- CONFIRMADO: ChangeCoverCoreAsync ya abre Configuración cuando se elige SteamGridDB sin conexión, vuelve sin buscar al cancelar y abre la galería directamente con conexión. No se cambia lógica de producción.
+- Dos regresiones nuevas de flujo aprobadas mediante harness aislado sobre MainViewModel 1.1.14. XAML y code-behind actuales de CoverSourceDialog compilados en el harness; orden, jerarquía de estilos y acción web comprobados con/sin conexión. Render WPF inspeccionado. El harness reporta CS0436 por los tipos UI recompilados que también existen en el ensamblado de referencia; no es una compilación completa de la solución.
+- Por instrucción del propietario, logo y generación de ejecutable/instalador permanecen en pausa. No se restauran recursos ni se incluyen los cambios de marca ajenos en este commit. Build/suite completos pendientes junto con la integración del icono; no se afirma una entrega nueva.
+- Próximo paso concreto: esperar la instrucción del propietario sobre la nueva marca y completar build, suite y distribución cuando lo autorice.
 ## Galería de portadas ampliada — ajuste posterior a 1.1.14
 - Buscar portada pasa de 760×620 a 1000×780 DIP, acotado al área de trabajo mediante los mismos bindings de SystemParameters usados por otros diálogos. Cabecera/pie de 56 DIP. Sugerencias integradas limitadas a dos filas de 28 DIP (56 DIP total), con scroll y navegación existentes; menor margen bajo el buscador.
 - Portadas de la galería conservan 120×180, separación 12 y virtualización real. Biblioteca principal, imágenes, lógica HTTP y selección sin cambios.

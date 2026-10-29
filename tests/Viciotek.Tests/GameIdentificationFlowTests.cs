@@ -14,6 +14,27 @@ namespace Viciotek.Tests;
 
 public sealed class GameIdentificationFlowTests
 {
+    [Fact]
+    public Task ChangeCover_WebWithoutConnection_OpensSettingsAndHonorsCancel() => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(autoFetch: false, apiKey: null, games: [new Game { Name = "Example" }]);
+        fixture.Dialogs.Source = CoverSource.SteamGridDb;
+        await fixture.ViewModel.ChangeCoverAsync(Assert.Single(fixture.ViewModel.Games));
+        Assert.Equal(1, fixture.Dialogs.PreferenceCount);
+        Assert.Equal(0, fixture.Dialogs.Count);
+        Assert.Empty(fixture.Handler.Requests);
+    });
+
+    [Fact]
+    public Task ChangeCover_WebWithConnection_OpensGalleryDirectly() => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(autoFetch: false, games: [new Game { Name = "Example" }]);
+        fixture.Dialogs.Source = CoverSource.SteamGridDb;
+        await fixture.ViewModel.ChangeCoverAsync(Assert.Single(fixture.ViewModel.Games));
+        Assert.Equal(0, fixture.Dialogs.PreferenceCount);
+        Assert.Equal(1, fixture.Dialogs.Count);
+    });
+
     [Theory]
     [InlineData("exe")]
     [InlineData("url")]
@@ -445,6 +466,9 @@ public sealed class GameIdentificationFlowTests
 
     private sealed class Dialogs : IDialogService
     {
+        public CoverSource? Source { get; set; } = CoverSource.Local;
+        public CoverSource? ChooseCoverSource(bool connected, bool canChooseAutomatically) => Source;
+        public int PreferenceCount { get; private set; }
         public int Count { get; private set; }
         public bool LastWasFallback { get; private set; }
         public GameEditResult? EditResult { get; set; }
@@ -460,6 +484,6 @@ public sealed class GameIdentificationFlowTests
         public string? PickCoverFile() => null;
         public GameEditResult? EditGame(Game game) => EditResult;
         public bool ConfirmRemove(string gameName) => false;
-        public AppSettings? EditPreferences(AppSettings settings) => null;
+        public AppSettings? EditPreferences(AppSettings settings) { PreferenceCount++; return null; }
     }
 }
