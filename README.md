@@ -5,8 +5,8 @@ _Todos tus vicios, en un solo lugar._
 Biblioteca personal de videojuegos para Windows 11: portadas, búsqueda y lanzamiento sin paneles adicionales. C# / WPF / .NET 8, sin servidor ni Electron.
 
 ## Instalar y ejecutar (Windows 11 x64)
-- **Instalador**: `Viciotek-1.1.7-setup-win-x64.exe`, generado en `dist/`. Instala para el usuario actual en `%LOCALAPPDATA%\Programs\VICIOTEK`, incluye .NET y crea automáticamente un acceso directo **VICIOTEK en el escritorio** y otro en Inicio. No requiere administrador. Permite actualizar/desinstalar desde Windows sin borrar la biblioteca.
-- **Portable x64**: extraer **todo** `Viciotek-1.1.7-win-x64.zip` y abrir `Viciotek.exe`. Incluye .NET; no requiere instalación ni administrador.
+- **Instalador**: `Viciotek-1.1.8-setup-win-x64.exe`, generado en `dist/`. Instala para el usuario actual en `%LOCALAPPDATA%\Programs\VICIOTEK`, incluye .NET y crea automáticamente un acceso directo **VICIOTEK en el escritorio** y otro en Inicio. No requiere administrador. Permite actualizar/desinstalar desde Windows sin borrar la biblioteca.
+- **Portable x64**: extraer **todo** `Viciotek-1.1.8-win-x64.zip` y abrir `Viciotek.exe`. Incluye .NET; no requiere instalación ni administrador.
 - **Framework-dependent x64**: requiere **.NET 8 Desktop Runtime x64** (el runtime básico de .NET no alcanza).
 - Los datos están en `%LOCALAPPDATA%\Viciotek`; una segunda apertura reutiliza la instancia existente. Si venís de una versión anterior, mové el contenido de la carpeta de datos previa a `%LOCALAPPDATA%\Viciotek` antes de abrir 1.1.1: no hay migración automática.
 - Al actualizar, cerrar la versión anterior antes de abrir la nueva: comparten la misma biblioteca y el bloqueo de instancia. No ejecutar como administrador para arrastrar desde un Explorador sin elevación.
@@ -15,18 +15,18 @@ Biblioteca personal de videojuegos para Windows 11: portadas, búsqueda y lanzam
 
 ## Uso
 - El botón **+** abre una ventana con las instrucciones para agregar juegos (arrastrar `.exe`, `.lnk` o `.url`, o elegir archivos). Doble clic o Enter sobre una tarjeta para jugar.
-- Las portadas se elevan con un sutil resaltado al pasar el cursor; el efecto se puede desactivar en Preferencias.
+- Las portadas se elevan con un sutil resaltado al pasar el cursor; el efecto se puede desactivar en Configuración.
 - Los `.lnk` conservan destino ejecutable, argumentos y directorio. Los `.url` admiten protocolos conocidos de Steam, Epic, Ubisoft, EA, GOG, Battle.net, Rockstar y Xbox; el launcher correspondiente debe estar instalado.
 - Arrastrar una imagen **sobre la tarjeta** para reemplazar su portada o usar clic derecho → «Cambiar portada…». Sin botones flotantes sobre las portadas. Se recorta al centro a 2:3.
 - PNG, JPEG, BMP, GIF (primer frame), TIFF e ICO mediante codecs WPF; WebP depende de codecs del sistema. Máximo 30 MiB/30 megapíxeles.
 - `Ctrl+F`: buscar · `Ctrl+O`: agregar · `Ctrl+,`: preferencias · `F2`: editar · Enter en búsqueda: jugar · Escape: limpiar búsqueda/selección.
-- SteamGridDB es opcional: ir a **Preferencias → SteamGridDB**, abrir el sitio oficial, iniciar sesión y copiar el código que allí se llama «API Key». Volver, elegir **Pegar** y **Conectar**: verifica y guarda en una sola acción. Enter/Guardar también verifica un código nuevo; un código rechazado no reemplaza la conexión anterior. Una conexión guardada se puede comprobar sin cambiarla. Activar «Buscar portadas automáticamente al agregar juegos». Solo consulta al importar (si está activado) o al pedir portadas; nunca al iniciar. La clave se muestra oculta y se guarda cifrada en este equipo (DPAPI); no viene incluida en el ejecutable. Nota comercial: las imágenes de SteamGridDB son aportes de usuarios; revisar sus condiciones antes de redistribuir VICIOTEK.
+- SteamGridDB es opcional: ir a **Configuración → SteamGridDB**, abrir el sitio oficial, iniciar sesión y copiar el código que allí se llama «API Key». Volver, elegir **Pegar** y **Conectar**: verifica y guarda en una sola acción. Enter/Guardar también verifica un código nuevo; un código rechazado no reemplaza la conexión anterior. Una conexión guardada se puede comprobar sin cambiarla. Activar «Buscar portadas automáticamente al agregar juegos». Solo consulta al importar (si está activado) o al pedir portadas; nunca al iniciar. La clave se muestra oculta y se guarda cifrada en este equipo (DPAPI); no viene incluida en el ejecutable. Nota comercial: las imágenes de SteamGridDB son aportes de usuarios; revisar sus condiciones antes de redistribuir VICIOTEK.
 - La identificación prioriza manifiestos Steam y metadatos locales sobre el nombre del ejecutable. Si no encuentra una coincidencia fiable, abre la galería con «Ingresá el nombre del juego» para buscar y elegir manualmente. No expande siglas ambiguas ni reemplaza automáticamente portadas existentes. La acción contextual de búsqueda automática solo aparece cuando falta portada.
 
 VICIOTEK se cierra cuando Windows acepta el lanzamiento. Eso no garantiza que el juego complete su inicio; ante un error detectable la biblioteca sigue abierta.
 
 ## Acerca de
-La autoría se muestra de forma discreta en **Preferencias → Acerca de VICIOTEK**: creado por Lucas Siano, © 2026 Lucas Siano. Detalles de marca en [docs/BRANDING.md](docs/BRANDING.md) y atribución en [COPYRIGHT.md](COPYRIGHT.md).
+La autoría se muestra de forma discreta en **Configuración → Acerca de VICIOTEK**: creado por Lucas Siano, © 2026 Lucas Siano. Detalles de marca en [docs/BRANDING.md](docs/BRANDING.md) y atribución en [COPYRIGHT.md](COPYRIGHT.md).
 
 ## Datos y recuperación
 Respaldar `%LOCALAPPDATA%\Viciotek` completa con la app cerrada. El guardado usa reemplazo atómico y `.bak`; un JSON dañado se conserva como `*.corrupt-*.json` antes de intentar recuperar el respaldo.
@@ -42,7 +42,7 @@ dotnet test Viciotek.sln -c Release --no-build --nologo
 .\tools\Test-Dependencies.ps1
 .\tools\Publish.ps1
 .\tools\Publish.ps1 -Variant FrameworkDependent
-.\tools\SmokePublished.ps1 -ZipPath '.\dist\Viciotek-1.1.7-win-x64.zip'
+.\tools\SmokePublished.ps1 -ZipPath '.\dist\Viciotek-1.1.8-win-x64.zip'
 ```
 Los archivos `packages.lock.json` se versionan. Cada publicación genera carpeta, ZIP y SHA256 bajo `dist/`; para repetir usar `-OutputRoot` nuevo, sin borrar distribuciones existentes. Para el instalador: preparar Inno Setup con `tools/Get-BuildTools.ps1` y ejecutar `tools/Build-Installer.ps1 -CompilerPath <ruta-a-ISCC.exe>`; ver los comandos de build/smoke en [CONTRIBUTING.md](CONTRIBUTING.md).
 

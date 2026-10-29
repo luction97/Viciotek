@@ -1,6 +1,16 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.7**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.8**, C#/WPF/.NET 8 para Windows 11.
+
+## Buscador y Configuración simplificados — 1.1.8
+- Alcance limitado al buscador y la configuración. Portadas, biblioteca, ejecución y persistencia conservadas.
+- Causa confirmada del cursor desplazado: el Padding del TextBox y el Margin del PART_ContentHost reservaban el espacio izquierdo dos veces. Ahora Padding y Margin son cero y el template usa columnas de 32 DIP / texto / 30 DIP. El cursor y el placeholder coinciden a ~32 DIP; sin borde en ningún estado, fondo transparente en reposo y foco indicado por la lupa y un fondo tenue.
+- Configuración reemplaza Preferencias en título, acceso y referencias visibles. Descripción exacta: «Encontrá portadas automáticamente para tus juegos. (opcional)». Se conservan dos pasos breves de SteamGridDB con tipografía 13 DIP; se retira «No es tu contraseña». La conexión guardada ofrece «Verificar».
+- «Más opciones» plegado inicialmente agrupa Biblioteca (autoportadas y efecto de portadas) y Datos locales. «Acerca de», Cancelar y Guardar permanecen fuera del desplegable y del scroll. Altura según contenido limitada al área de trabajo, sin cambios de configuración al plegar.
+- CONFIRMADO: build Release -warnaserror sin errores/advertencias; 210/210 tests. Regresión STA del cursor real mediante GetRectFromCharacterIndex, placeholder, foco, borrado y tamaños. SteamGridSmoke offline PASS; agrega opciones plegadas/desplegadas, conservación de valores y Acerca de visible.
+- CONFIRMADO visualmente: renders WPF inicial, error, opciones abiertas y buscador enfocado; sin borde y cursor junto a la lupa. Evidencia en artifacts/ux-1.1.8. No se valida matriz multimonitor ni se usan credenciales personales.
+- Entrega 1.1.8 en carpeta nueva; se conserva la instancia personal 1.1.7 activa. Se guardan fuentes en Git local, sin push. La limpieza bloqueada del entorno descrita en 1.1.7 no se reintenta en esta pasada.
+- Próximo paso concreto: smokes de paquetes e instalador; el smoke completo del instalador requiere cerrar la instancia personal. Firma y revisión del runtime siguen pendientes antes de venta.
 
 ## Conexión guiada de SteamGridDB — 1.1.7
 - Preferencias presenta dos pasos: abrir el sitio oficial de SteamGridDB, iniciar sesión/copiar el código que allí se llama «API Key», y pegarlo/conectar. La etiqueta local es «código de conexión»; hay un botón Pegar, explicación de que no es la contraseña y aviso de almacenamiento protegido.

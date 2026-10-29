@@ -262,10 +262,10 @@
         <Setter Property="CaretBrush" Value="{StaticResource ActionAccentBrush}" />
         <Setter Property="SelectionBrush" Value="{StaticResource ActionAccentBrush}" />
         <Setter Property="SelectionOpacity" Value="0.3" />
-        <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+        <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Padding" Value="31,0,30,0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Template">
@@ -277,6 +277,11 @@
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="10">
                         <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="30" />
+                            </Grid.ColumnDefinitions>
                             <Path x:Name="SearchGlyph"
                                   Data="M 6.6,1.8 A 4.8,4.8 0 1 1 6.6,11.4 A 4.8,4.8 0 1 1 6.6,1.8 M 10.2,10.2 L 13.8,13.8"
                                   Stroke="{StaticResource TextTertiaryBrush}"
@@ -289,26 +294,26 @@
                                   VerticalAlignment="Center"
                                   Margin="12,0,0,0"
                                   Stretch="None" />
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Margin="{TemplateBinding Padding}"
+                            <ScrollViewer x:Name="PART_ContentHost" Grid.Column="1"
+                                          Margin="0"
                                           VerticalAlignment="Center"
                                           Focusable="False"
                                           HorizontalScrollBarVisibility="Hidden"
                                           VerticalScrollBarVisibility="Hidden" />
-                            <TextBlock x:Name="SearchPlaceholder" Text="Buscar juegos…" Visibility="Collapsed"
+                            <TextBlock x:Name="SearchPlaceholder" Grid.Column="1" Text="Buscar juegos…" Visibility="Collapsed"
                                        Foreground="{StaticResource TextTertiaryBrush}"
-                                       Margin="32,0,30,0"
+                                       Margin="0"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False">
                             </TextBlock>
-                            <Button x:Name="ClearButton"
+                            <Button x:Name="ClearButton" Grid.Column="2"
                                     Command="{Binding ClearSearchCommand}"
                                     Style="{StaticResource IconButtonStyle}"
                                     Width="22"
                                     Height="22"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center"
-                                    Margin="0,0,5,0"
+                                    Margin="0"
                                     Focusable="False"
                                     ToolTip="Limpiar búsqueda">
                                 <Path Data="M 2,2 L 10,10 M 10,2 L 2,10"
@@ -334,8 +339,8 @@
                             <Setter TargetName="ClearButton" Property="Visibility" Value="Collapsed" />
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource TextTertiaryBrush}" />
-                            <Setter TargetName="SearchGlyph" Property="Stroke" Value="{StaticResource TextSecondaryBrush}" />
+                            <Setter TargetName="Root" Property="Background" Value="{StaticResource SurfaceBrush}" />
+                            <Setter TargetName="SearchGlyph" Property="Stroke" Value="{StaticResource ActionAccentBrush}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.45" />

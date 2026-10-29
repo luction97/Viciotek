@@ -284,8 +284,8 @@
                     Command="{Binding OpenPreferencesCommand}"
                     Style="{StaticResource IconButtonStyle}"
                     FontFamily="{StaticResource IconFont}" FontSize="14"
-                    Content="&#xE713;" ToolTip="Preferencias"
-                    AutomationProperties.Name="Preferencias"
+                    Content="&#xE713;" ToolTip="Configuración"
+                    AutomationProperties.Name="Configuración"
                     VerticalAlignment="Center" Margin="0,0,8,0"
                     WindowChrome.IsHitTestVisibleInChrome="True" />
 
@@ -376,7 +376,7 @@
                                 Visibility="{Binding ShowCoverSetupHint, Converter={StaticResource BoolToVisibility}}">
                         <TextBlock Text="¿Querés portadas automáticas?" TextAlignment="Center"
                                    FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" />
-                        <TextBlock Text="Abrí SteamGridDB, iniciá sesión y copiá tu código. Después pegalo en Preferencias y elegí Conectar."
+                        <TextBlock Text="Abrí SteamGridDB, iniciá sesión y copiá tu código. Después pegalo en Configuración y elegí Conectar."
                                    Margin="0,7,0,0" TextAlignment="Center" TextWrapping="Wrap"
                                    FontSize="12" LineHeight="19" Foreground="{StaticResource TextSecondaryBrush}" />
                         <Button Content="Configurar portadas" Command="{Binding OpenPreferencesCommand}"

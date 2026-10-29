@@ -21,7 +21,7 @@ public sealed class MinimalInterfaceTests
         Assert.DoesNotContain("soltá", text, StringComparison.OrdinalIgnoreCase);
         Assert.Contains(document.Descendants(ui + "MenuItem"), item => (string?)item.Attribute("Header") == "Cambiar portada…");
         Assert.Contains(document.Descendants(ui + "Button"), item =>
-            (string?)item.Attribute("AutomationProperties.Name") == "Preferencias" &&
+            (string?)item.Attribute("AutomationProperties.Name") == "Configuración" &&
             (string?)item.Attribute("Command") == "{Binding OpenPreferencesCommand}");
         Assert.DoesNotContain(document.Descendants(ui + "Button"), item =>
             (string?)item.Attribute("Command") == "{Binding ChangeCoverCommand}");

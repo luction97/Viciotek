@@ -158,6 +158,19 @@ internal static class Program
         dialog.Show();
         try
         {
+            var options = (Expander)dialog.FindName("LibraryOptions");
+            var autoFetch = (CheckBox)dialog.FindName("AutoFetchCheckBox");
+            var about = (Button)dialog.FindName("AboutButton");
+            Require(!options.IsExpanded && !autoFetch.IsVisible && about.IsVisible,
+                "Configuración debe destacar SteamGridDB y conservar Acerca de visible.");
+            var originalAutoFetch = autoFetch.IsChecked;
+            options.IsExpanded = true;
+            dialog.UpdateLayout();
+            Require(autoFetch.IsVisible && about.IsVisible, "Más opciones debe revelar las opciones sin ocultar Acerca de.");
+            options.IsExpanded = false;
+            dialog.UpdateLayout();
+            Require(autoFetch.IsChecked == originalAutoFetch && !autoFetch.IsVisible && about.IsVisible,
+                "Plegar opciones debe conservar la configuración y el acceso a Acerca de.");
             var box = dialog.FindName("ApiKeyBox") as PasswordBox;
             Require(box is not null, "La clave no está oculta mediante PasswordBox.");
             box!.Password = "saved-fixture-key";

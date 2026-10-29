@@ -35,11 +35,17 @@ public sealed class SearchFieldTests
             search.Focus();
             await WpfTest.WaitUntilAsync(() => search.IsKeyboardFocusWithin);
             Assert.Equal(Visibility.Collapsed, placeholder.Visibility);
+            window.UpdateLayout();
+            Assert.Equal(new Thickness(0), ((Border)search.Template.FindName("Root", search)).BorderThickness);
+            Assert.InRange(search.GetRectFromCharacterIndex(0).Left, 31, 34);
+            Assert.InRange(placeholder.TranslatePoint(new Point(), search).X, 31, 34);
             search.Text = "A very long game name with accents: Pokémon";
             other.Focus();
             Assert.Equal(Visibility.Collapsed, placeholder.Visibility);
             Assert.Equal(Visibility.Visible, clear.Visibility);
             search.Clear();
+            window.UpdateLayout();
+            Assert.InRange(search.GetRectFromCharacterIndex(0).Left, 31, 34);
             Assert.Equal(Visibility.Visible, placeholder.Visibility);
             search.Focus();
             Assert.Equal(Visibility.Collapsed, placeholder.Visibility);

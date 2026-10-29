@@ -325,7 +325,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
         if (!_steamGrid.IsConfigured)
         {
-            ShowToast("Conectá SteamGridDB en Preferencias (Ctrl+,) para buscar portadas.", isError: false);
+            ShowToast("Conectá SteamGridDB en Configuración (Ctrl+,) para buscar portadas.", isError: false);
             return;
         }
 
@@ -364,7 +364,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
         if (!_steamGrid.IsConfigured)
         {
-            ShowToast("Conectá SteamGridDB en Preferencias (Ctrl+,) para buscar portadas.", isError: false);
+            ShowToast("Conectá SteamGridDB en Configuración (Ctrl+,) para buscar portadas.", isError: false);
             return;
         }
 
@@ -904,7 +904,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
 
         if (outcome.Added.Count > 0 && _settings.AutoFetchCovers && !_steamGrid.IsConfigured)
-            message += " Configurá SteamGridDB en Preferencias para buscar portadas.";
+            message += " Configurá SteamGridDB en Configuración para buscar portadas.";
 
         return new ImportToast(message, isError);
     }
