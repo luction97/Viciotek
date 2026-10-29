@@ -32,3 +32,5 @@ Fuente de verdad: `src/Viciotek/Presentation/Theme/Theme.xaml` y `MainWindow.xam
 - 1.1.12: Editar juego prioriza Nombre y oculta datos de inicio tras Opciones avanzadas. DisclosureStyle de texto sin contenedor decorativo. Una sola acción Cambiar portada abre dos fuentes explícitas; elección automática queda en Más opciones cuando es aplicable.
 
 - 1.1.14: hover y selección neutros sin modificar geometría, animación, imágenes ni layout. Dirección futura del logo en BRAND_DIRECTION.md; recursos oficiales conservados.
+
+- Galería de búsqueda: modal preferida de 1000×780 DIP, acotada al área de trabajo; sugerencias en dos filas de 28 DIP con scroll. Portadas de 120×180 sin cambios; 12 completas desde 1000×700 DIP, menos columnas/filas cuando el área disponible es menor. Footer separado del viewport virtualizado.

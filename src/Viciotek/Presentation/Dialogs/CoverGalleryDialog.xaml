@@ -5,17 +5,19 @@
                           xmlns:presentation="clr-namespace:Viciotek.Presentation"
                           xmlns:controls="clr-namespace:Viciotek.Presentation.Controls"
                           Title="Buscar portada"
-                          Width="760"
-                          Height="620">
+                          Width="1000"
+                          Height="780"
+                          MaxWidth="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Width}"
+                          MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
     <Border Style="{StaticResource DialogSurfaceStyle}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="60" />
+                <RowDefinition Height="56" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="72" />
+                <RowDefinition Height="56" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0"
@@ -40,7 +42,7 @@
                         Click="Cancel_Click" />
             </Grid>
 
-            <Border Grid.Row="1" Grid.RowSpan="2" Margin="26,4,26,14" Background="#111318" CornerRadius="12" Padding="12,4">
+            <Border Grid.Row="1" Grid.RowSpan="2" Margin="26,4,26,8" Background="#111318" CornerRadius="12" Padding="12,4">
                 <StackPanel>
                     <TextBox x:Name="SearchBox" Style="{StaticResource FormTextBoxStyle}"
                              MaxLength="200"
@@ -49,12 +51,13 @@
                              AutomationProperties.Name="Nombre del juego" ToolTip="Busca mientras escribís. Enter busca también nombres cortos."
                              KeyDown="SearchBox_KeyDown" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
                     <ListBox x:Name="Suggestions" ItemsSource="{Binding Matches}" DisplayMemberPath="Name"
-                             MaxHeight="144" Margin="0,2,0,6" BorderThickness="0" Background="Transparent"
+                             MaxHeight="56" Margin="0,2,0,4" BorderThickness="0" Background="Transparent"
                              Foreground="{StaticResource TextPrimaryBrush}" FontSize="14"
                              AutomationProperties.Name="Juegos encontrados" SelectionChanged="Game_SelectionChanged">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
-                                <Setter Property="Padding" Value="10,8" />
+                                <Setter Property="Padding" Value="10,4" />
+                                <Setter Property="MinHeight" Value="28" />
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="Template"><Setter.Value>
                                     <ControlTemplate TargetType="ListBoxItem">
@@ -82,7 +85,7 @@
 
             <Border Grid.Row="4" Margin="26,0,26,8" Background="{StaticResource BgBrush}" CornerRadius="10">
                 <Grid>
-                    <ListBox ItemsSource="{Binding Candidates}" SelectedItem="{Binding Selected}"
+                    <ListBox x:Name="CoverResults" ItemsSource="{Binding Candidates}" SelectedItem="{Binding Selected}"
                              Style="{StaticResource GalleryListBoxStyle}">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>

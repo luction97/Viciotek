@@ -2,6 +2,13 @@
 
 Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.14**, C#/WPF/.NET 8 para Windows 11.
 
+## Galería de portadas ampliada — ajuste posterior a 1.1.14
+- Buscar portada pasa de 760×620 a 1000×780 DIP, acotado al área de trabajo mediante los mismos bindings de SystemParameters usados por otros diálogos. Cabecera/pie de 56 DIP. Sugerencias integradas limitadas a dos filas de 28 DIP (56 DIP total), con scroll y navegación existentes; menor margen bajo el buscador.
+- Portadas de la galería conservan 120×180, separación 12 y virtualización real. Biblioteca principal, imágenes, lógica HTTP y selección sin cambios.
+- CONFIRMADO: tres regresiones de layout WPF con 500 candidatos: 12 portadas completas a 1000×780 y 1000×700; cuatro a 760×600. Verifican contenedores acotados, pie sin solapamiento y acceso al último resultado. Render con imágenes sintéticas revisado. Se ejecutaron mediante harness aislado que compila el código de pruebas y carga el XAML actual sobre el ensamblado 1.1.14 ya compilado.
+- BLOQUEO EXTERNO: build completo falla CS7064 porque Assets/icono/viciotek.ico fue eliminado fuera de este ajuste. Assets/viciotek.ico y otros recursos nuevos de marca están presentes, con PNG modificados. Se preservan todos esos cambios sin incluirlos en el commit de galería. Elección de marca consultada al propietario; no se restauró ni se sustituyó ningún recurso.
+- Sin publicación nueva ni afirmación de suite completa aprobada en este ajuste. Última distribución verificada sigue siendo 1.1.14.
+- Próximo paso concreto: resolver con el propietario la ruta/marca del icono; ejecutar build y suite completa y generar los paquetes actualizados.
 ## Refinamiento visual de tarjetas — 1.1.14
 - Hover: contorno neutro #38FFFFFF (22 % blanco), 1 DIP; se conserva la elevación existente de 6 DIP/180 ms y su preferencia de activación. Selección: blanco suave #E0E3E8, 1.5 DIP. Foco de teclado: #F3F4F6, 1.5 DIP. El azul de destino de arrastre conserva su semántica independiente.
 - CONFIRMADO: comparación XML de GameCardTemplate con a255464 idéntica al excluir únicamente CardOutline. Sin cambios en imágenes, clipping, proporciones, tamaño, márgenes, virtualización, selección o lanzamiento. Sin efectos, dependencias, temporizadores ni lógica nueva.

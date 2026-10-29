@@ -24,6 +24,7 @@
     <Using Include="Xunit" />
     <Using Include="System.IO" />
     <None Include="..\..\src\Viciotek\MainWindow.xaml" Link="UiFixtures\MainWindow.xaml" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\src\Viciotek\Presentation\Dialogs\CoverGalleryDialog.xaml" Link="UiFixtures\CoverGalleryDialog.xaml" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\installer\Viciotek.iss" Link="RepoFixtures\Viciotek.iss" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\.github\workflows\ci.yml" Link="RepoFixtures\ci.yml" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
