@@ -305,7 +305,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         {
             _launchRequested = false;
             card.IsLaunching = false;
-            ShowToast(L.Get("CouldNotLaunchTheGame") + exception.Message, isError: true);
+            App.RecordUnexpectedError(exception);
+            ShowToast(L.Get("FriendlyLaunchFailure"), isError: true);
         }
     }
 
@@ -532,7 +533,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
     public async Task AddGamesFromDialogAsync()
     {
-        var files = _dialogs.PickGameFiles(directly: ShowEmptyState);
+        var files = _dialogs.PickGameFiles(directly: true);
         if (files is { Length: > 0 })
         {
             await ImportFilesAsync(files);
@@ -595,7 +596,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
         catch (Exception exception)
         {
-            ShowToast(L.Get("CouldNotAddTheGames") + exception.Message, isError: true);
+            App.RecordUnexpectedError(exception);
+            ShowToast(L.Get("FriendlyImportFailure"), isError: true);
         }
         finally
         {

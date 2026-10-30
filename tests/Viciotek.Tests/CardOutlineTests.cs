@@ -11,6 +11,8 @@ public sealed class CardOutlineTests
     private static readonly XNamespace Ui = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
     private static readonly XNamespace Xaml = "http://schemas.microsoft.com/winfx/2006/xaml";
 
+    private static XDocument ReadTheme() => XDocument.Load(Path.Combine(AppContext.BaseDirectory, "UiFixtures", "Theme.xaml"));
+
     private static XDocument ReadWindow() => XDocument.Load(
         Path.Combine(AppContext.BaseDirectory, "UiFixtures", "MainWindow.xaml"));
 
@@ -47,14 +49,14 @@ public sealed class CardOutlineTests
         {
             Assert.Contains(triggers[index].Elements(Ui + "Setter"), s =>
                 (string?)s.Attribute("Property") == "BorderBrush" &&
-                (string?)s.Attribute("Value") == $"{{StaticResource {brushes[index]}}}");
+                (string?)s.Attribute("Value") == $"{{DynamicResource {brushes[index]}}}");
         }
-        var accent = document.Descendants(Ui + "SolidColorBrush").Single(e =>
+        var accent = ReadTheme().Descendants(Ui + "SolidColorBrush").Single(e =>
             (string?)e.Attribute(Xaml + "Key") == "CardAccentBrush");
         Assert.Equal("#149DFF", (string?)accent.Attribute("Color"));
         Assert.Contains(triggers[2].Elements(Ui + "Setter"), s =>
             (string?)s.Attribute("Property") == "BorderBrush" &&
-            (string?)s.Attribute("Value") == "{StaticResource TextPrimaryBrush}");
+            (string?)s.Attribute("Value") == "{DynamicResource TextPrimaryBrush}");
     }
 
     [Fact]
@@ -65,16 +67,16 @@ public sealed class CardOutlineTests
             (string?)e.Attribute(Xaml + "Name") == "CardOutline");
         var itemStyle = document.Descendants(Ui + "Style").Single(e =>
             (string?)e.Attribute(Xaml + "Key") == "GameCardItemStyle");
-        var cardBrushes = document.Descendants(Ui + "SolidColorBrush").Where(e =>
+        var cardBrushes = ReadTheme().Descendants(Ui + "SolidColorBrush").Where(e =>
             ((string?)e.Attribute(Xaml + "Key"))?.StartsWith("Card", StringComparison.Ordinal) == true);
         // Exercise the production style and outline, not a separately authored imitation.
         var item = (ListBoxItem)XamlReader.Parse($$"""
-            <ListBoxItem xmlns="{{Ui}}" xmlns:x="{{Xaml}}">
-                <ListBoxItem.Resources>
+            <ListBoxItem xmlns="{{Ui}}" xmlns:x="{{Xaml}}" xmlns:loc="clr-namespace:Viciotek.Localization;assembly=Viciotek">
+                <ListBoxItem.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="/Viciotek;component/Presentation/Theme/Theme.xaml" /></ResourceDictionary.MergedDictionaries>
                     {{string.Join(Environment.NewLine, cardBrushes)}}
                     <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F3F4F6" />
                     {{itemStyle}}
-                </ListBoxItem.Resources>
+                </ResourceDictionary></ListBoxItem.Resources>
                 <Grid x:Name="CardRoot">
                     <Grid.RenderTransform><TranslateTransform Y="-6" /></Grid.RenderTransform>
                     <Border x:Name="Cover" CornerRadius="10" Background="Black" />

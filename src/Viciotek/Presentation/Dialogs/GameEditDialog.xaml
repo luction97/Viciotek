@@ -4,8 +4,8 @@
              xmlns:loc="clr-namespace:Viciotek.Localization"
                           xmlns:local="clr-namespace:Viciotek.Presentation.Dialogs"
                           Title="{loc:Text EditGame}"
-                          Width="640" FontFamily="{StaticResource AppFont}" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}"
-                          SizeToContent="Height" MinHeight="280" MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
+                          Width="640" FontFamily="{StaticResource AppFont}" FontSize="14" Foreground="{DynamicResource TextPrimaryBrush}"
+                          SizeToContent="Height" MinHeight="280">
     <Border Style="{StaticResource DialogSurfaceStyle}">
         <Grid>
             <Grid.RowDefinitions>
@@ -23,12 +23,12 @@
                            FontFamily="{StaticResource DisplayFont}"
                            FontSize="21"
                            FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" />
+                           Foreground="{DynamicResource TextPrimaryBrush}" />
                 <Button Content="&#xE8BB;"
                         Style="{StaticResource IconButtonStyle}"
                         FontFamily="{StaticResource IconFont}"
                         FontSize="10"
-                        Foreground="{StaticResource TextSecondaryBrush}"
+                        Foreground="{DynamicResource TextSecondaryBrush}"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         Margin="0,0,18,0"
@@ -50,7 +50,7 @@
                              TextChanged="Field_TextChanged" />
 
                     </StackPanel></Border>
-                    <Expander Style="{StaticResource DisclosureStyle}" x:Name="AdvancedOptions" Header="{loc:Text AdvancedOptions}" IsExpanded="False" Margin="0,12,0,0" Foreground="{StaticResource TextSecondaryBrush}"><Border Style="{StaticResource DialogSectionStyle}"><StackPanel>
+                    <Expander Style="{StaticResource DisclosureStyle}" x:Name="AdvancedOptions" Header="{loc:Text AdvancedOptions}" IsExpanded="False" Margin="0,12,0,0" Foreground="{DynamicResource TextSecondaryBrush}"><Border Style="{StaticResource DialogSectionStyle}"><StackPanel>
                     <TextBlock Text="{loc:Text GameFileOrLink}"
                                Style="{StaticResource FieldLabelStyle}"
                                Margin="0,0,0,7" />

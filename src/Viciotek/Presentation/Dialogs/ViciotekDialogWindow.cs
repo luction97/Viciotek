@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Viciotek.Infrastructure.Shell;
 
 namespace Viciotek.Presentation.Dialogs;
 
@@ -23,6 +24,18 @@ public abstract class ViciotekDialogWindow : Window
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
         TextOptions.SetTextRenderingMode(this, TextRenderingMode.Grayscale);
         PreviewKeyDown += OnDialogPreviewKeyDown;
+        SourceInitialized += (_, _) => SetWorkAreaLimit(Owner ?? this);
+        ContentRendered += (_, _) => { SetWorkAreaLimit(this); WindowAppearance.KeepDialogOnScreen(this); };
+        DpiChanged += (_, _) => { SetWorkAreaLimit(this); WindowAppearance.KeepDialogOnScreen(this); };
+    }
+
+    private void SetWorkAreaLimit(Window reference)
+    {
+        var available = WindowAppearance.WorkAreaSize(reference);
+        MinWidth = Math.Min(MinWidth, available.Width);
+        MinHeight = Math.Min(MinHeight, available.Height);
+        MaxWidth = available.Width;
+        MaxHeight = available.Height;
     }
 
     protected void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -7,9 +7,7 @@
                           xmlns:controls="clr-namespace:Viciotek.Presentation.Controls"
                           Title="{loc:Text FindACover}"
                           Width="1000"
-                          Height="960"
-                          MaxWidth="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Width}"
-                          MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
+                          Height="960">
     <Border Style="{StaticResource DialogSurfaceStyle}">
         <Grid>
             <Grid.RowDefinitions>
@@ -30,12 +28,12 @@
                            FontFamily="{StaticResource DisplayFont}"
                            FontSize="21"
                            FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" />
+                           Foreground="{DynamicResource TextPrimaryBrush}" />
                 <Button Content="&#xE8BB;"
                         Style="{StaticResource IconButtonStyle}"
                         FontFamily="{StaticResource IconFont}"
                         FontSize="10"
-                        Foreground="{StaticResource TextSecondaryBrush}"
+                        Foreground="{DynamicResource TextSecondaryBrush}"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         Margin="0,0,18,0"
@@ -43,7 +41,7 @@
                         Click="Cancel_Click" />
             </Grid>
 
-            <Border x:Name="SearchSurface" Grid.Row="1" Grid.RowSpan="2" Margin="26,4,26,8" Background="#111318" CornerRadius="12" Padding="12,4">
+            <Border x:Name="SearchSurface" Grid.Row="1" Grid.RowSpan="2" Margin="26,4,26,8" Background="{DynamicResource SearchSurfaceBrush}" CornerRadius="12" Padding="12,4">
                 <StackPanel>
                     <TextBox x:Name="SearchBox" Style="{StaticResource FormTextBoxStyle}"
                              MaxLength="200"
@@ -53,7 +51,7 @@
                              PreviewKeyDown="SearchBox_KeyDown" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
                     <ListBox x:Name="Suggestions" ItemsSource="{Binding Matches}" DisplayMemberPath="Name"
                              MaxHeight="56" Margin="0,2,0,4" BorderThickness="0" Background="Transparent"
-                             Foreground="{StaticResource TextPrimaryBrush}" FontSize="14"
+                             Foreground="{DynamicResource TextPrimaryBrush}" FontSize="14"
                              AutomationProperties.Name="{loc:Text MatchingGames}" PreviewMouseLeftButtonUp="Suggestion_MouseUp" PreviewKeyDown="Suggestions_KeyDown">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
@@ -67,8 +65,8 @@
                                             <ContentPresenter />
                                         </Border>
                                         <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="{StaticResource ActionAccentBrush}" /></Trigger>
-                                            <Trigger Property="IsSelected" Value="True"><Setter TargetName="MatchRow" Property="Background" Value="{StaticResource SurfaceHoverBrush}" /></Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="{DynamicResource ActionAccentBrush}" /></Trigger>
+                                            <Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="{DynamicResource HighlightedTextBrush}" /><Setter TargetName="MatchRow" Property="Background" Value="{DynamicResource SurfaceHoverBrush}" /></Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
                                 </Setter.Value></Setter>
@@ -83,9 +81,9 @@
                 </StackPanel>
             </Border>
             <TextBlock Grid.Row="3" Text="{Binding Status}" Margin="26,0,26,8" TextWrapping="Wrap"
-                       Foreground="{StaticResource TextSecondaryBrush}" />
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
 
-            <Border Grid.Row="4" Margin="26,0,26,8" Background="{StaticResource BgBrush}" CornerRadius="10">
+            <Border Grid.Row="4" Margin="26,0,26,8" Background="{DynamicResource BgBrush}" CornerRadius="10">
                 <Grid>
                     <ListBox x:Name="CoverResults" ItemsSource="{Binding Candidates}" SelectedItem="{Binding Selected}"
                              Style="{StaticResource GalleryListBoxStyle}">
@@ -106,7 +104,7 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsSelected" Value="True">
-                                                        <Setter TargetName="SelectionBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                                        <Setter TargetName="SelectionBorder" Property="BorderBrush" Value="{DynamicResource ActionAccentBrush}" />
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -121,11 +119,11 @@
                                             <Image Source="{Binding Thumbnail}"
                                                    Stretch="UniformToFill"
                                                    RenderOptions.BitmapScalingMode="HighQuality" />
-                                            <Border Background="#66000000"
+                                            <Border Background="{DynamicResource PreviewLoadingBrush}"
                                                     Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
                                             <TextBlock Text="…"
                                                        HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
                                         </Grid>
                                     </Border>
@@ -135,7 +133,7 @@
                     <TextBlock Text="{loc:Text Searching}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"
                                FontFamily="{StaticResource AppFont}" FontSize="13"
-                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
                 </Grid>
             </Border>

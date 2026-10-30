@@ -13,7 +13,7 @@
         WindowStyle="None"
         ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource BgBrush}"
+        Background="{DynamicResource BgBrush}"
         FontFamily="{StaticResource AppFont}"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
@@ -31,9 +31,7 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <SolidColorBrush x:Key="CardAccentBrush" Color="#149DFF" />
-        <SolidColorBrush x:Key="CardHoverBrush" Color="#38FFFFFF" />
-        <SolidColorBrush x:Key="CardSelectionBrush" Color="#E0E3E8" />
+
         <Style x:Key="GameCardItemStyle" TargetType="{x:Type ListBoxItem}">
             <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="0" />
@@ -44,6 +42,15 @@
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="AutomationProperties.Name" Value="{Binding Name}" />
+            <Setter Property="ContextMenu"><Setter.Value><ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                        <MenuItem Header="{loc:Text Play}" Command="{Binding PlayCommand}" InputGestureText="{loc:Text Enter}"><MenuItem.Icon><TextBlock Text="&#xE768;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
+                        <MenuItem Header="{loc:Text ChangeCover}" Command="{Binding ChangeCoverCommand}"><MenuItem.Icon><TextBlock Text="&#xEB9F;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
+                        <Separator Style="{StaticResource MenuSeparatorStyle}" />
+                        <MenuItem Header="{loc:Text Edit}" Command="{Binding EditCommand}" InputGestureText="F2"><MenuItem.Icon><TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
+                        <MenuItem Header="{loc:Text Remove}"
+                                  Command="{Binding RemoveCommand}"
+                                  Style="{StaticResource DangerMenuTextStyle}"><MenuItem.Icon><TextBlock Text="&#xE74D;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
+                    </ContextMenu></Setter.Value></Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ListBoxItem}">
@@ -62,6 +69,7 @@
                   controls:CardHoverBehavior.Enabled="{Binding DataContext.AnimationsEnabled, RelativeSource={RelativeSource AncestorType={x:Type Window}}}">
                 <controls:RoundedClipBorder Background="{Binding FallbackBrush}" CornerRadius="10">
                     <Grid>
+                        <Border Background="{DynamicResource BgBrush}" Visibility="{DynamicResource HighContrastVisibility}" IsHitTestVisible="False" />
                         <StackPanel HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     IsHitTestVisible="False">
@@ -94,7 +102,7 @@
                                        FontFamily="{StaticResource DisplayFont}"
                                        FontSize="43"
                                        FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        Opacity="0.42" />
                         </StackPanel>
 
@@ -122,19 +130,19 @@
                                     </Style.Triggers>
                                 </Style>
                             </Grid.Style>
-                            <Border Height="84" VerticalAlignment="Bottom" Background="{StaticResource NameOverlayBrush}" />
+                            <Border Height="84" VerticalAlignment="Bottom" Background="{DynamicResource NameOverlayBrush}" />
                             <StackPanel VerticalAlignment="Bottom" Margin="14,0,14,13">
                                 <TextBlock Text="{Binding Name}"
                                            FontFamily="{StaticResource AppFont}"
                                            FontSize="14.5"
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis"
                                            TextWrapping="NoWrap" />
                             </StackPanel>
                         </Grid>
 
-                        <Border Background="#DB0A0B0E"
+                        <Border Background="{DynamicResource CardBusyBackgroundBrush}"
                                 Visibility="{Binding IsWorking, Converter={StaticResource BoolToVisibility}}">
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,0">
                                 <TextBlock Text="{Binding ActivityLabel}"
@@ -143,28 +151,28 @@
                                            TextWrapping="Wrap"
                                            FontFamily="{StaticResource AppFont}"
                                            FontSize="12"
-                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                           Foreground="{DynamicResource TextPrimaryBrush}" />
                                 <Border Width="46"
                                         Height="2"
                                         Margin="0,12,0,0"
                                         CornerRadius="1"
-                                        Background="{StaticResource AccentBrush}" />
+                                        Background="{DynamicResource AccentBrush}" />
                             </StackPanel>
                         </Border>
 
-                        <Border Background="#E60A0B0E"
+                        <Border Background="{DynamicResource CardProgressBackgroundBrush}"
                                 Visibility="{Binding IsLaunching, Converter={StaticResource BoolToVisibility}}">
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="{loc:Text Launching}"
                                            FontFamily="{StaticResource AppFont}"
                                            FontSize="12.5"
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                           Foreground="{DynamicResource TextPrimaryBrush}" />
                                 <Border Width="36"
                                         Height="2"
                                         Margin="0,10,0,0"
                                         CornerRadius="1"
-                                        Background="{StaticResource AccentBrush}" />
+                                        Background="{DynamicResource AccentBrush}" />
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -181,21 +189,21 @@
                                 <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
                                              Value="True">
                                     <Setter Property="BorderThickness" Value="1" />
-                                    <Setter Property="BorderBrush" Value="{StaticResource CardHoverBrush}" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource CardHoverBrush}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
                                              Value="True">
                                     <Setter Property="BorderThickness" Value="1.5" />
-                                    <Setter Property="BorderBrush" Value="{StaticResource CardSelectionBrush}" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource CardSelectionBrush}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
                                              Value="True">
                                     <Setter Property="BorderThickness" Value="1.5" />
-                                    <Setter Property="BorderBrush" Value="{StaticResource TextPrimaryBrush}" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource TextPrimaryBrush}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsCoverDropTarget}" Value="True">
                                     <Setter Property="BorderThickness" Value="2" />
-                                    <Setter Property="BorderBrush" Value="{StaticResource CardAccentBrush}" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource CardAccentBrush}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -216,18 +224,6 @@
                         </Style>
                     </Border.Style>
                 </Border>
-
-                <Grid.ContextMenu>
-                    <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                        <MenuItem Header="{loc:Text Play}" Command="{Binding PlayCommand}" InputGestureText="Entrar"><MenuItem.Icon><TextBlock Text="&#xE768;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
-                        <MenuItem Header="{loc:Text ChangeCover}" Command="{Binding ChangeCoverCommand}"><MenuItem.Icon><TextBlock Text="&#xEB9F;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
-                        <Separator Style="{StaticResource MenuSeparatorStyle}" />
-                        <MenuItem Header="{loc:Text Edit}" Command="{Binding EditCommand}" InputGestureText="F2"><MenuItem.Icon><TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
-                        <MenuItem Header="{loc:Text Remove}"
-                                  Command="{Binding RemoveCommand}"
-                                  Style="{StaticResource DangerMenuTextStyle}"><MenuItem.Icon><TextBlock Text="&#xE74D;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
-                    </ContextMenu>
-                </Grid.ContextMenu>
             </Grid>
         </DataTemplate>
     </Window.Resources>
@@ -239,7 +235,7 @@
         </Grid.RowDefinitions>
 
         <!-- Title bar -->
-        <Grid Grid.Row="0" Background="{StaticResource BgBrush}">
+        <Grid Grid.Row="0" Background="{DynamicResource BgBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -258,8 +254,8 @@
                            FontFamily="{StaticResource DisplayFont}"
                            FontSize="13.5"
                            FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" />
-                <Ellipse Width="4" Height="4" Fill="{StaticResource ActionAccentBrush}" Margin="7,0,0,0" VerticalAlignment="Center" />
+                           Foreground="{DynamicResource TextPrimaryBrush}" />
+                <Ellipse Width="4" Height="4" Fill="{DynamicResource ActionAccentBrush}" Margin="7,0,0,0" VerticalAlignment="Center" />
             </StackPanel>
 
             <Grid Grid.Column="1" Margin="30,0">
@@ -291,7 +287,7 @@
                     FontFamily="{StaticResource IconFont}"
                     FontSize="14"
                     Content="&#xE710;"
-                    Foreground="{StaticResource TextPrimaryBrush}"
+                    Foreground="{DynamicResource TextPrimaryBrush}"
                     ToolTip="{loc:Text AddGamesCtrlO}"
                     AutomationProperties.Name="{loc:Text AddGames}"
                     WindowChrome.IsHitTestVisibleInChrome="True" />
@@ -340,7 +336,7 @@
             </controls:GameGallery>
 
             <!-- Empty library -->
-            <Grid x:Name="EmptyLibrary" Background="{StaticResource BgBrush}"
+            <Grid x:Name="EmptyLibrary" Background="{DynamicResource BgBrush}"
                   Visibility="{Binding ShowEmptyState, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel x:Name="WelcomeContent" HorizontalAlignment="Center"
                             VerticalAlignment="Center"
@@ -353,22 +349,22 @@
                                TextWrapping="Wrap"
                                FontSize="36"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
+                               Foreground="{DynamicResource TextPrimaryBrush}" />
                     <Border x:Name="CoverSetupHint" Style="{StaticResource DialogSectionStyle}" Margin="0,24,0,0"
                             Visibility="{Binding ShowCoverSetupHint, Converter={StaticResource BoolToVisibility}}">
                         <StackPanel>
                         <TextBlock Text="{loc:Text StartWithAutomaticCovers}" FontSize="20" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" />
+                                   Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" />
                         <TextBlock Text="{loc:Text ForAutomaticCovers}" FontSize="15"
-                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap" />
                         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                             <Button x:Name="ConnectWelcome" Content="{loc:Text ConnectSteamGridOptional}" Command="{Binding OpenPreferencesCommand}"
                                     Style="{StaticResource PrimaryButtonStyle}" FontSize="18" Height="44" Padding="0,0,18,0" />
                             <TextBlock Text="{loc:Text Recommended}" FontSize="13" VerticalAlignment="Center"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
                         </StackPanel>
                         <TextBlock Text="{loc:Text ManualCoversWithoutConnection}" FontSize="14"
-                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"
                                    TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
@@ -379,27 +375,27 @@
                             <Button.Style><Style TargetType="Button" BasedOn="{StaticResource WelcomeButtonStyle}">
                                 <Setter Property="FontSize" Value="18" />
                                 <Style.Triggers><DataTrigger Binding="{Binding ShowCoverSetupHint}" Value="True">
-                                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
                                     <Setter Property="FontSize" Value="16" />
                                 </DataTrigger></Style.Triggers>
                             </Style></Button.Style>
                         </Button>
                         <TextBlock Text="{loc:Text DragShortcutToStart}" FontSize="15"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    TextAlignment="Center" TextWrapping="Wrap" Margin="0,4,0,0" />
                     </StackPanel>
                 </StackPanel>
             </Grid>
 
             <!-- Empty search -->
-            <Grid Background="{StaticResource BgBrush}"
+            <Grid Background="{DynamicResource BgBrush}"
                   Visibility="{Binding ShowNoResults, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="440" Margin="32">
                     <TextBlock Text="&#xE721;"
                                HorizontalAlignment="Center"
                                FontFamily="{StaticResource IconFont}"
                                FontSize="26"
-                               Foreground="{StaticResource TextTertiaryBrush}" />
+                               Foreground="{DynamicResource TextTertiaryBrush}" />
                     <TextBlock Text="{Binding NoResultsText}"
                                Margin="0,16,0,0"
                                HorizontalAlignment="Center"
@@ -407,7 +403,7 @@
                                TextWrapping="Wrap"
                                FontFamily="{StaticResource AppFont}"
                                FontSize="14"
-                               Foreground="{StaticResource TextSecondaryBrush}" />
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
                     <Button Content="{loc:Text ClearSearch}"
                             Command="{Binding ClearSearchCommand}"
                             Style="{StaticResource GhostButtonStyle}"
@@ -419,7 +415,7 @@
             <!-- Drop hint for imported files -->
             <Border x:Name="DropOverlay"
                     Margin="18"
-                    Background="#D90A0B0E"
+                    Background="{DynamicResource DropHintBackgroundBrush}"
                     BorderBrush="#38FFFFFF"
                     BorderThickness="1"
                     CornerRadius="14"
@@ -428,7 +424,7 @@
                     Panel.ZIndex="20">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Path Data="M 13,2 L 13,22 M 5,14 L 13,22 L 21,14 M 2,30 L 24,30"
-                          Stroke="{StaticResource TextSecondaryBrush}"
+                          Stroke="{DynamicResource TextSecondaryBrush}"
                           StrokeThickness="1.7"
                           StrokeStartLineCap="Round"
                           StrokeEndLineCap="Round"
@@ -442,7 +438,7 @@
                                FontFamily="{StaticResource DisplayFont}"
                                FontSize="32"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
+                               Foreground="{DynamicResource TextPrimaryBrush}" />
                 </StackPanel>
             </Border>
 
@@ -458,8 +454,8 @@
                     Visibility="{Binding IsToastVisible, Converter={StaticResource BoolToVisibility}}">
                 <Border.Style>
                     <Style TargetType="{x:Type Border}">
-                        <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
-                        <Setter Property="BorderBrush" Value="{StaticResource BorderStrongBrush}" />
+                        <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}" />
+                        <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
                         <Setter Property="Opacity" Value="0" />
                         <Setter Property="RenderTransform">
                             <Setter.Value>
@@ -468,8 +464,8 @@
                         </Setter>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding ToastIsError}" Value="True">
-                                <Setter Property="Background" Value="{StaticResource DangerSurfaceBrush}" />
-                                <Setter Property="BorderBrush" Value="{StaticResource DangerBorderBrush}" />
+                                <Setter Property="Background" Value="{DynamicResource DangerSurfaceBrush}" />
+                                <Setter Property="BorderBrush" Value="{DynamicResource DangerBorderBrush}" />
                             </DataTrigger>
                             <DataTrigger Binding="{Binding IsToastVisible}" Value="True">
                                 <DataTrigger.EnterActions>
@@ -497,7 +493,7 @@
                            FontFamily="{StaticResource AppFont}"
                            FontSize="12.5"
                            LineHeight="18"
-                           Foreground="{StaticResource TextPrimaryBrush}" />
+                           Foreground="{DynamicResource TextPrimaryBrush}" />
             </Border>
         </Grid>
     </Grid>

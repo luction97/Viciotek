@@ -681,4 +681,10 @@ Detalle técnico: {0}</value>
   <data name="ManualCoversWithoutConnection" xml:space="preserve"><value>Es opcional. Sin conectar, puedes elegir las portadas manualmente.</value></data>
   <data name="StartWithAutomaticCovers" xml:space="preserve"><value>Empieza con portadas automáticas</value></data>
   <data name="Recommended" xml:space="preserve"><value>Recomendado</value></data>
+
+  <data name="TechnicalDetails" xml:space="preserve"><value>Detalles técnicos</value></data>
+  <data name="FriendlyStartupFailure" xml:space="preserve"><value>No se pudo abrir VICIOTEK. Intenta abrirla de nuevo.</value></data>
+  <data name="FriendlyActionFailure" xml:space="preserve"><value>No se pudo completar esta acción. Puedes intentarlo de nuevo.</value></data>
+  <data name="FriendlyLaunchFailure" xml:space="preserve"><value>No se pudo iniciar el juego. Revisa su archivo de inicio en Editar → Opciones avanzadas.</value></data>
+  <data name="FriendlyImportFailure" xml:space="preserve"><value>No se pudieron agregar los juegos. Comprueba que los archivos estén disponibles e inténtalo de nuevo.</value></data>
 </root>

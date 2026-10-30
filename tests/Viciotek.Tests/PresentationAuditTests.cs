@@ -13,6 +13,33 @@ namespace Viciotek.Tests;
 public sealed class PresentationAuditTests
 {
     [Fact]
+    public Task UnexpectedLaunchFailure_IsFriendlyAndAllowsRetry() => WpfTest.RunAsync(async () =>
+    {
+        var directory = TestHelpers.CreateTempDirectory();
+        try
+        {
+            var paths = new AppPaths(directory); paths.EnsureCreated();
+            using var vm = new MainViewModel([new Game { Name = "Example", LaunchPath = @"C:\fixture.exe" }],
+                new AppSettings(), new LibraryStore(paths), new SettingsStore(paths),
+                new GameImporter(new FakeShortcutResolver()), new FailingLauncher(), new CoverStore(paths),
+                new SteamGridDbClient(null), new FakeDialogs(), null);
+            var card = Assert.Single(vm.Games);
+            for (var attempt = 0; attempt < 2; attempt++)
+            {
+                await vm.PlayAsync(card);
+                Assert.Equal(Viciotek.Localization.Language.Get("FriendlyLaunchFailure"), vm.ToastMessage);
+                Assert.DoesNotContain("private-path", vm.ToastMessage);
+                Assert.False(card.IsLaunching);
+            }
+        }
+        finally { Directory.Delete(directory, true); }
+    });
+
+    private sealed class FailingLauncher : IGameLauncher
+    {
+        public Task<LaunchResult> LaunchAsync(Game game) => Task.FromException<LaunchResult>(new InvalidOperationException("private-path technical failure"));
+    }
+    [Fact]
     public Task Welcome_TracksImportSearchAndLastRemoval() => WpfTest.RunAsync(async () =>
     {
         var directory = TestHelpers.CreateTempDirectory();
@@ -46,7 +73,7 @@ public sealed class PresentationAuditTests
             Assert.False(viewModel.ShowEmptyState);
             Assert.True(viewModel.ShowNoResults);
             await viewModel.AddGamesFromDialogAsync();
-            Assert.False(dialogs.DirectPick); // Search with no matches is not an empty library.
+            Assert.True(dialogs.DirectPick); // Adding follows the same direct path in a populated library.
             viewModel.ClearSearchCommand.Execute(null);
             Assert.False(viewModel.ShowNoResults);
             await viewModel.RemoveAsync(Assert.Single(viewModel.Games));

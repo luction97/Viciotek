@@ -5,9 +5,9 @@
                           xmlns:local="clr-namespace:Viciotek.Presentation.Dialogs"
                           Title="{loc:Text Settings}"
                           FontFamily="{StaticResource AppFont}" FontSize="14"
-                          Foreground="{StaticResource TextPrimaryBrush}"
+                          Foreground="{DynamicResource TextPrimaryBrush}"
                           Width="660"
-                          SizeToContent="Height" MinHeight="480" MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}">
+                          SizeToContent="Height" MinHeight="480">
     <Border Style="{StaticResource DialogSurfaceStyle}">
         <Grid>
             <Grid.RowDefinitions>
@@ -25,12 +25,12 @@
                            FontFamily="{StaticResource DisplayFont}"
                            FontSize="22"
                            FontWeight="Medium"
-                           Foreground="{StaticResource TextPrimaryBrush}" />
+                           Foreground="{DynamicResource TextPrimaryBrush}" />
                 <Button Content="&#xE8BB;"
                         Style="{StaticResource IconButtonStyle}"
                         FontFamily="{StaticResource IconFont}"
                         FontSize="10"
-                        Foreground="{StaticResource TextSecondaryBrush}"
+                        Foreground="{DynamicResource TextSecondaryBrush}"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         Margin="0,0,18,0"
@@ -45,26 +45,26 @@
                     <Border Style="{StaticResource DialogSectionStyle}"><StackPanel>
                     <Grid Margin="0,0,0,18">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="52" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Border Width="38" Height="38" CornerRadius="12" Background="#242932" HorizontalAlignment="Left">
+                        <Border Width="38" Height="38" CornerRadius="12" Background="{DynamicResource ProviderIconBackgroundBrush}" HorizontalAlignment="Left">
                             <TextBlock Text="&#xEB9F;" FontFamily="{StaticResource IconFont}" FontSize="20"
-                                       Foreground="{StaticResource ActionAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                       Foreground="{DynamicResource ActionAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <TextBlock Text="SteamGridDB" FontSize="15" FontWeight="Medium" />
                             <TextBlock Text="{loc:Text AutomaticCoversForYourGamesOptional}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="14" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                       Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14" TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Grid>
                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="24" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <TextBlock Text="1" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                        <TextBlock Text="1" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" />
                     <Button Grid.Column="1" FontSize="15" Content="{loc:Text GetMyCode}" Style="{StaticResource LinkButtonStyle}"
                             HorizontalAlignment="Left" Padding="0" Click="OpenSteamGridDb_Click" />
                     </Grid>
                     <TextBlock Text="{loc:Text SignInAndCopyYourApiKeyCode}"
                                Style="{StaticResource FieldHintStyle}" FontSize="15" LineHeight="22" TextWrapping="Wrap"
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="24,4,0,18" />
-                    <StackPanel Orientation="Horizontal"><TextBlock Text="2" Width="24" Margin="0,0,0,10" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" /><Label Content="{loc:Text PasteYourCodeToConnect}" Target="{Binding ElementName=ApiKeyBox}"
-                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="15" Padding="0,0,0,10" /></StackPanel>
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="24,4,0,18" />
+                    <StackPanel Orientation="Horizontal"><TextBlock Text="2" Width="24" Margin="0,0,0,10" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" /><Label Content="{loc:Text PasteYourCodeToConnect}" Target="{Binding ElementName=ApiKeyBox}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="15" Padding="0,0,0,10" /></StackPanel>
                     <Grid Margin="24,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -84,7 +84,7 @@
                                 IsEnabled="False" Click="VerifyConnection_Click" />
                     </Grid>
                     <TextBlock x:Name="ConnectionStatusText" TextWrapping="Wrap" FontSize="14"
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="24,10,0,0"
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="24,10,0,0"
                                Visibility="Collapsed" AutomationProperties.LiveSetting="Polite" />
                     </StackPanel></Border>
                                         <Button x:Name="LanguageButton" AutomationProperties.Name="{loc:Text Language}" Style="{StaticResource GhostButtonStyle}" HorizontalAlignment="Left"
@@ -110,14 +110,14 @@
                         </Button.ContextMenu>
                     </Button>
                     <Expander x:Name="LibraryOptions" IsExpanded="False" Margin="0,20,0,4"
-                              Foreground="{StaticResource TextPrimaryBrush}"
+                              Foreground="{DynamicResource TextPrimaryBrush}"
                               FontSize="14" FocusVisualStyle="{StaticResource FocusRingStyle}">
                         <Expander.Template>
                             <ControlTemplate TargetType="{x:Type Expander}">
                                 <StackPanel>
                                     <ToggleButton x:Name="OptionsToggle" Background="Transparent"
                                                   AutomationProperties.Name="{loc:Text ShowOrHideMoreOptions}"
-                                                  Foreground="{StaticResource TextSecondaryBrush}" BorderThickness="0"
+                                                  Foreground="{DynamicResource TextSecondaryBrush}" BorderThickness="0"
                                                   HorizontalAlignment="Left" Padding="0,8" Cursor="Hand"
                                                   IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
                                                   FocusVisualStyle="{StaticResource FocusRingStyle}">
@@ -132,7 +132,7 @@
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
                                                         <Setter TargetName="OptionsLabel" Property="Opacity" Value="1" />
-                                                        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
                                                     </Trigger>
                                                     <Trigger Property="IsChecked" Value="True">
                                                         <Setter TargetName="OptionsLabel" Property="Text" Value="{loc:Text FewerOptions}" />
@@ -153,7 +153,7 @@
                         </Expander.Template>
                         <Border Style="{StaticResource DialogSectionStyle}"><StackPanel>
                             <TextBlock Text="{loc:Text Library}" FontSize="15" FontWeight="Medium"
-                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0" />
+                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0" />
                             <CheckBox x:Name="AutoFetchCheckBox"
                                       Content="{loc:Text FindCoversAutomaticallyWhenAddingGames}"
                                       Style="{StaticResource CheckBoxStyle}" Margin="0,10,0,0" />
@@ -165,7 +165,7 @@
                             <Grid Margin="0,18,0,8">
                                 <TextBlock Text="{loc:Text CoverSize}" />
                                 <TextBlock x:Name="CoverSizeLabel" HorizontalAlignment="Right"
-                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
                             </Grid>
                             <Slider x:Name="CoverSizeSlider" Minimum="0" Maximum="3" TickFrequency="1"
                                     IsSnapToTickEnabled="True" IsMoveToPointEnabled="True"
@@ -174,7 +174,7 @@
                                     Style="{StaticResource CoverSizeSliderStyle}" ValueChanged="CoverSizeSlider_ValueChanged" />
                             <Label Content="{loc:Text LocalData}" Target="{Binding ElementName=DataPathBox}"
                                    FontSize="15" FontWeight="Medium" Padding="0"
-                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,18,0,8" />
+                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,18,0,8" />
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -189,7 +189,7 @@
                         </StackPanel></Border>
                     </Expander>
                     <TextBlock x:Name="StatusText" Style="{StaticResource DialogErrorStyle}"
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0"
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0"
                                Visibility="Collapsed" />
                 </StackPanel>
             </ScrollViewer>

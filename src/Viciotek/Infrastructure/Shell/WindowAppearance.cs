@@ -44,6 +44,36 @@ public static class WindowAppearance
         source?.AddHook(OnWindowMessage);
     }
 
+    public static Size WorkAreaSize(Window reference)
+    {
+        var handle = new WindowInteropHelper(reference).Handle;
+        var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
+        if (handle == IntPtr.Zero || !GetMonitorInfo(MonitorFromWindow(handle, MonitorDefaultToNearest), ref info))
+            return SystemParameters.WorkArea.Size;
+        return WorkAreaSizeInDips(info.Work.Right - info.Work.Left, info.Work.Bottom - info.Work.Top, GetDpiForWindow(handle) / 96d);
+    }
+
+    internal static Size WorkAreaSizeInDips(double width, double height, double scale) =>
+        new(width / (scale > 0 ? scale : 1), height / (scale > 0 ? scale : 1));
+
+    public static void KeepDialogOnScreen(Window window)
+    {
+        var handle = new WindowInteropHelper(window).Handle;
+        var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
+        if (handle == IntPtr.Zero || !GetMonitorInfo(MonitorFromWindow(handle, MonitorDefaultToNearest), ref info) || !GetWindowRect(handle, out var bounds)) return;
+        var x = Math.Clamp(bounds.Left, info.Work.Left, Math.Max(info.Work.Left, info.Work.Right - (bounds.Right - bounds.Left)));
+        var y = Math.Clamp(bounds.Top, info.Work.Top, Math.Max(info.Work.Top, info.Work.Bottom - (bounds.Bottom - bounds.Top)));
+        if (x != bounds.Left || y != bounds.Top)
+            SetWindowPos(handle, IntPtr.Zero, x, y, 0, 0, 0x0015); // No size, z-order or activation changes.
+    }
+
+    [DllImport("user32.dll")]
+    private static extern uint GetDpiForWindow(IntPtr hwnd);
+    [DllImport("user32.dll")]
+    private static extern bool GetWindowRect(IntPtr hwnd, out Rect rect);
+    [DllImport("user32.dll")]
+    private static extern bool SetWindowPos(IntPtr hwnd, IntPtr after, int x, int y, int width, int height, uint flags);
+
     private static IntPtr OnWindowMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
         if (msg != WmGetMinMaxInfo)

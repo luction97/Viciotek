@@ -20,6 +20,7 @@ public partial class App : System.Windows.Application
     private IconService? _iconService;
     private LibraryInstance? _instance;
     private InstallationGuard? _installationGuard;
+    private Presentation.Theme.AccessibilityTheme? _accessibilityTheme;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -33,6 +34,7 @@ public partial class App : System.Windows.Application
 
         try
         {
+            _accessibilityTheme = new Presentation.Theme.AccessibilityTheme(Resources);
             _installationGuard = new InstallationGuard();
             var paths = AppPaths.CreateDefault();
             paths.EnsureCreated();
@@ -86,12 +88,7 @@ public partial class App : System.Windows.Application
         catch (Exception exception)
         {
             Log(exception, "Inicio");
-            MessageBox.Show(
-                L.Get("ViciotekCouldNotStartNN") + exception.Message +
-                (_logPath is null ? string.Empty : L.Get("NNtechnicalDetails0", _logPath)),
-                "VICIOTEK",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
+            ShowError(L.Get("FriendlyStartupFailure"), exception);
             Shutdown(1);
         }
     }
@@ -99,13 +96,29 @@ public partial class App : System.Windows.Application
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         Log(e.Exception, "Interfaz");
-        MessageBox.Show(
-            L.Get("ViciotekEncounteredAnUnexpectedProblemButTheWindowIsStillOpenNN") + e.Exception.Message +
-            (_logPath is null ? string.Empty : L.Get("NNtechnicalDetails0", _logPath)),
-            "VICIOTEK",
-            MessageBoxButton.OK,
-            MessageBoxImage.Warning);
+        ShowError(L.Get("FriendlyActionFailure"), e.Exception);
         e.Handled = true;
+    }
+
+    private void ShowError(string message, Exception exception)
+    {
+        try
+        {
+            var details = exception + (_logPath is null ? string.Empty : L.Get("NNtechnicalDetails0", _logPath));
+            var dialog = new ConfirmDialog("VICIOTEK", message, L.Get("Close"), details);
+            if (MainWindow is { IsVisible: true }) dialog.Owner = MainWindow;
+            dialog.ShowDialog();
+        }
+        catch (Exception)
+        {
+            // The fallback must also work if WPF resources caused the original startup failure.
+            MessageBox.Show(message, "VICIOTEK", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    internal static void RecordUnexpectedError(Exception exception)
+    {
+        if (Current is App app) app.Log(exception, "Operación");
     }
 
     private void OnDomainUnhandledException(object sender, UnhandledExceptionEventArgs e) =>
@@ -155,6 +168,7 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _accessibilityTheme?.Dispose();
         _iconService?.Dispose();
         _instance?.Dispose();
         _installationGuard?.Dispose();

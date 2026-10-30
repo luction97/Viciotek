@@ -2,6 +2,15 @@
 
 Fuente de verdad: `src/Viciotek/Presentation/Theme/Theme.xaml` y `MainWindow.xaml`.
 
+## Criterios vigentes desde 1.1.26
+- Portadas: geometría, imágenes, contornos y disposición preservados. Menú contextual en el contenedor enfocable. Hover normal intacto; movimiento reducido de Windows lo desactiva además de la preferencia de la app.
+- Diálogos: títulos 20–22 DIP, acciones 14 DIP y explicaciones 14–15 DIP. Galería con selección azul de acción; biblioteca con selección blanca suave. Agregar abre selector directo en todos los accesos principales.
+- Paleta normal existente; colores del sistema al activar alto contraste, mediante recursos dinámicos. Fondos de campos y estados adaptados; no se recolorean bitmaps.
+- Límites de modal según monitor/DPI propietario y actual, cuerpo desplazable cuando es necesario. Errores inesperados breves con detalles técnicos plegados, sin excepciones crudas en el mensaje principal.
+
+## Historial de decisiones visuales
+Las notas siguientes describen etapas anteriores y se interpretan junto con los criterios vigentes y PROJECT_STATE.md.
+
 - Fondo `#0A0B0E`; superficies `#121419`/`#171A20`; texto principal `#F3F4F6`, secundario `#A2A8B3`; acciones y enlaces en azul suave `#83B9F5` (`ActionAccentBrush`); recursos legados de portadas intactos.
 - Segoe UI Variable Text/Display; iconos Segoe Fluent Icons con alternativa MDL2.
 - Barra superior de 64 DIP: marca, búsqueda, botón `+` (abre la modal de agregar), engranaje de Preferencias y controles de ventana discretos.

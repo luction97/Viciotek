@@ -82,7 +82,7 @@ public static class CardHoverBehavior
 
     private static void OnMouseEnter(object sender, MouseEventArgs e)
     {
-        if (sender is FrameworkElement element && GetEnabled(element))
+        if (sender is FrameworkElement element && ShouldAnimate(GetEnabled(element), SystemParameters.ClientAreaAnimation))
         {
             Animate(element, HoverOffset);
         }
@@ -106,7 +106,7 @@ public static class CardHoverBehavior
 
     private static void UpdateHover(FrameworkElement element)
     {
-        if (!GetEnabled(element))
+        if (!ShouldAnimate(GetEnabled(element), SystemParameters.ClientAreaAnimation))
         {
             Reset(element);
             return;
@@ -130,6 +130,8 @@ public static class CardHoverBehavior
         transform.Y = target;
         transform.BeginAnimation(TranslateTransform.YProperty, animation);
     }
+
+    internal static bool ShouldAnimate(bool appEnabled, bool systemEnabled) => appEnabled && systemEnabled;
 
     private static void Reset(FrameworkElement element)
     {

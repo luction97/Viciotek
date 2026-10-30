@@ -4,7 +4,7 @@
              xmlns:loc="clr-namespace:Viciotek.Localization"
  xmlns:local="clr-namespace:Viciotek.Presentation.Dialogs"
  Title="{loc:Text ChangeCover2}" Width="520" SizeToContent="Height" MinHeight="300"
- FontFamily="{StaticResource AppFont}" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}">
+ FontFamily="{StaticResource AppFont}" FontSize="14" Foreground="{DynamicResource TextPrimaryBrush}">
  <Border Style="{StaticResource DialogSurfaceStyle}">
   <Grid Margin="30,20">
    <Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition Height="Auto"/><RowDefinition Height="56"/></Grid.RowDefinitions>
@@ -19,7 +19,7 @@
     <Button x:Name="LocalButton" Content="{loc:Text ChooseAnImageFromThisComputer}" Style="{StaticResource GhostButtonStyle}" FontSize="14"
      HorizontalAlignment="Left" Padding="0" Margin="0,12,0,0" Click="Local_Click"/>
     <Expander Style="{StaticResource DisclosureStyle}" x:Name="AutomaticOptions" Header="{loc:Text MoreOptions}" IsExpanded="False" Margin="0,18,0,0"
-     Foreground="{StaticResource TextSecondaryBrush}">
+     Foreground="{DynamicResource TextSecondaryBrush}">
      <Button Content="{loc:Text ChooseACoverAutomatically}" Style="{StaticResource GhostButtonStyle}" Padding="0"
       HorizontalAlignment="Left" Margin="0,8,0,0" Click="Automatic_Click"/>
     </Expander>
