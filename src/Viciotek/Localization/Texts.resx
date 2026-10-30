@@ -676,11 +676,9 @@ Detalle técnico: {0}</value>
   <data name="ShortcutsOrExecutables" xml:space="preserve"><value>Accesos directos o archivos ejecutables</value></data>
   <data name="ReleaseToAdd" xml:space="preserve"><value>Suelta para agregar</value></data>
   <data name="DragShortcutToStart" xml:space="preserve"><value>O arrastra aquí un acceso directo o ejecutable.</value></data>
-  <data name="ForAutomaticCovers" xml:space="preserve"><value>SteamGridDB proporciona las imágenes; VICIOTEK las busca por ti.</value></data>
-  <data name="ConnectSteamGridOptional" xml:space="preserve"><value>Conectar SteamGridDB</value></data>
-  <data name="ManualCoversWithoutConnection" xml:space="preserve"><value>Es opcional. Sin conectar, puedes elegir las portadas manualmente.</value></data>
-  <data name="StartWithAutomaticCovers" xml:space="preserve"><value>Empieza con portadas automáticas</value></data>
-  <data name="Recommended" xml:space="preserve"><value>Recomendado</value></data>
+  <data name="ConnectSteamGridOptional" xml:space="preserve"><value>Activar portadas automáticas</value></data>
+  <data name="ManualCoversWithoutConnection" xml:space="preserve"><value>También puedes elegirlas manualmente.</value></data>
+  <data name="StartWithAutomaticCovers" xml:space="preserve"><value>VICIOTEK encuentra las portadas por ti.</value></data>
 
   <data name="TechnicalDetails" xml:space="preserve"><value>Detalles técnicos</value></data>
   <data name="FriendlyStartupFailure" xml:space="preserve"><value>No se pudo abrir VICIOTEK. Intenta abrirla de nuevo.</value></data>

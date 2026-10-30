@@ -676,11 +676,9 @@ Technical details: {0}</value>
   <data name="ShortcutsOrExecutables" xml:space="preserve"><value>Shortcuts or executable files</value></data>
   <data name="ReleaseToAdd" xml:space="preserve"><value>Drop to add</value></data>
   <data name="DragShortcutToStart" xml:space="preserve"><value>Or drag a shortcut or executable here.</value></data>
-  <data name="ForAutomaticCovers" xml:space="preserve"><value>SteamGridDB provides the artwork; VICIOTEK finds it for you.</value></data>
-  <data name="ConnectSteamGridOptional" xml:space="preserve"><value>Connect SteamGridDB</value></data>
-  <data name="ManualCoversWithoutConnection" xml:space="preserve"><value>Optional. Without connecting, you can choose covers manually.</value></data>
-  <data name="StartWithAutomaticCovers" xml:space="preserve"><value>Start with automatic covers</value></data>
-  <data name="Recommended" xml:space="preserve"><value>Recommended</value></data>
+  <data name="ConnectSteamGridOptional" xml:space="preserve"><value>Enable automatic covers</value></data>
+  <data name="ManualCoversWithoutConnection" xml:space="preserve"><value>You can also choose them manually.</value></data>
+  <data name="StartWithAutomaticCovers" xml:space="preserve"><value>VICIOTEK finds the covers for you.</value></data>
 
   <data name="TechnicalDetails" xml:space="preserve"><value>Technical details</value></data>
   <data name="FriendlyStartupFailure" xml:space="preserve"><value>VICIOTEK could not open. Try opening it again.</value></data>

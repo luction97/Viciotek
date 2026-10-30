@@ -1,6 +1,12 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.26**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.27**, C#/WPF/.NET 8 para Windows 11.
+
+## Bienvenida orientada al beneficio — 1.1.27
+- El bloque inicial muestra «VICIOTEK encuentra las portadas por ti», la acción principal «Activar portadas automáticas» y una alternativa breve de elección manual. Se retiran la explicación anticipada de SteamGridDB y la etiqueta redundante Recomendado. El proveedor y sus pasos se explican dentro de Configuración, únicamente tras elegir activar. No se agregan pantallas ni se modifica el proceso de conexión, importación o portadas. Elegir juego y el arrastre siguen visibles.
+- Catálogos es/en sincronizados; recursos exclusivos de las dos explicaciones eliminadas retirados. CONFIRMADO: 31 regresiones de bienvenida/localización/presentación aprobadas; revisión WPF es/en a 1280×800 y 760×540 comprueba activar, cancelar, selector directo y ocultación al conectar. Sin datos personales ni red real.
+- Entrega CONFIRMADA: build Release -warnaserror limpio, suite completa 283/283; ambos ZIPs con SmokePublished PASS; SmokeInstaller completo PASS (instalar, actualizar, bloqueo con app abierta, desinstalar y preservar datos/archivo ajeno); iconos/SHA256 verificados. Fuentes guardadas en Git sin push.
+- Próximo paso concreto: instalar 1.1.27 y observar comprensión con un usuario nuevo, pendiente de participación humana.
 
 ## Cierre de auditoría UI/UX — 1.1.26
 - Importación directa desde bienvenida, + y Ctrl+O, incluso con biblioteca poblada. Se conservan filtro/multiselección, accesos directos sin desreferenciar y arrastre global. Menú contextual en ListBoxItem enfocable para acceso nativo por teclado; mismos comandos y selección. Atajo Entrar localizado. Acciones 14 DIP, Agregar/confirmaciones con títulos 21 y texto 14–15; galería con selección azul. Arte, geometría, distribución, contorno blanco y hover normal de portadas intactos.
