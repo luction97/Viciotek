@@ -55,17 +55,15 @@
                                        Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14" TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Grid>
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="24" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <TextBlock Text="1" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" />
-                    <Button Grid.Column="1" FontSize="15" Content="{loc:Text GetMyCode}" Style="{StaticResource LinkButtonStyle}"
+                    <StackPanel x:Name="ConnectionForm">
+                    <Button FontSize="15" Content="{loc:Text GetMyCode}" Style="{StaticResource LinkButtonStyle}"
                             HorizontalAlignment="Left" Padding="0" Click="OpenSteamGridDb_Click" />
-                    </Grid>
                     <TextBlock Text="{loc:Text SignInAndCopyYourApiKeyCode}"
                                Style="{StaticResource FieldHintStyle}" FontSize="15" LineHeight="22" TextWrapping="Wrap"
-                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="24,4,0,18" />
-                    <StackPanel Orientation="Horizontal"><TextBlock Text="2" Width="24" Margin="0,0,0,10" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" /><Label Content="{loc:Text PasteYourCodeToConnect}" Target="{Binding ElementName=ApiKeyBox}"
-                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="15" Padding="0,0,0,10" /></StackPanel>
-                    <Grid Margin="24,0,0,0">
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,18" />
+                    <Label Content="{loc:Text PasteYourCodeToConnect}" Target="{Binding ElementName=ApiKeyBox}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="15" Padding="0,0,0,10" />
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -75,8 +73,8 @@
                                      AutomationProperties.Name="{loc:Text SteamgriddbConnectionCode}"
                                      PasswordChanged="ApiKeyBox_PasswordChanged"
                                      Style="{StaticResource FormPasswordBoxStyle}" />
-                        <Button FontSize="14" x:Name="PasteButton" Grid.Column="1" Content="&#xE77F;" FontFamily="{StaticResource IconFont}"
-                                Style="{StaticResource IconButtonStyle}"
+                        <Button FontSize="14" x:Name="PasteButton" Grid.Column="1" Content="{loc:Text PasteCode}"
+                                Style="{StaticResource GhostButtonStyle}" Padding="8,0"
                                 Margin="8,0,0,0" VerticalAlignment="Center" ToolTip="{loc:Text PasteCode}"
                                 Click="PasteCode_Click" />
                         <Button FontSize="14" x:Name="VerifyButton" Grid.Column="2" Content="{loc:Text Connect}"
@@ -84,8 +82,16 @@
                                 IsEnabled="False" Click="VerifyConnection_Click" />
                     </Grid>
                     <TextBlock x:Name="ConnectionStatusText" TextWrapping="Wrap" FontSize="14"
-                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="24,10,0,0"
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,10,0,0"
                                Visibility="Collapsed" AutomationProperties.LiveSetting="Polite" />
+                    </StackPanel>
+                    <StackPanel x:Name="ConnectionSummary" Visibility="Collapsed">
+                        <TextBlock x:Name="SavedConnectionText" FontSize="15" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <Button x:Name="ManageConnectionButton" Content="{loc:Text ConnectSteamGridOptional}" Style="{StaticResource PrimaryButtonStyle}"
+                                HorizontalAlignment="Left" Padding="0" Margin="0,10,0,0" Click="ManageConnection_Click" />
+                        <Button x:Name="DisconnectButton" Content="{loc:Text DisconnectSteamGrid}" Style="{StaticResource GhostButtonStyle}"
+                                HorizontalAlignment="Left" Padding="0" Click="Disconnect_Click" />
+                    </StackPanel>
                     </StackPanel></Border>
                                         <Button x:Name="LanguageButton" AutomationProperties.Name="{loc:Text Language}" Style="{StaticResource GhostButtonStyle}" HorizontalAlignment="Left"
                             Padding="0" Margin="0,12,0,0" Click="LanguageButton_Click">

@@ -49,6 +49,16 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         UpdateConnectionAction();
         if (!string.IsNullOrWhiteSpace(settings.SteamGridDbApiKey))
             ShowConnectionStatus(L.Get("ConnectionSavedOnThisComputer"));
+        if (!connectionOnly)
+        {
+            ConnectionForm.Visibility = Visibility.Collapsed;
+            ConnectionSummary.Visibility = Visibility.Visible;
+            var connected = !string.IsNullOrWhiteSpace(settings.SteamGridDbApiKey);
+            SavedConnectionText.Text = L.Get(connected ? "ConnectionSavedOnThisComputer" : "CoverConnectionBenefit");
+            SavedConnectionText.Visibility = connected ? Visibility.Visible : Visibility.Collapsed;
+            ManageConnectionButton.Content = L.Get(connected ? "ReviewCoverConnectionAction" : "ConnectSteamGridOptional");
+            DisconnectButton.Visibility = connected ? Visibility.Visible : Visibility.Collapsed;
+        }
         Closed += (_, _) => { _lifetime.Cancel(); _lifetime.Dispose(); };
     }
 
@@ -101,16 +111,35 @@ public partial class PreferencesDialog : ViciotekDialogWindow
 
     private void SaveAndClose()
     {
+        Result = CurrentSettings();
+        DialogResult = true;
+    }
+
+    private AppSettings CurrentSettings()
+    {
         var updated = _settings.Clone();
         updated.SteamGridDbApiKey = string.IsNullOrWhiteSpace(ApiKeyBox.Password)
             ? null
             : ApiKeyBox.Password.Trim();
-        updated.AutoFetchCovers = _connectionOnly || AutoFetchCheckBox.IsChecked == true;
+        updated.AutoFetchCovers = AutoFetchCheckBox.IsChecked == true ||
+            (_connectionOnly && string.IsNullOrWhiteSpace(_settings.SteamGridDbApiKey));
         updated.AnimationsEnabled = AnimationsCheckBox.IsChecked == true;
         updated.CoverSizePreset = (int)CoverSizeSlider.Value;
         updated.Language = _selectedLanguage;
-        Result = updated;
-        DialogResult = true;
+        return updated;
+    }
+
+    private void ManageConnection_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new PreferencesDialog(CurrentSettings(), _paths, _steamGrid, connectionOnly: true) { Owner = this };
+        if (dialog.ShowDialog() == true) { Result = dialog.Result; DialogResult = true; }
+    }
+
+    private void Disconnect_Click(object sender, RoutedEventArgs e)
+    {
+        ApiKeyBox.Password = string.Empty;
+        AutoFetchCheckBox.IsChecked = false;
+        SaveAndClose();
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e) => Close();
@@ -134,7 +163,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
     private async void VerifyConnection_Click(object sender, RoutedEventArgs e)
     {
         var saveAfterConnecting = ApiKeyBox.Password.Trim() != (_settings.SteamGridDbApiKey ?? string.Empty).Trim();
-        if (await CheckConnectionAsync() && saveAfterConnecting) SaveAndClose();
+        if (await CheckConnectionAsync() && (saveAfterConnecting || _connectionOnly)) SaveAndClose();
     }
 
     private async Task<bool> CheckConnectionAsync()

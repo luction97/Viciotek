@@ -90,13 +90,13 @@ public sealed class AtomicJsonFile<T> where T : class
         }
     }
 
-    public async Task WriteAsync(T value, CancellationToken cancellationToken = default)
+    public async Task WriteAsync(T value, CancellationToken cancellationToken = default, bool preserveBackup = true)
     {
         var json = JsonSerializer.Serialize(value, AppJson.Options);
         await _writeLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            await Task.Run(() => WriteJson(json), cancellationToken).ConfigureAwait(false);
+            await Task.Run(() => WriteJson(json, preserveBackup), cancellationToken).ConfigureAwait(false);
         }
         finally
         {
@@ -118,7 +118,7 @@ public sealed class AtomicJsonFile<T> where T : class
         }
     }
 
-    private void WriteJson(string json)
+    private void WriteJson(string json, bool preserveBackup = true)
     {
         var directory = Path.GetDirectoryName(_path);
         if (!string.IsNullOrEmpty(directory))
@@ -145,7 +145,7 @@ public sealed class AtomicJsonFile<T> where T : class
 
             if (File.Exists(_path))
             {
-                File.Replace(tempPath, _path, _backupPath, ignoreMetadataErrors: true);
+                File.Replace(tempPath, _path, preserveBackup ? _backupPath : null, ignoreMetadataErrors: true);
             }
             else
             {

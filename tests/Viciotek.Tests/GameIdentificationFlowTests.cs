@@ -14,6 +14,95 @@ namespace Viciotek.Tests;
 
 public sealed class GameIdentificationFlowTests
 {
+    [Fact]
+    public Task SavedConnection_IsReusedWhenEditingOtherPreferences() => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(games: [MissingCover()]);
+        fixture.Dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "fixture-key", AnimationsEnabled = false };
+        await fixture.ViewModel.OpenPreferencesAsync();
+        await Task.Delay(100);
+        Assert.Empty(fixture.Handler.Requests);
+        Assert.Equal(0, fixture.Dialogs.Count);
+        Assert.False(fixture.ViewModel.AnimationsEnabled);
+    });
+    [Fact]
+    public Task ConnectionSaveFailure_DoesNotChangeClientOrStartDownloads() => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(apiKey: null, games: [MissingCover()]);
+        Directory.CreateDirectory(fixture.Paths.SettingsFile);
+        fixture.Dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "fixture-key" };
+        await fixture.ViewModel.ConnectCoversAsync();
+        Assert.False(fixture.ViewModel.IsSteamGridConfigured);
+        Assert.Empty(fixture.Handler.Requests);
+        Assert.Null(fixture.ViewModel.Games[0].Model.CoverFileName);
+    });
+    [Fact]
+    public Task Connect_BackfillsOnlyMissingCovers_AndDoesNotRedownload() => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(apiKey: null, games: [MissingCover(), new Game { Name = "Manual", CoverFileName = "manual.jpg" }]);
+        Assert.Empty(fixture.Handler.Requests);
+        fixture.Dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "fixture-key" };
+        await fixture.ViewModel.ConnectCoversAsync();
+        var card = fixture.ViewModel.Games[0];
+        await WpfTest.WaitUntilAsync(() => card.Model.CoverFileName is not null && !card.IsFindingCover);
+        Assert.Equal("manual.jpg", fixture.ViewModel.Games[1].Model.CoverFileName);
+        var count = fixture.Handler.Requests.Count;
+        await fixture.ViewModel.ConnectCoversAsync();
+        await fixture.ViewModel.PrepareCloseAsync();
+        Assert.Equal(count, fixture.Handler.Requests.Count);
+        Assert.Equal(0, fixture.Dialogs.Count);
+    });
+
+    [Fact]
+    public Task Connect_AmbiguousResults_DoNotOpenAGallery() => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(apiKey: null, games: [MissingCover()], response: _ => Json("""{"success":true,"data":[]}"""));
+        fixture.Dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "fixture-key" };
+        await fixture.ViewModel.ConnectCoversAsync();
+        await WpfTest.WaitUntilAsync(() => fixture.Handler.Requests.Count > 0 && !fixture.ViewModel.Games[0].IsFindingCover);
+        Assert.Null(fixture.ViewModel.Games[0].Model.CoverFileName);
+        Assert.Equal(0, fixture.Dialogs.Count);
+    });
+
+    [Fact]
+    public Task Disconnect_DuringDownload_DiscardsLateResponse() => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(apiKey: null, games: [MissingCover()]);
+        var downloading = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        fixture.Handler.Intercept = async (request, _) =>
+        {
+            if (request.RequestUri!.AbsolutePath.EndsWith("full.png")) { downloading.SetResult(); await release.Task; }
+            return DefaultResponse(request);
+        };
+        fixture.Dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "fixture-key" };
+        try
+        {
+            await fixture.ViewModel.ConnectCoversAsync();
+            await downloading.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            fixture.Dialogs.SettingsResult = new AppSettings();
+            await fixture.ViewModel.OpenPreferencesAsync();
+            Assert.False(fixture.ViewModel.IsSteamGridConfigured);
+        }
+        finally { release.TrySetResult(); }
+        await fixture.ViewModel.PrepareCloseAsync();
+        Assert.Null(fixture.ViewModel.Games[0].Model.CoverFileName);
+        Assert.False(new SettingsStore(fixture.Paths).Load().Settings.AutoFetchCovers);
+    });
+
+    [Fact]
+    public Task Connect_AuthenticationFailure_KeepsStoredKeyWithoutPromptingAgain() => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(apiKey: null, games: [MissingCover()], response: _ => new(HttpStatusCode.Unauthorized));
+        fixture.Dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "fixture-key" };
+        await fixture.ViewModel.ConnectCoversAsync();
+        await WpfTest.WaitUntilAsync(() => fixture.ViewModel.ToastMessage.Contains("SteamGridDB", StringComparison.Ordinal));
+        Assert.Equal("fixture-key", new SettingsStore(fixture.Paths).Load().Settings.SteamGridDbApiKey);
+        Assert.Equal(0, fixture.Dialogs.Count);
+        Assert.Contains("SteamGridDB", fixture.ViewModel.ToastMessage);
+    });
+
+    private static Game MissingCover() => new() { Name = "Mortal Kombat 1", LaunchPath = @"C:\Fixture\MK.exe", CoverSearchName = "Mortal Kombat 1", IdentityCandidates = ["Mortal Kombat 1"] };
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -458,7 +547,7 @@ public sealed class GameIdentificationFlowTests
             Library = new(Paths);
             Handler = new(response ?? DefaultResponse);
             var importer = new GameImporter(shortcuts ?? new NoShortcuts(), new GameIdentityResolver(metadata ?? new Metadata()));
-            ViewModel = new(games ?? [], new AppSettings { AutoFetchCovers = autoFetch }, Library, new SettingsStore(Paths),
+            ViewModel = new(games ?? [], new AppSettings { AutoFetchCovers = autoFetch, SteamGridDbApiKey = apiKey }, Library, new SettingsStore(Paths),
                 importer, new GameLauncher(), new CoverStore(Paths), new SteamGridDbClient(apiKey, Handler), Dialogs, null);
         }
         public string CreateExecutable(string name)
@@ -499,6 +588,7 @@ public sealed class GameIdentificationFlowTests
 
     private sealed class Dialogs : IDialogService
     {
+        public AppSettings? SettingsResult { get; set; }
         public string[]? FilesToPick { get; set; }
         public CoverSource? Source { get; set; } = CoverSource.Local;
         public CoverSource? ChooseCoverSource(bool connected, bool canChooseAutomatically) => Source;
@@ -518,6 +608,6 @@ public sealed class GameIdentificationFlowTests
         public string? PickCoverFile() => null;
         public GameEditResult? EditGame(Game game) => EditResult;
         public bool ConfirmRemove(string gameName) => false;
-        public AppSettings? EditPreferences(AppSettings settings) { PreferenceCount++; return null; }
+        public AppSettings? EditPreferences(AppSettings settings) { PreferenceCount++; return SettingsResult; }
     }
 }

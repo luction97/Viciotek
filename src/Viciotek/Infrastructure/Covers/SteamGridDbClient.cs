@@ -237,7 +237,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
         {
             var data = await GetDataAsync("search/autocomplete/a", cancellationToken, useCache: false,
                 verificationApiKey: apiKey.Trim()).ConfigureAwait(false);
-            if (data.ValueKind != JsonValueKind.Array) return new(false, "Servicio temporalmente no disponible.");
+            if (data.ValueKind != JsonValueKind.Array) return new(false, L.Get("SteamgriddbIsTemporarilyUnavailablePleaseTryAgainLater"));
             return new(true, L.Get("ConnectedSuccessfully"));
         }
         catch (SteamGridDbException exception)

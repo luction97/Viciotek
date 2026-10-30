@@ -82,6 +82,33 @@ public sealed class SettingsStore
         finally { _saveGate.Release(); }
     }
 
+    public async Task DisconnectAsync(AppSettings settings)
+    {
+        var disconnected = settings.Clone();
+        disconnected.SteamGridDbApiKey = disconnected.ProtectedApiKey = null;
+        disconnected.AutoFetchCovers = false;
+        await _saveGate.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            // Scrub the recovery copy first; never back up the old credential again.
+            if (File.Exists(_backupPath))
+            {
+                AppSettings backup;
+                try
+                {
+                    backup = JsonSerializer.Deserialize<AppSettings>(await File.ReadAllTextAsync(_backupPath).ConfigureAwait(false), AppJson.Options)
+                        ?? disconnected.Clone();
+                }
+                catch (JsonException) { backup = disconnected.Clone(); }
+                backup.SteamGridDbApiKey = backup.ProtectedApiKey = null;
+                backup.AutoFetchCovers = false;
+                await new AtomicJsonFile<AppSettings>(_backupPath).WriteAsync(backup, preserveBackup: false).ConfigureAwait(false);
+            }
+            await _file.WriteAsync(PrepareForStorage(disconnected), preserveBackup: false).ConfigureAwait(false);
+        }
+        finally { _saveGate.Release(); }
+    }
+
     private void ProtectLegacyBackup()
     {
         if (!File.Exists(_backupPath)) return;

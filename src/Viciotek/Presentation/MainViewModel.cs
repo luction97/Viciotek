@@ -36,6 +36,9 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     private readonly SemaphoreSlim _coverUpdateGate = new(1, 1);
     private readonly SemaphoreSlim _galleryGate = new(1, 1);
     private readonly SemaphoreSlim _automaticGate = new(1, 1);
+    private CancellationTokenSource _coverConnectionCancellation = new();
+    private int _coverConnectionRevision;
+    private bool _editingSettings;
     private readonly HashSet<Task> _operations = [];
     private readonly HashSet<Guid> _pendingCoverSearches = [];
     private Task? _closeTask;
@@ -621,6 +624,14 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
     private async Task EditPreferencesCoreAsync(bool connectionOnly = false)
     {
+        if (_editingSettings || _closing) return;
+        _editingSettings = true;
+        try { await ApplyPreferencesAsync(connectionOnly); }
+        finally { _editingSettings = false; }
+    }
+
+    private async Task ApplyPreferencesAsync(bool connectionOnly)
+    {
         var updated = connectionOnly ? _dialogs.ConnectCovers(_settings.Clone())
             : _dialogs.EditPreferences(_settings.Clone(), preset => PreviewCoverSize(preset));
         if (updated is null)
@@ -633,7 +644,23 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             : updated.SteamGridDbApiKey.Trim();
         try
         {
-            await _settingsStore.SaveAsync(updated);
+            var wasConfigured = _steamGrid.IsConfigured;
+            var keyChanged = _settings.SteamGridDbApiKey != updated.SteamGridDbApiKey;
+            var autoEnabled = !_settings.AutoFetchCovers && updated.AutoFetchCovers;
+            var connectionChanged = keyChanged || _settings.AutoFetchCovers != updated.AutoFetchCovers;
+            if (wasConfigured && updated.SteamGridDbApiKey is null)
+            {
+                updated.AutoFetchCovers = false;
+                await _settingsStore.DisconnectAsync(updated);
+            }
+            else await _settingsStore.SaveAsync(updated);
+            if (connectionChanged || wasConfigured && updated.SteamGridDbApiKey is null)
+            {
+                _coverConnectionRevision++;
+                var previous = _coverConnectionCancellation;
+                _coverConnectionCancellation = new();
+                previous.Cancel(); previous.Dispose();
+            }
             _settings.SteamGridDbApiKey = updated.SteamGridDbApiKey;
             _settings.AutoFetchCovers = updated.AutoFetchCovers;
             _settings.AnimationsEnabled = updated.AnimationsEnabled;
@@ -641,12 +668,15 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             _settings.Language = updated.Language;
             L.Use(_settings.Language);
             OnPropertyChanged(nameof(NoResultsText));
-            _steamGrid.UpdateApiKey(_settings.SteamGridDbApiKey);
+            if (keyChanged || wasConfigured != !string.IsNullOrWhiteSpace(_settings.SteamGridDbApiKey))
+                _steamGrid.UpdateApiKey(_settings.SteamGridDbApiKey);
             OnPropertyChanged(nameof(IsSteamGridConfigured));
             OnPropertyChanged(nameof(ShowCoverSetupHint));
             OnPropertyChanged(nameof(AnimationsEnabled));
             foreach (var card in Games) card.RefreshCoverAvailability();
             DismissToast();
+            if (_steamGrid.IsConfigured && _settings.AutoFetchCovers && (connectionOnly || keyChanged || autoEnabled))
+                _ = RunOperationAsync(() => FetchAutomaticCoversAsync(Games.Where(card => card.Model.CoverFileName is null).ToArray(), allowManualFallback: false));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
@@ -738,16 +768,20 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
     }
 
-    private async Task FetchAutomaticCoversAsync(IReadOnlyList<GameCardViewModel> cards)
+    private async Task FetchAutomaticCoversAsync(IReadOnlyList<GameCardViewModel> cards, bool allowManualFallback = true)
     {
+        var revision = _coverConnectionRevision;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, _coverConnectionCancellation.Token);
+        var token = cancellation.Token;
         // Let the import return and release its persistence gate before showing any modal.
         await Task.Yield();
-        await _automaticGate.WaitAsync(_lifetime.Token);
+        try { await _automaticGate.WaitAsync(token); }
+        catch (OperationCanceledException) { return; }
         try
         {
             foreach (var card in cards)
             {
-                if (!_settings.AutoFetchCovers || !_steamGrid.IsConfigured || _lifetime.IsCancellationRequested)
+                if (revision != _coverConnectionRevision || !_settings.AutoFetchCovers || !_steamGrid.IsConfigured || token.IsCancellationRequested)
                 {
                     return;
                 }
@@ -759,7 +793,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
                 try
                 {
-                    if (await TryAutomaticCoverAsync(card) && _settings.AutoFetchCovers)
+                    if (await TryAutomaticCoverAsync(card, token, revision) && allowManualFallback && _settings.AutoFetchCovers && revision == _coverConnectionRevision)
                         await SearchCoverCoreAsync(card, manualFallback: true);
                 }
                 catch (OperationCanceledException)
@@ -768,7 +802,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                 }
                 catch (SteamGridDbException exception)
                 {
-                    ShowToast(exception.Message, isError: true);
+                    ShowToast(exception.StatusCode is System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden
+                        ? L.Get("ReviewCoverConnection") : exception.Message, isError: true);
                     return; // Do not retry the whole batch on auth, network, or rate-limit errors.
                 }
                 catch (CoverImageException exception) { ShowToast(exception.Message, isError: true); }
@@ -779,11 +814,11 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     }
 
     // true means manual input is needed; HTTP failures propagate and never open a fallback modal.
-    private async Task<bool> TryAutomaticCoverAsync(GameCardViewModel card)
+    private async Task<bool> TryAutomaticCoverAsync(GameCardViewModel card, CancellationToken token = default, int? revision = null)
     {
         if (!_pendingCoverSearches.Add(card.Model.Id)) return false;
         card.IsFindingCover = true;
-        try { return await TryAutomaticCoverCoreAsync(card); }
+        try { return await TryAutomaticCoverCoreAsync(card, token == default ? _lifetime.Token : token, revision); }
         finally
         {
             card.IsFindingCover = false;
@@ -791,21 +826,22 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
     }
 
-    private async Task<bool> TryAutomaticCoverCoreAsync(GameCardViewModel card)
+    private async Task<bool> TryAutomaticCoverCoreAsync(GameCardViewModel card, CancellationToken token, int? revision)
     {
+        bool CurrentConnection() => revision is null || revision == _coverConnectionRevision && _steamGrid.IsConfigured && _settings.AutoFetchCovers && !token.IsCancellationRequested;
         var before = card.Model.Clone();
-        var resolved = await Task.Run(() => _importer.ResolveIdentityForCoverSearch(before), _lifetime.Token);
-        if (!Games.Contains(card) || card.IsBusy || !SameIdentity(card.Model, before) || card.Model.CoverFileName is not null) return false;
-        var identity = await new GameIdentitySearch(_steamGrid).FindAsync(resolved, _lifetime.Token);
-        if (!Games.Contains(card) || card.IsBusy || !SameIdentity(card.Model, before) || card.Model.CoverFileName is not null) return false;
+        var resolved = await Task.Run(() => _importer.ResolveIdentityForCoverSearch(before), token);
+        if (!CurrentConnection() || !Games.Contains(card) || card.IsBusy || !SameIdentity(card.Model, before) || card.Model.CoverFileName is not null) return false;
+        var identity = await new GameIdentitySearch(_steamGrid).FindAsync(resolved, token);
+        if (!CurrentConnection() || !Games.Contains(card) || card.IsBusy || !SameIdentity(card.Model, before) || card.Model.CoverFileName is not null) return false;
         if (identity.Confirmed is null) return true;
-        var grids = await _steamGrid.GetGridsAsync(identity.Confirmed.Id, _lifetime.Token);
-        if (!SameIdentity(card.Model, before) || card.Model.CoverFileName is not null) return false;
+        var grids = await _steamGrid.GetGridsAsync(identity.Confirmed.Id, token);
+        if (!CurrentConnection() || !SameIdentity(card.Model, before) || card.Model.CoverFileName is not null) return false;
         if (grids.Count == 0) return true;
-        var bytes = await _steamGrid.DownloadImageAsync(grids[0].Url, _lifetime.Token);
-        var saved = await CommitCoverAsync(card, () => _covers.SetFromBytesAsync(card.Model.Id, bytes, null, _lifetime.Token),
+        var bytes = await _steamGrid.DownloadImageAsync(grids[0].Url, token);
+        var saved = await CommitCoverAsync(card, () => _covers.SetFromBytesAsync(card.Model.Id, bytes, null, token),
             onlyIfMissing: true, identity: identity, resolvedMetadata: resolved,
-            canCommit: () => !card.IsBusy && SameIdentity(card.Model, before));
+            canCommit: () => CurrentConnection() && !card.IsBusy && SameIdentity(card.Model, before));
         if (!saved && SameIdentity(card.Model, before) && card.Model.CoverFileName is null)
             ShowToast(L.Get("CouldNotSaveTheCover"), isError: true);
         return false;
@@ -883,6 +919,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         _coverUpdateGate.Dispose();
         _galleryGate.Dispose();
         _automaticGate.Dispose();
+        _coverConnectionCancellation.Dispose();
         _lifetime.Dispose();
     }
 
