@@ -18,9 +18,23 @@ public partial class PreferencesDialog : ViciotekDialogWindow
     private bool _verifying;
     private string? _selectedLanguage;
 
-    public PreferencesDialog(AppSettings settings, AppPaths paths, SteamGridDbClient? steamGrid = null)
+    private readonly bool _connectionOnly;
+
+    public PreferencesDialog(AppSettings settings, AppPaths paths, SteamGridDbClient? steamGrid = null, bool connectionOnly = false)
     {
         InitializeComponent();
+        _connectionOnly = connectionOnly;
+        if (connectionOnly)
+        {
+            Title = HeadingText.Text = L.Get("ConnectCoverService");
+            MinHeight = 0;
+            ProviderHeader.Visibility = LanguageButton.Visibility = LibraryOptions.Visibility = AboutButton.Visibility = Visibility.Collapsed;
+            SaveButton.Content = L.Get("Cancel");
+            SaveButton.Style = (Style)FindResource("GhostButtonStyle");
+            SaveButton.IsDefault = false;
+            SaveButton.IsCancel = true;
+            VerifyButton.IsDefault = true;
+        }
         _settings = settings;
         _selectedLanguage = settings.Language is "es" or "en" ? settings.Language : null;
         UpdateLanguageChoice();
@@ -75,6 +89,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
+        if (_connectionOnly) { Close(); return; }
         if (_verifying) return;
         var code = ApiKeyBox.Password.Trim();
         if (code.Length > 0 && code != (_settings.SteamGridDbApiKey ?? string.Empty).Trim())
@@ -90,7 +105,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         updated.SteamGridDbApiKey = string.IsNullOrWhiteSpace(ApiKeyBox.Password)
             ? null
             : ApiKeyBox.Password.Trim();
-        updated.AutoFetchCovers = AutoFetchCheckBox.IsChecked == true;
+        updated.AutoFetchCovers = _connectionOnly || AutoFetchCheckBox.IsChecked == true;
         updated.AnimationsEnabled = AnimationsCheckBox.IsChecked == true;
         updated.CoverSizePreset = (int)CoverSizeSlider.Value;
         updated.Language = _selectedLanguage;

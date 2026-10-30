@@ -13,6 +13,27 @@ namespace Viciotek.Tests;
 public sealed class PresentationAuditTests
 {
     [Fact]
+    public Task WelcomeConnection_UsesDedicatedFlowAndCancelDoesNotChangeSettings() => WpfTest.RunAsync(async () =>
+    {
+        var directory = TestHelpers.CreateTempDirectory();
+        try
+        {
+            var paths = new AppPaths(directory); paths.EnsureCreated();
+            var dialogs = new FakeDialogs();
+            using var vm = CreateViewModel(paths, dialogs);
+            await vm.ConnectCoversAsync();
+            Assert.Equal(1, dialogs.ConnectionRequests);
+            Assert.False(vm.IsSteamGridConfigured);
+            Assert.False(File.Exists(paths.SettingsFile));
+            dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "fixture-key" };
+            await vm.ConnectCoversAsync();
+            Assert.Equal(2, dialogs.ConnectionRequests);
+            Assert.True(vm.IsSteamGridConfigured);
+            Assert.True(new SettingsStore(paths).Load().Settings.AutoFetchCovers);
+        }
+        finally { Directory.Delete(directory, true); }
+    });
+    [Fact]
     public Task UnexpectedLaunchFailure_IsFriendlyAndAllowsRetry() => WpfTest.RunAsync(async () =>
     {
         var directory = TestHelpers.CreateTempDirectory();
@@ -282,6 +303,8 @@ public sealed class PresentationAuditTests
 
     private sealed class FakeDialogs : IDialogService
     {
+        public int ConnectionRequests { get; private set; }
+        public AppSettings? ConnectCovers(AppSettings settings) { ConnectionRequests++; return SettingsResult; }
         public bool DirectPick { get; private set; }
         public string[]? FilesToPick { get; set; }
         public string[]? PickGameFiles(bool directly) { DirectPick = directly; return FilesToPick; }

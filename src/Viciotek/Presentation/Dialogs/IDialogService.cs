@@ -24,5 +24,6 @@ public interface IDialogService
     GameEditResult? EditGame(Game game);
     bool ConfirmRemove(string gameName);
     AppSettings? EditPreferences(AppSettings settings);
+    AppSettings? ConnectCovers(AppSettings settings) => EditPreferences(settings);
     AppSettings? EditPreferences(AppSettings settings, Action<int> previewCoverSize) => EditPreferences(settings);
 }

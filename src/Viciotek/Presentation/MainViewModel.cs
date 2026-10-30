@@ -83,6 +83,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
         AddGamesCommand = new AsyncRelayCommand(AddGamesFromDialogAsync);
         OpenPreferencesCommand = new AsyncRelayCommand(OpenPreferencesAsync);
+        ConnectCoversCommand = new AsyncRelayCommand(ConnectCoversAsync);
         ClearSearchCommand = new RelayCommand(ClearSearch);
     }
 
@@ -90,6 +91,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public ICollectionView GamesView { get; }
     public AsyncRelayCommand AddGamesCommand { get; }
     public AsyncRelayCommand OpenPreferencesCommand { get; }
+    public AsyncRelayCommand ConnectCoversCommand { get; }
     public RelayCommand ClearSearchCommand { get; }
     public bool IsSteamGridConfigured => _steamGrid.IsConfigured;
     public bool AnimationsEnabled => _settings.AnimationsEnabled;
@@ -609,6 +611,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     }
 
     public Task OpenPreferencesAsync() => RunOperationAsync(OpenPreferencesCoreAsync);
+    public Task ConnectCoversAsync() => RunOperationAsync(() => EditPreferencesCoreAsync(connectionOnly: true));
 
     private async Task OpenPreferencesCoreAsync()
     {
@@ -616,9 +619,10 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         finally { PreviewCoverSize(null); }
     }
 
-    private async Task EditPreferencesCoreAsync()
+    private async Task EditPreferencesCoreAsync(bool connectionOnly = false)
     {
-        var updated = _dialogs.EditPreferences(_settings.Clone(), preset => PreviewCoverSize(preset));
+        var updated = connectionOnly ? _dialogs.ConnectCovers(_settings.Clone())
+            : _dialogs.EditPreferences(_settings.Clone(), preset => PreviewCoverSize(preset));
         if (updated is null)
         {
             return;

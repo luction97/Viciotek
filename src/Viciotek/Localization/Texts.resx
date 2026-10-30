@@ -685,4 +685,5 @@ Detalle técnico: {0}</value>
   <data name="FriendlyActionFailure" xml:space="preserve"><value>No se pudo completar esta acción. Puedes intentarlo de nuevo.</value></data>
   <data name="FriendlyLaunchFailure" xml:space="preserve"><value>No se pudo iniciar el juego. Revisa su archivo de inicio en Editar → Opciones avanzadas.</value></data>
   <data name="FriendlyImportFailure" xml:space="preserve"><value>No se pudieron agregar los juegos. Comprueba que los archivos estén disponibles e inténtalo de nuevo.</value></data>
+<data name="ConnectCoverService" xml:space="preserve"><value>Conectar SteamGridDB</value></data>
 </root>

@@ -19,7 +19,7 @@
             <Grid Grid.Row="0"
                   Background="Transparent"
                   MouseLeftButtonDown="Header_MouseLeftButtonDown">
-                <TextBlock Text="{loc:Text Settings}"
+                <TextBlock x:Name="HeadingText" Text="{loc:Text Settings}"
                            Margin="32,0,0,0"
                            VerticalAlignment="Center"
                            FontFamily="{StaticResource DisplayFont}"
@@ -43,7 +43,7 @@
                           HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Margin="32,6,32,8">
                     <Border Style="{StaticResource DialogSectionStyle}"><StackPanel>
-                    <Grid Margin="0,0,0,18">
+                    <Grid x:Name="ProviderHeader" Margin="0,0,0,18">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="52" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                         <Border Width="38" Height="38" CornerRadius="12" Background="{DynamicResource ProviderIconBackgroundBrush}" HorizontalAlignment="Left">
                             <TextBlock Text="&#xEB9F;" FontFamily="{StaticResource IconFont}" FontSize="20"

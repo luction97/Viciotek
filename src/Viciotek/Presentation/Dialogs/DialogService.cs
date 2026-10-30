@@ -86,6 +86,12 @@ public sealed class DialogService : IDialogService
         return ShowDialog(dialog) == true ? dialog.Result : null;
     }
 
+    public AppSettings? ConnectCovers(AppSettings settings)
+    {
+        var dialog = new PreferencesDialog(settings, _paths, _steamGrid, connectionOnly: true);
+        return ShowDialog(dialog) == true ? dialog.Result : null;
+    }
+
     private bool? ShowDialog(Window dialog)
     {
         var owner = GetOwner();

@@ -1,6 +1,13 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.27**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.28**, C#/WPF/.NET 8 para Windows 11.
+
+## Conexión dedicada desde bienvenida — 1.1.28
+- Activar portadas abre Conectar SteamGridDB, sin idioma, biblioteca, banner duplicado ni pie de Configuración. Se reutiliza PreferencesDialog en modo de conexión para conservar obtención/pegado, verificación, cancelación y guardado seguro existentes. Configuración normal mantiene todas sus opciones y Acerca de. Sin pasos intermedios nuevos ni cambios a portadas.
+- La acción Conectar verifica y cierra guardando; Cancelar/Escape descartan la edición. Activación habilita AutoFetchCovers y conserva los demás valores clonados. VM y servicio distinguen el flujo dedicado del editor general, persistiendo mediante la misma ruta transaccional.
+- Prueba nueva verifica ruta dedicada, cancelación sin guardar y conexión guardada. Harness con HTTP simulado confirma cierre al verificar, AutoFetch activo y conservación de idioma/tamaño/animaciones; revisión es/en en ventanas pequeñas/grandes. Sin claves personales ni red real.
+- Entrega CONFIRMADA: 284/284 tests, build Release -warnaserror limpio, ambos ZIPs con SmokePublished PASS y SmokeInstaller completo PASS (instalar, actualizar, bloqueo con app abierta, desinstalar, preservar datos/archivo ajeno). Iconos y SHA256 verificados. Fuentes guardadas en Git sin push.
+- Próximo paso concreto: instalar 1.1.28 y probar el recorrido con una cuenta propia; verificación real del proveedor y comprensión con usuarios nuevos pendientes.
 
 ## Bienvenida orientada al beneficio — 1.1.27
 - El bloque inicial muestra «VICIOTEK encuentra las portadas por ti», la acción principal «Activar portadas automáticas» y una alternativa breve de elección manual. Se retiran la explicación anticipada de SteamGridDB y la etiqueta redundante Recomendado. El proveedor y sus pasos se explican dentro de Configuración, únicamente tras elegir activar. No se agregan pantallas ni se modifica el proceso de conexión, importación o portadas. Elegir juego y el arrastre siguen visibles.
