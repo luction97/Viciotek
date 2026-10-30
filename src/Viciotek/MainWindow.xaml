@@ -372,6 +372,9 @@
                         <Button Content="{loc:Text ConnectSteamGridOptional}" Command="{Binding OpenPreferencesCommand}"
                                 Style="{StaticResource LinkButtonStyle}" FontSize="15" Height="40"
                                 HorizontalAlignment="Center" Margin="0,4,0,0" />
+                        <TextBlock Text="{loc:Text ManualCoversWithoutConnection}" FontSize="14"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"
+                                   TextAlignment="Center" TextWrapping="Wrap" />
                     </StackPanel>
                 </StackPanel>
             </Grid>

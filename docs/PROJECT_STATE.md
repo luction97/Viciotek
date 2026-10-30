@@ -1,6 +1,12 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.21**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.22**, C#/WPF/.NET 8 para Windows 11.
+
+## Conexión explicada sin tecnicismos — 1.1.22
+- La bienvenida explica «SteamGridDB es un servicio de portadas para videojuegos». La acción destaca el beneficio: «Activar portadas automáticas (opcional)». Una línea secundaria aclara «Si omites este paso, puedes agregarlas manualmente». Equivalentes en inglés; se conserva apertura del instructivo existente, visibilidad condicionada y funcionamiento sin conexión. Sin cambios a lógica, portadas ni datos.
+- CONFIRMADO: build Release -warnaserror limpio; 270/270 tests tras añadir la aclaración y 23/23 pruebas de localización/layout repetidas después de ajustar las frases finales. MainWindow real inspeccionado en es/en a 1280×800 y 760×540; bloque legible y contenido dentro del viewport.
+- Entrega CONFIRMADA: ambos ZIPs con SmokePublished PASS; SmokeInstaller completo PASS (instalar, actualizar, bloqueo con app abierta, desinstalar, preservar datos/archivo ajeno). SHA256 e iconos oficiales verificados. Esta prueba completa también valida los ajustes de 1.1.21 que habían quedado sin smoke por una instancia personal abierta. Fuentes guardadas en Git sin push.
+- Próximo paso concreto: instalar 1.1.22 y pedir a un usuario nuevo que pruebe la conexión opcional; comprensión por usuarios reales y red/cuenta real siguen pendientes.
 
 ## Accesos directos intactos y conexión opcional visible — 1.1.21
 - CONFIRMADO: el selector compartido tenía DereferenceLinks=true por defecto. Ahora conserva la ruta .lnk mediante DereferenceLinks=false: el importador puede leer nombre, argumentos y directorio originales igual que al arrastrar. Sin cambios al algoritmo de búsqueda ni a la condición de automatismo (conexión configurada y AutoFetchCovers activo). INFERIDO: la pérdida de identidad por resolver el acceso directo explica la diferencia reportada; no se accede al archivo personal del caso.
