@@ -1,6 +1,13 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.22**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.23**, C#/WPF/.NET 8 para Windows 11.
+
+## Entrada suave de la bienvenida — 1.1.23
+- Fundido 0→1 y desplazamiento vertical 8→0 DIP en 280 ms, con salida cúbica en el movimiento. Se aplica al bloque central completo al abrir una biblioteca vacía, una vez por ventana. No se repite por buscar, redimensionar, retornar de Configuración o recibir otro Loaded. Sin preferencias nuevas ni cambios a persistencia, portadas o importación.
+- Condicionada por AnimationsEnabled y SystemParameters.ClientAreaAnimation de Windows. Acciones/arrastre disponibles desde el comienzo. Solo RenderTransform/Opacity: sin relayout, retrasos, timers o animación permanente. Se retiran los relojes WPF al completar o cerrar la ventana.
+- CONFIRMADO: 272/272 tests; dos casos nuevos verifican modo activo/inactivo, acción disponible durante la entrada, layout estable y liberación de relojes/estado final. Harness con MainWindow real en es/en a 1280×800/760×540 verifica la preferencia de Windows, estado final y ausencia de repetición tras Loaded. Sin datos personales ni red.
+- Entrega CONFIRMADA: build Release -warnaserror limpio; ambos ZIPs con SmokePublished PASS; iconos y SHA256 verificados; instalador generado. SmokeInstaller intentado: instalación detenida con salida 1; install.log confirma instancia personal 1.1.22 abierta (proceso 25868), que no se cierra. Actualizar/desinstalar no se llegaron a probar con esta versión.
+- Próximo paso concreto: cerrar la instancia personal, repetir SmokeInstaller y probar la bienvenida con biblioteca vacía. Revisión perceptual por el propietario pendiente. Fuentes guardadas en Git sin push.
 
 ## Conexión explicada sin tecnicismos — 1.1.22
 - La bienvenida explica «SteamGridDB es un servicio de portadas para videojuegos». La acción destaca el beneficio: «Activar portadas automáticas (opcional)». Una línea secundaria aclara «Si omites este paso, puedes agregarlas manualmente». Equivalentes en inglés; se conserva apertura del instructivo existente, visibilidad condicionada y funcionamiento sin conexión. Sin cambios a lógica, portadas ni datos.

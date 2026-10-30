@@ -342,7 +342,7 @@
             <!-- Empty library -->
             <Grid x:Name="EmptyLibrary" Background="{StaticResource BgBrush}"
                   Visibility="{Binding ShowEmptyState, Converter={StaticResource BoolToVisibility}}">
-                <StackPanel HorizontalAlignment="Center"
+                <StackPanel x:Name="WelcomeContent" HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             MaxWidth="620"
                             Margin="32">

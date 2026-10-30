@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using Viciotek.Infrastructure.Imaging;
 using Viciotek.Infrastructure.Library;
@@ -24,6 +25,7 @@ public partial class MainWindow : Window
     private WindowState _lastVisibleState = WindowState.Normal;
     private bool _geometrySaved;
     private bool _closeInProgress;
+    private bool _welcomeEntranceHandled;
 
     public MainWindow(
         MainViewModel viewModel,
@@ -69,9 +71,38 @@ public partial class MainWindow : Window
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        if (!_welcomeEntranceHandled)
+        {
+            _welcomeEntranceHandled = true;
+            if (_viewModel.ShowEmptyState)
+                BeginWelcomeEntrance(WelcomeContent, _viewModel.AnimationsEnabled && SystemParameters.ClientAreaAnimation);
+        }
         _viewModel.ShowPendingNotice();
         // Keep search opt-in: opening the library must not show a caret or select text.
         Keyboard.Focus(this);
+    }
+
+    internal static void BeginWelcomeEntrance(FrameworkElement content, bool enabled)
+    {
+        if (!enabled) return;
+        var offset = new TranslateTransform();
+        content.RenderTransform = offset;
+        var duration = TimeSpan.FromMilliseconds(280);
+        var fade = new DoubleAnimation(0, 1, duration) { FillBehavior = FillBehavior.Stop };
+        fade.Completed += (_, _) => ClearWelcomeEntrance(content);
+        offset.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(8, 0, duration)
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
+            FillBehavior = FillBehavior.Stop
+        });
+        content.BeginAnimation(OpacityProperty, fade);
+    }
+
+    private static void ClearWelcomeEntrance(FrameworkElement content)
+    {
+        content.BeginAnimation(OpacityProperty, null);
+        if (content.RenderTransform is TranslateTransform offset)
+            offset.BeginAnimation(TranslateTransform.YProperty, null);
     }
 
     private void OnStateChanged(object? sender, EventArgs e)
@@ -118,6 +149,7 @@ public partial class MainWindow : Window
 
     private void OnClosed(object? sender, EventArgs e)
     {
+        ClearWelcomeEntrance(WelcomeContent);
         _viewModel.CloseRequested -= OnCloseRequested;
         _viewModel.ScrollToTopRequested -= OnScrollToTopRequested;
         _viewModel.ScrollToItemRequested -= OnScrollToItemRequested;
