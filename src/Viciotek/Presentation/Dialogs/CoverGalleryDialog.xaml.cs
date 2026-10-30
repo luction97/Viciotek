@@ -34,19 +34,6 @@ public partial class CoverGalleryDialog : ViciotekDialogWindow
         if (e.Key == Key.Enter && Suggestions.SelectedItem is SteamGridGame game)
         { e.Handled = true; SearchBox.Focus(); await _viewModel.SelectGameAsync(game); }
     }
-    protected override void OnPreviewKeyDown(KeyEventArgs e)
-    {
-        if (e.Key == Key.Escape && _viewModel.ShowSuggestions)
-        { e.Handled = true; _viewModel.HideSuggestions(); SearchBox.Focus(); return; }
-        base.OnPreviewKeyDown(e);
-    }
-    private void SearchSurface_FocusChanged(object sender, DependencyPropertyChangedEventArgs e)
-    { if (!(bool)e.NewValue) _viewModel.HideSuggestions(); }
-    private void Dialog_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-    {
-        if (!SearchSurface.IsMouseOver) _viewModel.HideSuggestions();
-    }
-
     private async void SearchBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Down && _viewModel.ShowSuggestions && Suggestions.HasItems)

@@ -5,7 +5,6 @@
                           xmlns:local="clr-namespace:Viciotek.Presentation.Dialogs"
                           xmlns:presentation="clr-namespace:Viciotek.Presentation"
                           xmlns:controls="clr-namespace:Viciotek.Presentation.Controls"
-                          PreviewMouseDown="Dialog_PreviewMouseDown"
                           Title="{loc:Text FindACover}"
                           Width="1000"
                           Height="960"
@@ -44,7 +43,7 @@
                         Click="Cancel_Click" />
             </Grid>
 
-            <Border x:Name="SearchSurface" IsKeyboardFocusWithinChanged="SearchSurface_FocusChanged" Grid.Row="1" Grid.RowSpan="2" Margin="26,4,26,8" Background="#111318" CornerRadius="12" Padding="12,4">
+            <Border x:Name="SearchSurface" Grid.Row="1" Grid.RowSpan="2" Margin="26,4,26,8" Background="#111318" CornerRadius="12" Padding="12,4">
                 <StackPanel>
                     <TextBox x:Name="SearchBox" Style="{StaticResource FormTextBoxStyle}"
                              MaxLength="200"

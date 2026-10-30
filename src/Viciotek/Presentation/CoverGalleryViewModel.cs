@@ -66,8 +66,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
             _searchRevision++;
             _searchCancellation?.Cancel();
             _previewCancellation?.Cancel();
-            _debounce?.Cancel();
-            _debounce?.Dispose();
+            CancelDebounce();
             _suggestionsRequested = true;
             Matches.Clear();
             OnPropertyChanged(nameof(ShowSuggestions));
@@ -126,6 +125,15 @@ public sealed class CoverGalleryViewModel : ObservableObject
         });
     }
 
+    private void CancelDebounce()
+    {
+        var pending = _debounce;
+        _debounce = null;
+        if (pending is null) return;
+        pending.Cancel();
+        pending.Dispose();
+    }
+
     private async Task SearchAfterPauseAsync(CancellationToken token)
     {
         try { await Task.Delay(350, token); token.ThrowIfCancellationRequested(); await SearchAsync(); }
@@ -148,7 +156,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
             foreach (var match in matches) Matches.Add(match);
             OnPropertyChanged(nameof(ShowSuggestions));
             var exact = GameIdentitySearch.ExactMatches(query, matches);
-            if (exact.Count == 1) { AcceptGame(exact[0]); await LoadGridsAsync(exact[0], revision, token); }
+            if (exact.Count == 1) await LoadGridsAsync(exact[0], revision, token);
             else Status = matches.Count == 0 ? L.Get("NoResultsTryAnotherName") : L.Get("ChooseAGameToSeeItsCovers");
         });
     }
@@ -167,7 +175,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
     private Task RunLatestAsync(Func<int, CancellationToken, Task> action)
     {
         if (_closed || IsApplying) return Task.CompletedTask;
-        _debounce?.Cancel();
+        CancelDebounce();
         _searchCancellation?.Cancel();
         var revision = ++_searchRevision;
         var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
@@ -297,9 +305,8 @@ public sealed class CoverGalleryViewModel : ObservableObject
         if (_closed) return;
         _closed = true;
         _lifetime.Cancel();
-        _debounce?.Cancel();
+        CancelDebounce();
         await Task.WhenAll(_active, _scheduled);
-        _debounce?.Dispose();
         await ClearPreviewsAsync();
         _downloadGate.Dispose();
         _lifetime.Dispose();

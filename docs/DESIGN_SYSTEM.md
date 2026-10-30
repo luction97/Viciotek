@@ -38,3 +38,5 @@ Fuente de verdad: `src/Viciotek/Presentation/Theme/Theme.xaml` y `MainWindow.xam
 - Modales: grupos de contenido con DialogSectionStyle (#14161A, radio 12, padding 18, sin contorno), sin convertir las acciones en cápsulas. Menú contextual con icono/título/atajo en columnas y separación tenue. Galería preferida 1000×960 DIP acotada al área de trabajo; 18 miniaturas completas a partir de 1000×900, 12 a 1000×700. Miniaturas y biblioteca sin cambios.
 
 - 1.1.17: en la galería de selección se prioriza lectura sobre cantidad: 160×240 DIP, cinco columnas a 1000 DIP. Sugerencias transitorias que completan el campo al aceptar; cursor Hand y teclado. Slider con cuatro marcadores sobre posiciones de snap, hover/foco de baja intensidad. La biblioteca principal conserva sus dimensiones.
+
+- 1.1.18: las recomendaciones permanecen visibles tras perder foco o al encontrar un nombre exacto. Una elección explícita las oculta hasta editar/borrar el campo; completar el nombre no dispara otra búsqueda. Escape cierra el modal de manera normal. Sustituye el ocultamiento por foco de 1.1.17.

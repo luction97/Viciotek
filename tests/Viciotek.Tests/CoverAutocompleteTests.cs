@@ -8,6 +8,28 @@ namespace Viciotek.Tests;
 
 public sealed class CoverAutocompleteTests
 {
+    [Fact]
+    public Task TypingBelowThresholdAfterDebounceThenTypingAgain_DoesNotUseDisposedSource() => WpfTest.RunAsync(async () =>
+    {
+        using var handler = new Handler((_, _) => Task.FromResult(Result(1, "Spider-Man")));
+        using var client = new SteamGridDbClient("fixture", handler);
+        var vm = new CoverGalleryViewModel(client, new Game(), (_, _) => Task.FromResult(true), true);
+        try
+        {
+            vm.SearchQuery = "spi";
+            vm.SearchQuery = "sp";
+            vm.SearchQuery = "spiderman";
+            await WpfTest.WaitUntilAsync(() => vm.Matches.Count == 1 && !vm.IsLoading);
+            Assert.True(vm.ShowSuggestions);
+            vm.SearchQuery = "sp";
+            vm.SearchQuery = "s";
+            vm.SearchQuery = "";
+            vm.SearchQuery = "spiderman";
+            await WpfTest.WaitUntilAsync(() => vm.Matches.Count == 1 && !vm.IsLoading);
+        }
+        finally { await vm.CloseAsync(); }
+    });
+
     private sealed class Handler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> send) : HttpMessageHandler
     {
         public int Calls;
@@ -16,6 +38,47 @@ public sealed class CoverAutocompleteTests
     }
     private static HttpResponseMessage Result(int id, string name) => new(HttpStatusCode.OK)
         { Content = new StringContent($$"""{"success":true,"data":[{"id":{{id}},"name":"{{name}}"}]}""") };
+
+    [Fact]
+    public Task ExactMatch_KeepsSuggestionsUntilExplicitSelection() => WpfTest.RunAsync(async () =>
+    {
+        using var handler = new Handler((request, _) => Task.FromResult(
+            request.RequestUri!.AbsolutePath.Contains("/search/") ? Result(1, "Spider-Man") :
+            new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("""{"success":true,"data":[]}""") }));
+        using var client = new SteamGridDbClient("fixture", handler);
+        var vm = new CoverGalleryViewModel(client, new Game(), (_, _) => Task.FromResult(true), true);
+        try
+        {
+            vm.SearchQuery = "Spider-Man";
+            await vm.SearchAsync();
+            Assert.True(vm.ShowSuggestions);
+            await vm.SelectGameAsync(Assert.Single(vm.Matches));
+            Assert.False(vm.ShowSuggestions);
+            var requests = handler.Calls;
+            await Task.Delay(450);
+            Assert.Equal(requests, handler.Calls);
+            Assert.False(vm.ShowSuggestions);
+            vm.SearchQuery = "Spider-Ma";
+            await vm.SearchAsync();
+            Assert.True(vm.ShowSuggestions);
+        }
+        finally { await vm.CloseAsync(); }
+    });
+
+    [Fact]
+    public Task CloseAfterDeletingBelowThreshold_DoesNotCancelDisposedSource() => WpfTest.RunAsync(async () =>
+    {
+        using var handler = new Handler((_, _) => Task.FromResult(Result(1, "Spider-Man")));
+        using var client = new SteamGridDbClient("fixture", handler);
+        var vm = new CoverGalleryViewModel(client, new Game(), (_, _) => Task.FromResult(true), true);
+        vm.SearchQuery = "spi";
+        vm.SearchQuery = "sp";
+        vm.SearchQuery = "";
+        await vm.CloseAsync();
+        await vm.CloseAsync();
+        await Task.Delay(450);
+        Assert.Equal(0, handler.Calls);
+    });
 
     [Fact]
     public Task ChoosingSuggestion_CompletesNameHidesListAndDoesNotSearchAgain() => WpfTest.RunAsync(async () =>

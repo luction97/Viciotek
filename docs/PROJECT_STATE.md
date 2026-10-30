@@ -1,7 +1,14 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.17**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.18**, C#/WPF/.NET 8 para Windows 11.
 
+## Corrección de cancelación y simplificación de recomendaciones — 1.1.18
+- Causa CONFIRMADA: al editar de >=3 caracteres a <3, SearchQuery cancelaba y disponía _debounce pero conservaba la referencia. La siguiente edición o CloseAsync llamaba Cancel sobre ese CTS dispuesto. Nueva regresión reprodujo ObjectDisposedException antes del arreglo.
+- CancelDebounce toma la referencia, limpia el campo antes de cancelar y libera únicamente la fuente retirada. Se reutiliza en edición, inicio de búsqueda/selección y cierre. Sin catch que esconda ObjectDisposedException y sin modificar cliente HTTP, datos o portadas.
+- Recomendaciones se mantienen visibles al perder foco y al encontrar coincidencia exacta. Solo una elección explícita completa el nombre y oculta la lista hasta la siguiente edición/borrado; no se reinicia el debounce por completar el nombre. Se conserva carga automática de portadas para coincidencia exacta, cursor Hand y navegación abajo/Enter. Escape vuelve al cierre normal del modal.
+- CONFIRMADO: 258/258 tests; tres regresiones nuevas cubren escribir/borrar/repetir, cerrar tras borrar por debajo del umbral y coincidencia exacta visible hasta elección. SteamGridSmoke offline PASS. Prueba WPF de ventana actual en es/en reproduce escritura/borrado/reentrada de spiderman, confirma por Enter y verifica lista visible tras perder foco.
+- Entrega CONFIRMADA: build Release -warnaserror sin advertencias/errores; ambos ZIPs con SmokePublished PASS y SmokeInstaller completo PASS (instalar, actualizar, bloqueo con app abierta, desinstalar y preservar datos/archivo ajeno). Iconos y SHA256 verificados. Fuentes guardadas en Git sin push. Sin cuenta personal ni red real del proveedor. No cambia el tamaño de las miniaturas ni la biblioteca.
+- Próximo paso concreto: instalar 1.1.18 y comprobar el buscador con la cuenta del propietario, incluyendo borrar por debajo de tres caracteres y volver a escribir.
 ## Portadas más legibles y sugerencias transitorias — 1.1.17
 - Galería de selección: miniaturas 160×240 frente a 120×180, cinco columnas a 1000 DIP y menos columnas en ventanas menores. Se conserva la virtualización, proporción y galería alta; la biblioteca principal no cambia.
 - Sugerencias solo durante búsqueda/entrada. Clic o Enter confirma, copia el nombre canónico sin nuevo debounce ni búsqueda redundante y oculta la lista. Flecha abajo recorre sin confirmar. Escape oculta primero la lista; salir con teclado o pulsar fuera también la oculta. Respuestas tardías no la reabren. Filas con cursor Hand y selección/foco existentes.
