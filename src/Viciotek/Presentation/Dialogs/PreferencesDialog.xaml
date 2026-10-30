@@ -63,7 +63,7 @@
                     <TextBlock Text="{loc:Text SignInAndCopyYourApiKeyCode}"
                                Style="{StaticResource FieldHintStyle}" FontSize="14" LineHeight="20" TextWrapping="Wrap"
                                Foreground="{StaticResource TextSecondaryBrush}" Margin="24,4,0,18" />
-                    <StackPanel Orientation="Horizontal"><TextBlock Text="2" Width="24" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" /><Label Content="{loc:Text PasteYourCodeToConnect}" Target="{Binding ElementName=ApiKeyBox}"
+                    <StackPanel Orientation="Horizontal"><TextBlock Text="2" Width="24" Margin="0,0,0,10" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" /><Label Content="{loc:Text PasteYourCodeToConnect}" Target="{Binding ElementName=ApiKeyBox}"
                            Foreground="{StaticResource TextSecondaryBrush}" Padding="0,0,0,10" /></StackPanel>
                     <Grid Margin="24,0,0,0">
                         <Grid.ColumnDefinitions>

@@ -472,11 +472,20 @@
 
     <Style x:Key="CoverSizeSliderStyle" TargetType="{x:Type Slider}">
         <Setter Property="Height" Value="32" />
+        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingStyle}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Slider}">
-                    <Track x:Name="PART_Track" VerticalAlignment="Center" Height="18"
+                    <Grid>
+                    <Grid x:Name="PresetMarkers" Margin="9,0" IsHitTestVisible="False" Opacity="0.65">
+                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                        <Ellipse Width="6" Height="6" Margin="-3,0,0,0" HorizontalAlignment="Left" Fill="{StaticResource TextSecondaryBrush}"/>
+                        <Ellipse Grid.Column="1" Width="6" Height="6" Margin="-3,0,0,0" HorizontalAlignment="Left" Fill="{StaticResource TextSecondaryBrush}"/>
+                        <Ellipse Grid.Column="2" Width="6" Height="6" Margin="-3,0,0,0" HorizontalAlignment="Left" Fill="{StaticResource TextSecondaryBrush}"/>
+                        <Ellipse Grid.Column="2" Width="6" Height="6" Margin="0,0,-3,0" HorizontalAlignment="Right" Fill="{StaticResource TextSecondaryBrush}"/>
+                    </Grid>
+                    <Track x:Name="PART_Track" VerticalAlignment="Center" Height="18" Opacity="0.82"
                            IsDirectionReversed="{TemplateBinding IsDirectionReversed}">
                         <Track.DecreaseRepeatButton>
                             <RepeatButton Command="Slider.DecreaseLarge" Focusable="False">
@@ -500,6 +509,12 @@
                             </RepeatButton>
                         </Track.IncreaseRepeatButton>
                     </Track>
+
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="PresetMarkers" Property="Opacity" Value="1"/><Setter TargetName="PART_Track" Property="Opacity" Value="1"/></Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="PresetMarkers" Property="Opacity" Value="1"/></Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

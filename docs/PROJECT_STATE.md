@@ -1,7 +1,15 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.16**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.17**, C#/WPF/.NET 8 para Windows 11.
 
+## Portadas más legibles y sugerencias transitorias — 1.1.17
+- Galería de selección: miniaturas 160×240 frente a 120×180, cinco columnas a 1000 DIP y menos columnas en ventanas menores. Se conserva la virtualización, proporción y galería alta; la biblioteca principal no cambia.
+- Sugerencias solo durante búsqueda/entrada. Clic o Enter confirma, copia el nombre canónico sin nuevo debounce ni búsqueda redundante y oculta la lista. Flecha abajo recorre sin confirmar. Escape oculta primero la lista; salir con teclado o pulsar fuera también la oculta. Respuestas tardías no la reabren. Filas con cursor Hand y selección/foco existentes.
+- Configuración: descripción sin «Opcional» en ambos idiomas; alineación del número del paso 2 con su etiqueta. Slider con cuatro puntos visibles alineados a los centros reales del pulgar, cursor Hand e iluminación discreta en hover/foco. Se conservan los presets, snaps, teclado y guardado.
+- CONFIRMADO: build Release -warnaserror sin advertencias/errores, 255/255 tests. Dos regresiones nuevas de ciclo de sugerencias y dos de alineación de marcadores en anchos 300/550; responsive ajustado al nuevo tamaño, 500 resultados y último elemento accesible. SteamGridSmoke offline PASS. Revisión WPF en español/inglés con teclado real de eventos: abajo no confirma, Enter elige y Escape no cierra mientras la lista está abierta.
+- Entrega CONFIRMADA: ambos ZIPs 1.1.17 con SmokePublished PASS; instalador con SmokeInstaller completo PASS (instalar, actualizar, bloqueo con app abierta, desinstalar y preservar datos/archivo desconocido). SHA256 e iconos oficiales verificados. Sin claves ni biblioteca personales, sin push. DPI/multimonitor, latencia real y firma digital siguen pendientes.
+- Limpieza BLOQUEADA por revisión automática: el borrado nativo de 115 rutas de dist anteriores a 1.1.17, artifacts antiguos y bin/obj/TestResults fue rechazado con «blocked by policy». Las rutas se verificaron dentro del workspace y con protección de datos/ejecutables activos. La operación no se ejecutó; no se usaron métodos alternativos. Lista de candidatos en artifacts/ux-1.1.17/cleanup-targets.json, excluida de Git y del payload.
+- Próximo paso concreto: instalar 1.1.17 y retirar manualmente las salidas indicadas, conservando la distribución actual y las fuentes en Git.
 ## Español e inglés con selección automática — 1.1.16
 - Catálogos RESX de español neutro e inglés general, 221 pares de textos. ResourceManager estándar sin paquetes nuevos. UI XAML con bindings de localización reactivos; mensajes, validaciones, errores, importación, selectores de archivo, accesibilidad y tooltips traducidos. No se traducen los nombres/datos aportados por el usuario.
 - Al iniciar se elige por CurrentUICulture de Windows: es-* → español; en-* → inglés; otros idiomas → inglés. AppSettings.Language opcional/aditivo: null sigue Windows, es/en fuerza elección. No modifica CurrentCulture ni formatos regionales. library.json no cambia.

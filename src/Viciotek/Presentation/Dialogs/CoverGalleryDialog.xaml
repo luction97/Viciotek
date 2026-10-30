@@ -5,6 +5,7 @@
                           xmlns:local="clr-namespace:Viciotek.Presentation.Dialogs"
                           xmlns:presentation="clr-namespace:Viciotek.Presentation"
                           xmlns:controls="clr-namespace:Viciotek.Presentation.Controls"
+                          PreviewMouseDown="Dialog_PreviewMouseDown"
                           Title="{loc:Text FindACover}"
                           Width="1000"
                           Height="960"
@@ -43,22 +44,23 @@
                         Click="Cancel_Click" />
             </Grid>
 
-            <Border Grid.Row="1" Grid.RowSpan="2" Margin="26,4,26,8" Background="#111318" CornerRadius="12" Padding="12,4">
+            <Border x:Name="SearchSurface" IsKeyboardFocusWithinChanged="SearchSurface_FocusChanged" Grid.Row="1" Grid.RowSpan="2" Margin="26,4,26,8" Background="#111318" CornerRadius="12" Padding="12,4">
                 <StackPanel>
                     <TextBox x:Name="SearchBox" Style="{StaticResource FormTextBoxStyle}"
                              MaxLength="200"
                              IsReadOnly="{Binding IsApplying}"
                              Background="Transparent" BorderThickness="0" FontSize="14" Padding="0"
                              AutomationProperties.Name="{loc:Text GameName}" ToolTip="{loc:Text SearchesAsYouTypePressEnterToSearchForShortNamesToo}"
-                             KeyDown="SearchBox_KeyDown" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
+                             PreviewKeyDown="SearchBox_KeyDown" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
                     <ListBox x:Name="Suggestions" ItemsSource="{Binding Matches}" DisplayMemberPath="Name"
                              MaxHeight="56" Margin="0,2,0,4" BorderThickness="0" Background="Transparent"
                              Foreground="{StaticResource TextPrimaryBrush}" FontSize="14"
-                             AutomationProperties.Name="{loc:Text MatchingGames}" SelectionChanged="Game_SelectionChanged">
+                             AutomationProperties.Name="{loc:Text MatchingGames}" PreviewMouseLeftButtonUp="Suggestion_MouseUp" PreviewKeyDown="Suggestions_KeyDown">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Padding" Value="10,4" />
                                 <Setter Property="MinHeight" Value="28" />
+                                <Setter Property="Cursor" Value="Hand" />
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="Template"><Setter.Value>
                                     <ControlTemplate TargetType="ListBoxItem">
@@ -75,7 +77,7 @@
                         </ListBox.ItemContainerStyle>
                         <ListBox.Style><Style TargetType="ListBox">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Matches.Count}" Value="0"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                <DataTrigger Binding="{Binding ShowSuggestions}" Value="False"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
                             </Style.Triggers>
                         </Style></ListBox.Style>
                     </ListBox>
@@ -90,7 +92,7 @@
                              Style="{StaticResource GalleryListBoxStyle}">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:VirtualizingWrapPanel ItemWidth="120" ItemHeight="180" Gap="12"
+                                    <controls:VirtualizingWrapPanel ItemWidth="160" ItemHeight="240" Gap="12"
                                                                    HorizontalPadding="10" VerticalPadding="10" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>

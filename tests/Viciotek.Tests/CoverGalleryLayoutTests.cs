@@ -13,17 +13,17 @@ namespace Viciotek.Tests;
 public sealed class CoverGalleryLayoutTests
 {
     [Theory]
-    [InlineData(1000, 960, 18)]
-    [InlineData(1000, 900, 18)]
-    [InlineData(1000, 780, 12)]
-    [InlineData(1000, 700, 12)]
-    [InlineData(760, 600, 4)]
+    [InlineData(1000, 960, 10)]
+    [InlineData(1000, 900, 10)]
+    [InlineData(1000, 780, 10)]
+    [InlineData(1000, 700, 5)]
+    [InlineData(760, 600, 3)]
     public Task Results_GetPriorityAndRemainVirtualized(double width, double height, int minimumVisible) => WpfTest.RunAsync(async () =>
     {
         var source = XDocument.Load(Path.Combine(AppContext.BaseDirectory, "UiFixtures", "CoverGalleryDialog.xaml"));
         var content = source.Root!.Elements().Single();
         foreach (var attribute in content.DescendantsAndSelf().Attributes().Where(a =>
-                     a.Name.LocalName is "Click" or "KeyDown" or "MouseLeftButtonDown" or "SelectionChanged").ToArray())
+                     a.Name.LocalName is "Click" or "KeyDown" or "MouseLeftButtonDown" or "SelectionChanged" or "PreviewKeyDown" or "PreviewMouseLeftButtonUp" or "IsKeyboardFocusWithinChanged").ToArray())
             attribute.Remove(); // Exercise production layout without dialog code-behind or network.
         var markup = $$"""
             <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -58,15 +58,15 @@ public sealed class CoverGalleryLayoutTests
             var results = (ListBox)window.FindName("CoverResults");
             var suggestions = (ListBox)window.FindName("Suggestions");
             var panel = Find<VirtualizingWrapPanel>(results);
-            Assert.InRange(suggestions.ActualHeight, 28, 56);
+            Assert.Equal(0, suggestions.ActualHeight);
             Assert.True(panel.ViewportHeight > suggestions.ActualHeight * 4);
             var visible = Enumerable.Range(0, vm.Candidates.Count)
                 .Select(i => results.ItemContainerGenerator.ContainerFromIndex(i)).OfType<ListBoxItem>()
                 .Count(item => { var point = item.TranslatePoint(new Point(), panel); return point.Y >= -0.1 && point.Y + item.ActualHeight <= panel.ViewportHeight + 0.1; });
             Assert.True(visible >= minimumVisible, $"Only {visible} complete covers at {width}x{height}; viewport {panel.ViewportWidth}x{panel.ViewportHeight}");
             Assert.InRange(panel.RealizedItemCount, minimumVisible, 60);
-            Assert.Equal(120, panel.EffectiveItemWidth);
-            Assert.Equal(180, panel.EffectiveItemHeight);
+            Assert.Equal(160, panel.EffectiveItemWidth);
+            Assert.Equal(240, panel.EffectiveItemHeight);
             var footer = Find<Button>(window, b => Equals(b.Content, Viciotek.Localization.Language.Get("UseThisCover")));
             Assert.True(results.TranslatePoint(new Point(0, results.ActualHeight), window).Y <= footer.TranslatePoint(new Point(), window).Y);
             Assert.True(footer.TranslatePoint(new Point(0, footer.ActualHeight), window).Y <= height);

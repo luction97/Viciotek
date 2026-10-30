@@ -18,6 +18,52 @@ public sealed class CoverAutocompleteTests
         { Content = new StringContent($$"""{"success":true,"data":[{"id":{{id}},"name":"{{name}}"}]}""") };
 
     [Fact]
+    public Task ChoosingSuggestion_CompletesNameHidesListAndDoesNotSearchAgain() => WpfTest.RunAsync(async () =>
+    {
+        using var handler = new Handler((request, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        { Content = new StringContent(request.RequestUri!.AbsolutePath.Contains("/search/")
+            ? """{"success":true,"data":[{"id":1,"name":"First edition"},{"id":2,"name":"Second edition"}]}"""
+            : """{"success":true,"data":[]}""") }));
+        using var client = new SteamGridDbClient("fixture", handler);
+        var vm = new CoverGalleryViewModel(client, new Game(), (_, _) => Task.FromResult(true), true);
+        try
+        {
+            vm.SearchQuery = "edition";
+            await vm.SearchAsync();
+            Assert.True(vm.ShowSuggestions);
+            await vm.SelectGameAsync(vm.Matches[1]);
+            Assert.Equal("Second edition", vm.SearchQuery);
+            Assert.False(vm.ShowSuggestions);
+            await Task.Delay(450);
+            Assert.Equal(2, handler.Calls);
+            vm.SearchQuery = "another";
+            await vm.SearchAsync();
+            Assert.True(vm.ShowSuggestions);
+        }
+        finally { await vm.CloseAsync(); }
+    });
+
+    [Fact]
+    public Task DismissedSuggestions_DoNotReappearWhenPendingResponseArrives() => WpfTest.RunAsync(async () =>
+    {
+        var reply = new TaskCompletionSource<HttpResponseMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var handler = new Handler((_, _) => reply.Task);
+        using var client = new SteamGridDbClient("fixture", handler);
+        var vm = new CoverGalleryViewModel(client, new Game(), (_, _) => Task.FromResult(true), true);
+        try
+        {
+            vm.SearchQuery = "edition";
+            var search = vm.SearchAsync();
+            vm.HideSuggestions();
+            reply.SetResult(Result(1, "Another edition"));
+            await search;
+            Assert.Single(vm.Matches);
+            Assert.False(vm.ShowSuggestions);
+        }
+        finally { reply.TrySetResult(Result(1, "Another edition")); await vm.CloseAsync(); }
+    });
+
+    [Fact]
     public Task Typing_UsesThresholdAndCoalescesBurst() => WpfTest.RunAsync(async () =>
     {
         using var handler = new Handler((_, _) => Task.FromResult(Result(2, "God of War")));

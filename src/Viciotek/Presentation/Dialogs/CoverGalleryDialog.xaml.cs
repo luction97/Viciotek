@@ -24,14 +24,32 @@ public partial class CoverGalleryDialog : ViciotekDialogWindow
 
     private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
 
-    private async void Game_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private async void Suggestion_MouseUp(object sender, MouseButtonEventArgs e)
     {
-        if (e.AddedItems.Count > 0 && e.AddedItems[0] is SteamGridGame game) await _viewModel.SelectGameAsync(game);
+        if (ItemsControl.ContainerFromElement(Suggestions, e.OriginalSource as DependencyObject) is ListBoxItem { Content: SteamGridGame game })
+        { e.Handled = true; SearchBox.Focus(); await _viewModel.SelectGameAsync(game); }
+    }
+    private async void Suggestions_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && Suggestions.SelectedItem is SteamGridGame game)
+        { e.Handled = true; SearchBox.Focus(); await _viewModel.SelectGameAsync(game); }
+    }
+    protected override void OnPreviewKeyDown(KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape && _viewModel.ShowSuggestions)
+        { e.Handled = true; _viewModel.HideSuggestions(); SearchBox.Focus(); return; }
+        base.OnPreviewKeyDown(e);
+    }
+    private void SearchSurface_FocusChanged(object sender, DependencyPropertyChangedEventArgs e)
+    { if (!(bool)e.NewValue) _viewModel.HideSuggestions(); }
+    private void Dialog_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (!SearchSurface.IsMouseOver) _viewModel.HideSuggestions();
     }
 
     private async void SearchBox_KeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Down && Suggestions.HasItems)
+        if (e.Key == Key.Down && _viewModel.ShowSuggestions && Suggestions.HasItems)
         {
             e.Handled = true;
             Suggestions.SelectedIndex = 0;

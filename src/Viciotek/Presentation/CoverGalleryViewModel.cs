@@ -68,7 +68,9 @@ public sealed class CoverGalleryViewModel : ObservableObject
             _previewCancellation?.Cancel();
             _debounce?.Cancel();
             _debounce?.Dispose();
+            _suggestionsRequested = true;
             Matches.Clear();
+            OnPropertyChanged(nameof(ShowSuggestions));
             Candidates.Clear();
             Selected = null;
             SelectedGame = null;
@@ -77,6 +79,15 @@ public sealed class CoverGalleryViewModel : ObservableObject
             _debounce = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
             _scheduled = SearchAfterPauseAsync(_debounce.Token);
         }
+    }
+    private bool _suggestionsRequested;
+    public bool ShowSuggestions => _suggestionsRequested && Matches.Count > 0;
+    public void HideSuggestions() { _suggestionsRequested = false; OnPropertyChanged(nameof(ShowSuggestions)); }
+    private void AcceptGame(SteamGridGame game)
+    {
+        HideSuggestions();
+        SetProperty(ref _searchQuery, game.Name, nameof(SearchQuery));
+        SearchCommand.RaiseCanExecuteChanged();
     }
     public string? Status { get => _status; private set => SetProperty(ref _status, value); }
     private bool _isApplying;
@@ -105,6 +116,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
 
     public Task InitializeAsync()
     {
+        _suggestionsRequested = _confirmed is null;
         if (_confirmed is null) return string.IsNullOrWhiteSpace(SearchQuery) ? Task.CompletedTask : SearchAsync();
         return RunAsync(async () =>
         {
@@ -134,15 +146,17 @@ public sealed class CoverGalleryViewModel : ObservableObject
             if (token.IsCancellationRequested || revision != _searchRevision) return;
             _matchedQuery = query;
             foreach (var match in matches) Matches.Add(match);
+            OnPropertyChanged(nameof(ShowSuggestions));
             var exact = GameIdentitySearch.ExactMatches(query, matches);
-            if (exact.Count == 1) await LoadGridsAsync(exact[0], revision, token);
+            if (exact.Count == 1) { AcceptGame(exact[0]); await LoadGridsAsync(exact[0], revision, token); }
             else Status = matches.Count == 0 ? L.Get("NoResultsTryAnotherName") : L.Get("ChooseAGameToSeeItsCovers");
         });
     }
 
     public Task SelectGameAsync(SteamGridGame game)
     {
-        if (!Matches.Contains(game)) return Task.CompletedTask;
+        if (_closed || IsApplying || !Matches.Contains(game)) return Task.CompletedTask;
+        AcceptGame(game);
         return RunLatestAsync(async (revision, token) =>
         {
             await ClearPreviewsAsync();
