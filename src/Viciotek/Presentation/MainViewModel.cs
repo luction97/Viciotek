@@ -532,7 +532,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
     public async Task AddGamesFromDialogAsync()
     {
-        var files = _dialogs.PickGameFiles();
+        var files = _dialogs.PickGameFiles(directly: ShowEmptyState);
         if (files is { Length: > 0 })
         {
             await ImportFilesAsync(files);

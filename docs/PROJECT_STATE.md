@@ -1,11 +1,18 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.19**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.20**, C#/WPF/.NET 8 para Windows 11.
+
+## Bienvenida visible e importación directa — 1.1.20
+- Biblioteca vacía centrada: título 36 DIP, instrucción de arrastrar 20 DIP, formatos admitidos 15 DIP y Elegir juego 18 DIP con área de clic de 48 DIP. Se retira de esta bienvenida el paso secundario de conexión; el instructivo SteamGridDB sigue disponible en Configuración. Sin cambios a portadas ni al estado separado de búsquedas sin resultados.
+- Elegir juego abre el selector de Windows directamente cuando no hay juegos; se reutilizan filtros y selección múltiple de la modal existente. Con biblioteca poblada se conserva el flujo anterior. Arrastre sobre la ventana conserva validación/importación y muestra Suelta para agregar en una superficie tenue neutra. Textos equivalentes en inglés.
+- CONFIRMADO: 265/265 tests. Regresión del flujo verifica selector directo, cancelar sin cambios, importar y distinguir búsqueda vacía. Cuatro casos WPF de layout prueban legibilidad/contención en es/en y ventanas pequeñas/grandes. Harness con MainWindow real inspeccionado a 1280×800 y 760×540 en ambos idiomas, incluyendo render del aviso de arrastre. Sin datos personales ni red real.
+- Entrega CONFIRMADA: build Release -warnaserror limpio; ambos ZIPs con SmokePublished PASS; instalador con SmokeInstaller PASS (instalar, actualizar, bloqueo con app abierta, desinstalar y preservar datos/archivo desconocido). SHA256 e iconos oficiales verificados. Incluye también la corrección del cursor del buscador de portadas. Fuentes guardadas en Git sin push.
+- Límites: sin pruebas manuales con archivos personales ni matriz DPI/multimonitor; no se afirma certificación Microsoft Store. Próximo paso concreto: instalar 1.1.20 con la app cerrada y comprobar el primer uso con un acceso directo propio.
 
 ## Cursor del buscador de portadas — ajuste posterior a 1.1.19
 - Al abrir la galería, el cursor se sitúa al final del nombre, sin seleccionar texto. Al aceptar una sugerencia por clic o Enter se enfoca el campo y se coloca al final del nombre completado, antes de esperar la carga. No se fuerza la posición durante la edición ni al llegar resultados asíncronos.
 - CONFIRMADO: build Release -warnaserror sin advertencias/errores y 261/261 tests. Harness WPF con ventana real en es/en verifica apertura con nombre, selección por Enter, escritura al final y conservación de una posición elegida por el usuario durante la respuesta HTTP simulada. Sin datos personales ni consultas reales; portadas y lógica de búsqueda intactas.
-- Límites: ajuste compilado en fuentes; no se genera un nuevo instalador en esta corrección. Próximo paso concreto: incluirlo en la siguiente distribución y comprobar la selección por ratón con la cuenta del propietario.
+- Incluido en la distribución 1.1.20. Próximo paso concreto: comprobar la selección por ratón con la cuenta del propietario.
 
 ## Búsqueda sin mínimo de caracteres — 1.1.19
 - Buscar portada acepta cualquier texto no vacío, incluyendo una o dos letras como M/MK. Conserva debounce de 350 ms, cancelación y respuestas ordenadas. Vacío/espacios limpian resultados y estado sin consultar. Se retira el aviso de tres caracteres de ambos catálogos y se simplifica el tooltip obsoleto sobre nombres cortos.

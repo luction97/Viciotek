@@ -25,6 +25,13 @@ public sealed class DialogService : IDialogService
         return ShowDialog(dialog) == true ? dialog.Files : null;
     }
 
+    public string[]? PickGameFiles(bool directly)
+    {
+        if (!directly) return PickGameFiles();
+        var picker = AddGamesDialog.CreateFilePicker();
+        return ShowOpenDialog(picker) == true ? picker.FileNames : null;
+    }
+
     public string? PickCoverFile()
     {
         var dialog = new OpenFileDialog

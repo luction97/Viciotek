@@ -15,13 +15,7 @@ public partial class AddGamesDialog : ViciotekDialogWindow
 
     private void ChooseFiles_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog
-        {
-            Title = L.Get("ChooseGames"),
-            Multiselect = true,
-            CheckFileExists = true,
-            Filter = L.Get("ShortcutsAndProgramsLnkExeUrlShortcutsLnkProgramsExeWebShortcutsUrlAllFiles")
-        };
+        var dialog = CreateFilePicker();
 
         if (dialog.ShowDialog(this) == true)
         {
@@ -29,6 +23,14 @@ public partial class AddGamesDialog : ViciotekDialogWindow
             DialogResult = true;
         }
     }
+
+    internal static OpenFileDialog CreateFilePicker() => new()
+    {
+        Title = L.Get("ChooseGames"),
+        Multiselect = true,
+        CheckFileExists = true,
+        Filter = L.Get("ShortcutsAndProgramsLnkExeUrlShortcutsLnkProgramsExeWebShortcutsUrlAllFiles")
+    };
 
     private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
 

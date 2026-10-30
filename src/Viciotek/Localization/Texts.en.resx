@@ -672,4 +672,7 @@ Technical details: {0}</value>
   <data name="UntitledGame" xml:space="preserve">
     <value>Untitled game</value>
   </data>
+  <data name="DragGamesToAdd" xml:space="preserve"><value>Drag your games here to add them</value></data>
+  <data name="ShortcutsOrExecutables" xml:space="preserve"><value>Shortcuts or executable files</value></data>
+  <data name="ReleaseToAdd" xml:space="preserve"><value>Drop to add</value></data>
 </root>

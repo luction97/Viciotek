@@ -16,6 +16,7 @@ public sealed record GameEditResult(
 public interface IDialogService
 {
     string[]? PickGameFiles();
+    string[]? PickGameFiles(bool directly) => PickGameFiles();
     string? PickCoverFile();
     CoverSource? ChooseCoverSource(bool connected, bool canChooseAutomatically) => CoverSource.Local;
     Task PickCoverFromGalleryAsync(Game game, SteamGridDbClient steamGrid,

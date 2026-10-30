@@ -27,11 +27,17 @@ public sealed class PresentationAuditTests
             Assert.True(viewModel.ShowEmptyState);
             Assert.True(viewModel.ShowCoverSetupHint);
             Assert.False(viewModel.ShowNoResults);
+            await viewModel.AddGamesFromDialogAsync();
+            Assert.True(dialogs.DirectPick);
+            Assert.Empty(viewModel.Games); // Canceling the native picker keeps the welcome.
             var notifications = new List<string?>();
             viewModel.PropertyChanged += (_, args) => notifications.Add(args.PropertyName);
             var executable = Path.Combine(directory, "Example.exe");
             await File.WriteAllBytesAsync(executable, [0]);
-            await viewModel.ImportFilesAsync([executable]);
+            dialogs.FilesToPick = [executable];
+            await viewModel.AddGamesFromDialogAsync();
+            Assert.True(dialogs.DirectPick);
+            dialogs.FilesToPick = null;
             Assert.False(viewModel.ShowEmptyState);
             Assert.False(viewModel.ShowCoverSetupHint);
             Assert.False(viewModel.ShowNoResults);
@@ -39,6 +45,8 @@ public sealed class PresentationAuditTests
             viewModel.SearchQuery = "no matching game";
             Assert.False(viewModel.ShowEmptyState);
             Assert.True(viewModel.ShowNoResults);
+            await viewModel.AddGamesFromDialogAsync();
+            Assert.False(dialogs.DirectPick); // Search with no matches is not an empty library.
             viewModel.ClearSearchCommand.Execute(null);
             Assert.False(viewModel.ShowNoResults);
             await viewModel.RemoveAsync(Assert.Single(viewModel.Games));
@@ -247,6 +255,9 @@ public sealed class PresentationAuditTests
 
     private sealed class FakeDialogs : IDialogService
     {
+        public bool DirectPick { get; private set; }
+        public string[]? FilesToPick { get; set; }
+        public string[]? PickGameFiles(bool directly) { DirectPick = directly; return FilesToPick; }
         public GameEditResult? EditResult { get; set; }
         public AppSettings? SettingsResult { get; set; }
         public GameEditResult? EditGame(Game game) => EditResult;

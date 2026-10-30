@@ -672,4 +672,7 @@ Detalle técnico: {0}</value>
   <data name="UntitledGame" xml:space="preserve">
     <value>Juego sin título</value>
   </data>
+  <data name="DragGamesToAdd" xml:space="preserve"><value>Arrastra aquí tus juegos para agregarlos</value></data>
+  <data name="ShortcutsOrExecutables" xml:space="preserve"><value>Accesos directos o archivos ejecutables</value></data>
+  <data name="ReleaseToAdd" xml:space="preserve"><value>Suelta para agregar</value></data>
 </root>

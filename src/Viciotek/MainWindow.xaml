@@ -340,38 +340,33 @@
             </controls:GameGallery>
 
             <!-- Empty library -->
-            <Grid Background="{StaticResource BgBrush}"
+            <Grid x:Name="EmptyLibrary" Background="{StaticResource BgBrush}"
                   Visibility="{Binding ShowEmptyState, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            MaxWidth="460"
+                            MaxWidth="620"
                             Margin="32">
                     <TextBlock Text="{loc:Text YourLibraryStartsHere}"
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
                                FontFamily="{StaticResource DisplayFont}"
-                               FontSize="27"
+                               TextWrapping="Wrap"
+                               FontSize="36"
                                FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimaryBrush}" />
-                    <Button Content="{loc:Text AddMyFirstGame}"
+                    <TextBlock Text="{loc:Text DragGamesToAdd}"
+                               Margin="0,20,0,0" TextAlignment="Center" TextWrapping="Wrap"
+                               FontSize="20" Foreground="{StaticResource TextPrimaryBrush}" />
+                    <TextBlock Text="{loc:Text ShortcutsOrExecutables}"
+                               Margin="0,10,0,0" TextAlignment="Center" TextWrapping="Wrap"
+                               FontSize="15" Foreground="{StaticResource TextSecondaryBrush}" />
+                    <Button x:Name="ChooseFirstGame" Content="{loc:Text ChooseGame}"
                             Command="{Binding AddGamesCommand}"
                             Style="{StaticResource WelcomeButtonStyle}"
-                            Height="38"
+                            Height="48" FontSize="18"
                             Padding="22,0"
                             HorizontalAlignment="Center"
-                            Margin="0,24,0,0" />
-                    <TextBlock Text="{loc:Text OrDropAShortcutHere}"
-                               Margin="0,16,0,0" TextAlignment="Center" TextWrapping="Wrap"
-                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" />
-                    <StackPanel Margin="0,28,0,0"
-                                Visibility="{Binding ShowCoverSetupHint, Converter={StaticResource BoolToVisibility}}">
-                        <TextBlock Text="{loc:Text ConnectSteamgriddbToGetCoversAutomatically}"
-                                   Margin="0,7,0,0" TextAlignment="Center" TextWrapping="Wrap"
-                                   FontSize="12" LineHeight="19" Foreground="{StaticResource TextSecondaryBrush}" />
-                        <Button Content="{loc:Text SetUpCovers}" Command="{Binding OpenPreferencesCommand}"
-                                Style="{StaticResource LinkButtonStyle}" HorizontalAlignment="Center"
-                                Margin="0,8,0,0" />
-                    </StackPanel>
+                            Margin="0,28,0,0" />
                 </StackPanel>
             </Grid>
 
@@ -404,7 +399,7 @@
             <Border x:Name="DropOverlay"
                     Margin="18"
                     Background="#D90A0B0E"
-                    BorderBrush="{StaticResource AccentMutedBrush}"
+                    BorderBrush="#38FFFFFF"
                     BorderThickness="1"
                     CornerRadius="14"
                     Visibility="Collapsed"
@@ -412,7 +407,7 @@
                     Panel.ZIndex="20">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Path Data="M 13,2 L 13,22 M 5,14 L 13,22 L 21,14 M 2,30 L 24,30"
-                          Stroke="{StaticResource AccentBrush}"
+                          Stroke="{StaticResource TextSecondaryBrush}"
                           StrokeThickness="1.7"
                           StrokeStartLineCap="Round"
                           StrokeEndLineCap="Round"
@@ -420,11 +415,11 @@
                           Height="34"
                           Stretch="Uniform"
                           HorizontalAlignment="Center" />
-                    <TextBlock Text="{loc:Text AddGames}"
+                    <TextBlock Text="{loc:Text ReleaseToAdd}"
                                Margin="0,20,0,0"
                                HorizontalAlignment="Center"
                                FontFamily="{StaticResource DisplayFont}"
-                               FontSize="22"
+                               FontSize="32"
                                FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimaryBrush}" />
                 </StackPanel>
