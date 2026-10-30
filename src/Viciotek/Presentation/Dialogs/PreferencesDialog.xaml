@@ -57,14 +57,14 @@
                     </Grid>
                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="24" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                         <TextBlock Text="1" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
-                    <Button Grid.Column="1" FontSize="14" Content="{loc:Text GetMyCode}" Style="{StaticResource LinkButtonStyle}"
+                    <Button Grid.Column="1" FontSize="15" Content="{loc:Text GetMyCode}" Style="{StaticResource LinkButtonStyle}"
                             HorizontalAlignment="Left" Padding="0" Click="OpenSteamGridDb_Click" />
                     </Grid>
                     <TextBlock Text="{loc:Text SignInAndCopyYourApiKeyCode}"
-                               Style="{StaticResource FieldHintStyle}" FontSize="14" LineHeight="20" TextWrapping="Wrap"
+                               Style="{StaticResource FieldHintStyle}" FontSize="15" LineHeight="22" TextWrapping="Wrap"
                                Foreground="{StaticResource TextSecondaryBrush}" Margin="24,4,0,18" />
                     <StackPanel Orientation="Horizontal"><TextBlock Text="2" Width="24" Margin="0,0,0,10" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" /><Label Content="{loc:Text PasteYourCodeToConnect}" Target="{Binding ElementName=ApiKeyBox}"
-                           Foreground="{StaticResource TextSecondaryBrush}" Padding="0,0,0,10" /></StackPanel>
+                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="15" Padding="0,0,0,10" /></StackPanel>
                     <Grid Margin="24,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

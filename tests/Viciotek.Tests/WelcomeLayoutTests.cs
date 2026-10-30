@@ -47,7 +47,7 @@ public sealed class WelcomeLayoutTests
             var root = (Grid)window.Content;
             var content = (StackPanel)root.Children[0];
             Assert.True(root.IsVisible);
-            foreach (FrameworkElement child in content.Children)
+            foreach (var child in Descendants(content).OfType<FrameworkElement>().Where(child => child.IsVisible))
             {
                 var bounds = child.TransformToAncestor(root).TransformBounds(new Rect(child.RenderSize));
                 Assert.InRange(bounds.Left, 0, width);
@@ -56,21 +56,35 @@ public sealed class WelcomeLayoutTests
                 Assert.InRange(bounds.Bottom, 0, height);
             }
             var texts = content.Children.OfType<TextBlock>().ToArray();
-            Assert.Equal(2, texts.Length);
+            Assert.Single(texts);
             Assert.True(texts[0].FontSize >= 32);
-            Assert.True(texts[1].FontSize >= 20);
-            var button = Assert.Single(content.Children.OfType<Button>());
+            var button = (Button)window.FindName("ChooseFirstGame");
             Assert.Equal(Language.Get("ChooseGame"), button.Content);
             Assert.True(button.ActualHeight >= 44);
             Assert.True(button.Focusable);
             Assert.True(button.IsTabStop);
-            var setup = Assert.Single(content.Children.OfType<StackPanel>());
+            var setup = (Border)window.FindName("CoverSetupHint");
             Assert.Equal(!connected, setup.IsVisible);
-            var connect = Assert.Single(setup.Children.OfType<Button>());
+            var connect = (Button)window.FindName("ConnectWelcome");
             Assert.Equal(Language.Get("ConnectSteamGridOptional"), connect.Content);
             Assert.True(connect.Focusable);
+            if (!connected)
+            {
+                var actions = Descendants(content).OfType<Button>().ToArray();
+                Assert.Same(connect, actions[0]);
+                Assert.Same(button, actions[1]);
+            }
             await Task.CompletedTask;
         }
         finally { window.Close(); Language.Use(previous); }
     });
+
+    private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
+    {
+        foreach (var child in LogicalTreeHelper.GetChildren(root).OfType<DependencyObject>())
+        {
+            yield return child;
+            foreach (var descendant in Descendants(child)) yield return descendant;
+        }
+    }
 }

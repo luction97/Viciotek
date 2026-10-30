@@ -166,10 +166,10 @@
     <value>Get my code ↗</value>
   </data>
   <data name="SignInAndCopyYourApiKeyCode" xml:space="preserve">
-    <value>Sign in and copy your “API Key” code.</value>
+    <value>Sign in and copy your “API Key”. If you don’t have one, generate it there.</value>
   </data>
   <data name="PasteYourCodeToConnect" xml:space="preserve">
-    <value>Paste your _code to connect</value>
+    <value>Paste your _code here</value>
   </data>
   <data name="SteamgriddbConnectionCode" xml:space="preserve">
     <value>SteamGridDB connection code</value>
@@ -675,8 +675,10 @@ Technical details: {0}</value>
   <data name="DragGamesToAdd" xml:space="preserve"><value>Drag your games here to add them</value></data>
   <data name="ShortcutsOrExecutables" xml:space="preserve"><value>Shortcuts or executable files</value></data>
   <data name="ReleaseToAdd" xml:space="preserve"><value>Drop to add</value></data>
-  <data name="DragShortcutToStart" xml:space="preserve"><value>Drag a shortcut or executable here to get started.</value></data>
-  <data name="ForAutomaticCovers" xml:space="preserve"><value>SteamGridDB is a service for video game cover art.</value></data>
-  <data name="ConnectSteamGridOptional" xml:space="preserve"><value>Enable automatic covers (optional)</value></data>
-  <data name="ManualCoversWithoutConnection" xml:space="preserve"><value>If you skip this, you can add them manually.</value></data>
+  <data name="DragShortcutToStart" xml:space="preserve"><value>Or drag a shortcut or executable here.</value></data>
+  <data name="ForAutomaticCovers" xml:space="preserve"><value>SteamGridDB provides the artwork; VICIOTEK finds it for you.</value></data>
+  <data name="ConnectSteamGridOptional" xml:space="preserve"><value>Connect SteamGridDB</value></data>
+  <data name="ManualCoversWithoutConnection" xml:space="preserve"><value>Optional. Without connecting, you can choose covers manually.</value></data>
+  <data name="StartWithAutomaticCovers" xml:space="preserve"><value>Start with automatic covers</value></data>
+  <data name="Recommended" xml:space="preserve"><value>Recommended</value></data>
 </root>

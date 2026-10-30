@@ -1,6 +1,13 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.24**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.25**, C#/WPF/.NET 8 para Windows 11.
+
+## Inicio ordenado con conexión recomendada — 1.1.25
+- Se invierte la jerarquía de la bienvenida: primero un bloque compacto con DialogSectionStyle existente, beneficio de portadas automáticas, explicación breve del proveedor y Conectar SteamGridDB como acción principal marcada Recomendado. Una línea secundaria conserva el carácter opcional y la elección manual. Debajo, Elegir juego y el arrastre quedan como alternativas discretas. Al conectar desaparece el bloque y Elegir juego recupera el protagonismo. Sin nuevos estados, pantallas, red al iniciar ni cambios a portadas.
+- Configuración conserva los dos pasos, con letras de 15 DIP y explicación de generar el código si falta, manteniendo «API Key» únicamente como nombre que debe reconocer en el sitio. La acción de conectar conserva verificación/guardado existentes. Acerca de y opciones intactos; textos es/en.
+- CONFIRMADO: seis regresiones de layout adaptadas para verificar todos los elementos visibles, legibilidad, orden de acciones y conexión visible/oculta en tamaños pequeños/grandes. Harness WPF con ventanas reales en es/en a 1280×800/760×540: conectar abre configuración existente, cancelar conserva recomendación, Elegir juego usa selector directo y conexión guardada oculta el bloque. Renders inspeccionados; datos aislados, sin claves personales ni red real. Comprensión con usuarios nuevos pendiente.
+- Entrega CONFIRMADA: build Release -warnaserror limpio y 274/274 tests; ambos ZIPs con SmokePublished PASS; iconos/SHA256 verificados; instalador generado. SmokeInstaller intentado, instalación detenida con salida 1: install.log confirma bloqueo por instancia personal 1.1.24 abierta (proceso 31124), que no se cierra. No se llegó a probar actualización/desinstalación con esta versión. Herramientas de build temporales ausentes restauradas mediante Get-BuildTools con SHA256/Authenticode verificados.
+- Próximo paso concreto: cerrar la instancia personal y repetir SmokeInstaller; probar el recorrido recomendado con un usuario nuevo. Fuentes guardadas en Git sin push.
 
 ## Animación visible tras el primer render y apertura más ligera — 1.1.24
 - La entrada se prepara en Loaded y comienza en el primer ContentRendered, con fundido de 420 ms y movimiento 12→0 DIP. Evita consumir la duración durante la preparación inicial de WPF. Se conserva una vez por apertura vacía, preferencias Windows/app, acciones disponibles y liberación de relojes. Sin retrasar Show ni añadir timers/red/pantalla de carga. ContentRendered indica frame WPF, no presentación física GPU ni fin de animación.

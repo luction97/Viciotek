@@ -166,10 +166,10 @@
     <value>Obtener mi código ↗</value>
   </data>
   <data name="SignInAndCopyYourApiKeyCode" xml:space="preserve">
-    <value>Inicia sesión y copia tu código «API Key».</value>
+    <value>Inicia sesión y copia tu código «API Key». Si no tienes uno, genéralo allí.</value>
   </data>
   <data name="PasteYourCodeToConnect" xml:space="preserve">
-    <value>Pega el _código para conectar</value>
+    <value>Pega aquí tu _código</value>
   </data>
   <data name="SteamgriddbConnectionCode" xml:space="preserve">
     <value>Código de conexión de SteamGridDB</value>
@@ -675,8 +675,10 @@ Detalle técnico: {0}</value>
   <data name="DragGamesToAdd" xml:space="preserve"><value>Arrastra aquí tus juegos para agregarlos</value></data>
   <data name="ShortcutsOrExecutables" xml:space="preserve"><value>Accesos directos o archivos ejecutables</value></data>
   <data name="ReleaseToAdd" xml:space="preserve"><value>Suelta para agregar</value></data>
-  <data name="DragShortcutToStart" xml:space="preserve"><value>Arrastra aquí un acceso directo o ejecutable para empezar.</value></data>
-  <data name="ForAutomaticCovers" xml:space="preserve"><value>SteamGridDB es un servicio de portadas para videojuegos.</value></data>
-  <data name="ConnectSteamGridOptional" xml:space="preserve"><value>Activar portadas automáticas (opcional)</value></data>
-  <data name="ManualCoversWithoutConnection" xml:space="preserve"><value>Si omites este paso, puedes agregarlas manualmente.</value></data>
+  <data name="DragShortcutToStart" xml:space="preserve"><value>O arrastra aquí un acceso directo o ejecutable.</value></data>
+  <data name="ForAutomaticCovers" xml:space="preserve"><value>SteamGridDB proporciona las imágenes; VICIOTEK las busca por ti.</value></data>
+  <data name="ConnectSteamGridOptional" xml:space="preserve"><value>Conectar SteamGridDB</value></data>
+  <data name="ManualCoversWithoutConnection" xml:space="preserve"><value>Es opcional. Sin conectar, puedes elegir las portadas manualmente.</value></data>
+  <data name="StartWithAutomaticCovers" xml:space="preserve"><value>Empieza con portadas automáticas</value></data>
+  <data name="Recommended" xml:space="preserve"><value>Recomendado</value></data>
 </root>
