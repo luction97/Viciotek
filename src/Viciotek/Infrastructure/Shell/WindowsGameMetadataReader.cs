@@ -72,7 +72,7 @@ public sealed class WindowsGameMetadataReader : IGameMetadataReader
     }
 
     private static bool IsTechnicalFolder(string name) => Regex.IsMatch(name,
-        @"^(?:binaries|bin|win64|win32|x64|x86|engine|game|shipping|release|retail|pc|windows|windowsnoeditor)$", RegexOptions.IgnoreCase);
+        @"^(?:binaries|bin|win64|win32|x64|x86|engine|game|shipping|release|retail|pc|windows|windowsnoeditor|wingdk|gamingdesktop|content|gamelauncher)$", RegexOptions.IgnoreCase);
 
     private SteamInstall? ReadSteamInstall(IReadOnlyList<string> ancestors)
     {

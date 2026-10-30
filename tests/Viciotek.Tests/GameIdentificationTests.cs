@@ -8,6 +8,40 @@ namespace Viciotek.Tests;
 
 public sealed class GameIdentificationTests
 {
+    [Fact]
+    public void RegisteredInstallationName_HasPriorityOverInternalExecutableMetadata()
+    {
+        var game = new Game { Name = "MK", LaunchPath = @"C:\Games\InternalCode\MK.exe" };
+        new GameIdentityResolver(new Metadata(new(ProductName: "Internal Product", FileDescription: "Internal Build",
+            InstallationFolder: "InternalCode", InstalledDisplayName: "Mortal Kombat 1"))).IdentifyNewGame(game, game.LaunchPath);
+        Assert.Equal("Mortal Kombat 1", game.Name);
+        Assert.Equal("Mortal Kombat 1", game.IdentityCandidates[0]);
+    }
+
+    [Theory]
+    [InlineData("WinGDK")]
+    [InlineData("Content")]
+    [InlineData("GameLauncher")]
+    public void ExecutableInTechnicalSubfolder_UsesActualInstallationName(string subfolder)
+    {
+        var root = TestHelpers.CreateTempDirectory();
+        try
+        {
+            var directory = Path.Combine(root, "Mortal Kombat 1", subfolder);
+            Directory.CreateDirectory(directory);
+            var path = Path.Combine(directory, "MK.exe");
+            File.WriteAllText(path, "fixture, never executed");
+            var game = Assert.Single(new GameImporter(new NoShortcuts(), new GameIdentityResolver(new WindowsGameMetadataReader()))
+                .Import([path], []).Added);
+            Assert.Equal("Mortal Kombat 1", game.Name);
+            Assert.Equal(path, game.LaunchPath);
+        }
+        finally { Directory.Delete(root, true); }
+    }
+
+    private sealed class NoShortcuts : IShortcutResolver
+    { public ShortcutInfo Resolve(string path) => throw new NotSupportedException(); }
+
     [Theory]
     [InlineData("RE9.exe", "Resident Evil Requiem")]
     [InlineData("MK.exe", "Mortal Kombat 1")]

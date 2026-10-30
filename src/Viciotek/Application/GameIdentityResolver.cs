@@ -24,8 +24,8 @@ public sealed class GameIdentityResolver(IGameMetadataReader metadataReader)
         if (shortcutName is not null && GameTitle.IsAbbreviation(shortcutName)) shortcutName = null;
         var product = GameTitle.IsAbbreviation(metadata.ProductName ?? string.Empty) ? null : metadata.ProductName;
         var description = GameTitle.IsAbbreviation(metadata.FileDescription ?? string.Empty) ? null : metadata.FileDescription;
-        var sources = new[] { metadata.SteamName, shortcutName, product,
-            description, metadata.InstallationFolder, metadata.InstalledDisplayName,
+        var sources = new[] { metadata.SteamName, shortcutName, metadata.InstalledDisplayName, product,
+            description, metadata.InstallationFolder,
             executableName is null ? game.Name : Path.GetFileNameWithoutExtension(executableName) };
         var candidates = sources.Where(GameTitle.IsDescriptive).Select(value => GameTitle.Clean(value!))
             .Where(GameTitle.IsDescriptive).DistinctBy(GameTitle.Normalize).Take(8).ToList();

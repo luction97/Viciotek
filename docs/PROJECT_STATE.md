@@ -1,6 +1,14 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.29**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.30**, C#/WPF/.NET 8 para Windows 11.
+
+## Identificación de ejecutables y recuperación de búsqueda — 1.1.30
+- El usuario aclara que elige el .exe pero arrastra un acceso directo. Ambos ya usan el mismo importador; difieren las fuentes de identidad disponibles. CONFIRMADO leyendo solo FileVersionInfo de D:\Games\God of War\GoW.exe: ProductName=GoW, FileDescription=God of War; lector/resolver obtienen nombre y consulta God of War sin SteamAppId. No se ejecutó el juego ni se accedió a configuración personal. No se confirma la causa de su fallo HTTP/portada sin consulta real al proveedor.
+- Corregidas dos debilidades reproducidas con pruebas que fallaban antes: subcarpetas WinGDK/Content/GameLauncher se confundían con el título, y metadatos internos podían relegar fuera de las tres consultas al nombre de instalación registrado. Se omiten esas subcarpetas técnicas y se prioriza el nombre registrado tras Steam/acceso directo. Sin exploración recursiva ni nueva red/dependencias; lanzamiento y portadas existentes intactos.
+- Galería de recuperación conserva el nombre descriptivo ya identificado y busca al abrir; no obliga a reescribirlo. Siglas sin nombre fiable conservan entrada manual vacía. Ante nombres duplicados se exige elegir coincidencia, no se asigna la primera portada. El cliente existente reutiliza su caché. Revisa la decisión histórica 21 únicamente en la entrada vacía de recuperación.
+- CONFIRMADO: build Release -warnaserror limpio; 304/304 tests. Ocho regresiones nuevas: cuatro de identificación, tres comparan .exe elegido frente a .lnk Shell real arrastrado (nombre/consultas/asociación/portada idénticos, ejecución preservada), una prueba God of War con metadatos equivalentes al archivo real y dos juegos homónimos hasta selección/guardado local. HTTP simulado, sin usar claves personales.
+- Entrega CONFIRMADA: ambos ZIPs SmokePublished PASS; SmokeInstaller PASS (instalar, actualizar, bloquear aplicación abierta, desinstalar, conservar datos y archivo ajeno). SHA256 e iconos oficiales verificados; evidencia aislada en artifacts/ux-1.1.30, fuera de Git. Sin datos personales en payload.
+- Próximo paso concreto: probar el ejecutable indicado en 1.1.30 con la cuenta del propietario; no se garantiza identificar automáticamente archivos sin información suficiente. Fuentes en Git, sin push.
 
 ## Investigación de elegir juego frente a arrastrar — pendiente de caso reproducible
 - CONFIRMADO: ambos accesos ya llaman a ImportFilesAsync y comparten GameImporter, GameIdentityResolver y búsqueda automática. El selector tiene DereferenceLinks=false. Prueba manual automatizada con selector Windows real y .lnk aislado devuelve el acceso directo original, no launcher.exe. No se tocaron datos personales.

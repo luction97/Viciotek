@@ -47,7 +47,9 @@ public sealed class CoverGalleryViewModel : ObservableObject
         _client = client;
         _apply = apply;
         _lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        _searchQuery = manualFallback ? string.Empty : game.CoverSearchName ?? game.Name;
+        var title = game.CoverSearchName ?? game.Name;
+        _searchQuery = manualFallback && (!GameTitle.IsDescriptive(title) || GameTitle.IsAbbreviation(title))
+            ? string.Empty : title;
         _confirmed = !manualFallback && game.SteamGridDbGameId is > 0
             ? new(game.SteamGridDbGameId.Value, game.SteamGridDbName ?? game.Name) : null;
         _status = manualFallback ? L.Get("NoCoverWasFoundAutomatically") : null;

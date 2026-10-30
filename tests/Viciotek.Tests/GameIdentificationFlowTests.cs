@@ -106,6 +106,91 @@ public sealed class GameIdentificationFlowTests
 
     private static Game MissingCover() => new() { Name = "Mortal Kombat 1", LaunchPath = @"C:\Fixture\MK.exe", CoverSearchName = "Mortal Kombat 1", IdentityCandidates = ["Mortal Kombat 1"] };
 
+    [Fact]
+    public Task PickedGodOfWarExecutable_AmbiguityKeepsDetectedName_AndSelectionSavesCover() => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(metadata: new GodOfWarMetadata(), response: request =>
+            request.RequestUri!.AbsolutePath.Contains("search/")
+                ? Json("""{"success":true,"data":[{"id":1,"name":"God of War"},{"id":42,"name":"God of War"}]}""")
+                : DefaultResponse(request));
+        var chosen = false;
+        fixture.Dialogs.OnOpen = async (game, apply, fallback, token) =>
+        {
+            Assert.True(fallback);
+            Assert.Equal("God of War", game.Name);
+            using var client = new SteamGridDbClient("fixture-key", new Handler(request =>
+                request.RequestUri!.AbsolutePath.Contains("search/")
+                    ? Json("""{"success":true,"data":[{"id":1,"name":"God of War"},{"id":42,"name":"God of War"}]}""")
+                    : DefaultResponse(request)));
+            var gallery = new CoverGalleryViewModel(client, game, apply, fallback, token);
+            try
+            {
+                await gallery.InitializeAsync();
+                Assert.Equal("God of War", gallery.SearchQuery);
+                Assert.Equal(2, gallery.Matches.Count);
+                Assert.Empty(gallery.Candidates);
+                await gallery.SelectGameAsync(gallery.Matches.Single(match => match.Id == 42));
+                Assert.False(gallery.ShowSuggestions);
+                gallery.Selected = Assert.Single(gallery.Candidates);
+                await gallery.ConfirmAsync();
+                chosen = true;
+            }
+            finally { await gallery.CloseAsync(); }
+        };
+        var executable = fixture.CreateExecutable("GoW.exe");
+        fixture.Dialogs.FilesToPick = [executable];
+        await fixture.ViewModel.AddGamesFromDialogAsync();
+        await WpfTest.WaitUntilAsync(() => chosen);
+        var saved = Assert.Single(fixture.Library.Load().Games);
+        Assert.Equal("God of War", saved.Name);
+        Assert.Equal(executable, saved.LaunchPath);
+        Assert.Equal(42, saved.SteamGridDbGameId);
+        Assert.True(File.Exists(Assert.Single(fixture.ViewModel.Games).CoverPath));
+    });
+
+    private sealed class GodOfWarMetadata : IGameMetadataReader
+    { public LocalGameMetadata Read(Game game) => new(ProductName: "GoW", FileDescription: "God of War", InstallationFolder: "God of War"); }
+
+    [Theory]
+    [InlineData("WinGDK")]
+    [InlineData("Content")]
+    [InlineData("GameLauncher")]
+    public Task PickedExecutable_AndDroppedFriendlyShortcut_FindSameNameAndCover(string subfolder) => WpfTest.RunAsync(async () =>
+    {
+        await using var picked = new Fixture(shortcuts: new ShellShortcutResolver(), metadata: new WindowsGameMetadataReader());
+        await using var dropped = new Fixture(shortcuts: new ShellShortcutResolver(), metadata: new WindowsGameMetadataReader());
+        var directory = Path.Combine(picked.Paths.Root, "Mortal Kombat 1", subfolder);
+        Directory.CreateDirectory(directory);
+        var executable = Path.Combine(directory, "MK.exe");
+        File.WriteAllText(executable, "fixture, never executed");
+        var shortcut = Path.Combine(picked.Paths.Root, "Mortal Kombat 1.lnk");
+        CreateRealShortcut(shortcut, executable, directory);
+        picked.Dialogs.FilesToPick = [executable];
+        await picked.ViewModel.AddGamesFromDialogAsync();
+        await dropped.ViewModel.HandleDroppedFilesAsync([shortcut]);
+        var pickedCard = Assert.Single(picked.ViewModel.Games);
+        var droppedCard = Assert.Single(dropped.ViewModel.Games);
+        await WpfTest.WaitUntilAsync(() => pickedCard.Model.CoverFileName is not null && !pickedCard.IsFindingCover &&
+            droppedCard.Model.CoverFileName is not null && !droppedCard.IsFindingCover);
+        var first = Assert.Single(picked.Library.Load().Games);
+        var second = Assert.Single(dropped.Library.Load().Games);
+        Assert.Equal("Mortal Kombat 1", first.Name);
+        Assert.Equal(first.Name, second.Name);
+        Assert.Equal(42, first.SteamGridDbGameId);
+        Assert.Equal(first.SteamGridDbGameId, second.SteamGridDbGameId);
+        Assert.Equal(picked.Handler.Requests.Select(uri => uri.AbsoluteUri), dropped.Handler.Requests.Select(uri => uri.AbsoluteUri));
+        Assert.True(File.Exists(pickedCard.CoverPath));
+        Assert.True(File.Exists(droppedCard.CoverPath));
+        Assert.Equal(executable, first.LaunchPath);
+        Assert.Equal(executable, second.LaunchPath);
+        Assert.Null(first.ShortcutPath);
+        Assert.Null(first.Arguments);
+        Assert.Equal(shortcut, second.ShortcutPath);
+        Assert.Equal("--fixture", second.Arguments);
+        Assert.Equal(0, picked.Dialogs.Count);
+        Assert.Equal(0, dropped.Dialogs.Count);
+    });
+
     [Theory]
     [InlineData("exe")]
     [InlineData("lnk")]

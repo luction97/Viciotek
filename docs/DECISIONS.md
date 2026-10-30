@@ -31,3 +31,5 @@
 Revisión 2026-10-29; entrega 1.1.1 con icono actualizado y datos migrados.
 
 27. **Idiomas neutrales y preferencia reversible** (2026-10-29, 1.1.16): resolver familias es/en por CurrentUICulture, inglés para otras familias. RESX/ResourceManager sin dependencias nuevas; Windows/región no se reconfigura. Selector visible en Configuración y guardado con Listo; cancelar/fallar conserva idioma. No traducir nombres de juegos ni otros datos del usuario.
+
+28. **Identidad del ejecutable y recuperación con contexto** (2026-10-30, 1.1.30): mantener un solo importador para selector y drop. Priorizar nombre de instalación registrado tras Steam/acceso directo, antes de campos internos del ejecutable; ignorar subcarpetas técnicas adicionales al obtener nombre de carpeta. Revisar la decisión 21: la recuperación manual conserva un título descriptivo ya identificado y busca al abrir, reutilizando caché; únicamente las siglas sin resolver quedan vacías. Seguir exigiendo elección ante homónimos y preservar ruta, argumentos y nombres personalizados. No se promete reconocer archivos sin evidencia suficiente ni expandir siglas mediante un diccionario.
