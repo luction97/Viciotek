@@ -7,6 +7,8 @@ using Viciotek.Infrastructure.Imaging;
 using Viciotek.Infrastructure.Library;
 using Viciotek.Infrastructure.Processes;
 using Viciotek.Infrastructure.Storage;
+using Viciotek.Infrastructure.Shell;
+using System.Runtime.InteropServices;
 using Viciotek.Presentation;
 using Viciotek.Presentation.Dialogs;
 
@@ -103,6 +105,70 @@ public sealed class GameIdentificationFlowTests
     });
 
     private static Game MissingCover() => new() { Name = "Mortal Kombat 1", LaunchPath = @"C:\Fixture\MK.exe", CoverSearchName = "Mortal Kombat 1", IdentityCandidates = ["Mortal Kombat 1"] };
+
+    [Theory]
+    [InlineData("exe")]
+    [InlineData("lnk")]
+    [InlineData("url")]
+    public Task PickerAndDrop_RealLocalIdentity_UseIdenticalCoverQueries(string extension) => WpfTest.RunAsync(async () =>
+    {
+        static HttpResponseMessage Respond(HttpRequestMessage request) => request.RequestUri!.AbsolutePath.Contains("/games/steam/")
+            ? Json("""{"success":true,"data":{"id":42,"name":"Mortal Kombat 1"}}""") : DefaultResponse(request);
+        await using var picked = new Fixture(shortcuts: new ShellShortcutResolver(), metadata: new WindowsGameMetadataReader(), response: Respond);
+        await using var dropped = new Fixture(shortcuts: new ShellShortcutResolver(), metadata: new WindowsGameMetadataReader(), response: Respond);
+        var installation = Path.Combine(picked.Paths.Root, "Mortal Kombat 1", "Binaries", "Win64");
+        Directory.CreateDirectory(installation);
+        var executable = Path.Combine(installation, "MK.exe");
+        File.WriteAllText(executable, "fixture, never executed");
+        var path = extension == "exe" ? executable : Path.Combine(picked.Paths.Root, "Mortal Kombat 1." + extension);
+        if (extension == "url") File.WriteAllText(path, "[InternetShortcut]\nURL=steam://run/1971870");
+        if (extension == "lnk") CreateRealShortcut(path, executable, installation);
+        picked.Dialogs.FilesToPick = [path];
+        await picked.ViewModel.AddGamesFromDialogAsync();
+        await dropped.ViewModel.HandleDroppedFilesAsync([path]);
+        var pickedCard = Assert.Single(picked.ViewModel.Games);
+        var droppedCard = Assert.Single(dropped.ViewModel.Games);
+        await WpfTest.WaitUntilAsync(() => pickedCard.Model.CoverFileName is not null && !pickedCard.IsFindingCover &&
+            droppedCard.Model.CoverFileName is not null && !droppedCard.IsFindingCover);
+        var first = Assert.Single(picked.Library.Load().Games);
+        var second = Assert.Single(dropped.Library.Load().Games);
+        Assert.Equal("Mortal Kombat 1", first.Name);
+        Assert.Equal(first.Name, second.Name);
+        Assert.Equal(first.IdentityCandidates, second.IdentityCandidates);
+        Assert.Equal(first.CoverSearchName, second.CoverSearchName);
+        Assert.Equal(first.SteamAppId, second.SteamAppId);
+        Assert.Equal(42, first.SteamGridDbGameId);
+        Assert.Equal(first.SteamGridDbGameId, second.SteamGridDbGameId);
+        Assert.Equal(first.LaunchPath, second.LaunchPath);
+        Assert.Equal(first.Arguments, second.Arguments);
+        Assert.Equal(first.WorkingDirectory, second.WorkingDirectory);
+        Assert.Equal(first.ShortcutPath, second.ShortcutPath);
+        Assert.Equal(picked.Handler.Requests.Select(uri => uri.AbsoluteUri), dropped.Handler.Requests.Select(uri => uri.AbsoluteUri));
+        Assert.True(File.Exists(pickedCard.CoverPath));
+        Assert.True(File.Exists(droppedCard.CoverPath));
+        Assert.Equal(0, picked.Dialogs.Count);
+        Assert.Equal(0, dropped.Dialogs.Count);
+    });
+
+    private static void CreateRealShortcut(string path, string target, string workingDirectory)
+    {
+        object? shell = null, shortcut = null;
+        try
+        {
+            shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell", true)!);
+            shortcut = ((dynamic)shell!).CreateShortcut(path);
+            dynamic link = shortcut;
+            link.TargetPath = target;
+            link.Arguments = "--fixture";
+            link.WorkingDirectory = workingDirectory;
+            link.Save();
+        }
+        finally
+        {
+            if (shortcut is not null) Marshal.FinalReleaseComObject(shortcut);
+            if (shell is not null) Marshal.FinalReleaseComObject(shell);
+        }
+    }
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

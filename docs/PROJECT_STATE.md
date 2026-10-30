@@ -2,6 +2,12 @@
 
 Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.29**, C#/WPF/.NET 8 para Windows 11.
 
+## Investigación de elegir juego frente a arrastrar — pendiente de caso reproducible
+- CONFIRMADO: ambos accesos ya llaman a ImportFilesAsync y comparten GameImporter, GameIdentityResolver y búsqueda automática. El selector tiene DereferenceLinks=false. Prueba manual automatizada con selector Windows real y .lnk aislado devuelve el acceso directo original, no launcher.exe. No se tocaron datos personales.
+- Tres regresiones nuevas comparan elección/arrastre del mismo .exe, .lnk real de Shell y .url Steam, usando WindowsGameMetadataReader real y HTTP simulado. Verifican nombre, candidatos, consultas idénticas, asociación, conservación de lanzamiento y portada local en ambos recorridos. Build Release -warnaserror limpio y 296/296 tests aprobados.
+- DESCONOCIDO: archivo concreto/versiones utilizados en el fallo informado. No reproducido con las fixtures; no se afirma corregido. Sin cambios al ejecutable ni nuevos paquetes. El control Windows del plugin falló al inicializar sus assets; selector verificado mediante UI Automation nativa en proceso de prueba aislado. Evidencia en artifacts/import-parity, fuera de Git.
+- Próximo paso concreto: obtener juego, archivo elegido/arrastrado y nombre incorrecto para reproducir la diferencia antes de modificar la resolución o publicar otra versión.
+
 ## SteamGridDB único, persistente y con portadas pendientes — 1.1.29
 - Se mantiene la acción destacada Activar portadas automáticas en la bienvenida. Una sola pantalla de conexión, sin numeración/tutorial: enlace oficial, código protegido, Pegar código y Conectar. Configuración muestra estado, acceso al mismo diálogo y Desconectar; sin duplicar el formulario, conservando idioma/opciones/Acerca de. Revisar una clave ya guardada conserva la preferencia de automatismo; conectar por primera vez lo activa. Verificación autenticada y DPAPI existentes reutilizados, sin scraping ni credenciales en logs.
 - Tras guardar una conexión o activar el automatismo se busca la portada de todos los juegos sin imagen asignada, reutilizando cliente/identidad, concurrencia, guardado local y transacciones existentes. No reemplaza portadas existentes ni abre galerías en cadena ante ambigüedad. Importación conserva su flujo anterior. No hay consultas ni validación de clave al iniciar; editar preferencias ajenas a la conexión no provoca búsquedas.
