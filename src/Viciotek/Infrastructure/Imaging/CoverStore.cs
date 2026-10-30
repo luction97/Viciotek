@@ -67,12 +67,12 @@ public sealed class CoverStore
         var fileInfo = new FileInfo(sourcePath);
         if (!fileInfo.Exists)
         {
-            throw new CoverImageException("La imagen ya no existe.");
+            throw new CoverImageException(L.Get("TheImageNoLongerExists"));
         }
 
         if (fileInfo.Length > MaxSourceBytes)
         {
-            throw new CoverImageException("La imagen es demasiado grande (máximo 30 MB).");
+            throw new CoverImageException(L.Get("TheImageIsTooLargeMaximum30Mb"));
         }
 
         byte[] bytes;
@@ -82,7 +82,7 @@ public sealed class CoverStore
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            throw new CoverImageException("No se pudo leer la imagen.");
+            throw new CoverImageException(L.Get("CouldNotReadTheImage"));
         }
 
         return await SetFromBytesAsync(gameId, bytes, previousCoverFileName, cancellationToken)
@@ -97,12 +97,12 @@ public sealed class CoverStore
     {
         if (bytes.Length == 0)
         {
-            throw new CoverImageException("La imagen está vacía.");
+            throw new CoverImageException(L.Get("TheImageIsEmpty"));
         }
 
         if (bytes.Length > MaxSourceBytes)
         {
-            throw new CoverImageException("La imagen es demasiado grande (máximo 30 MB).");
+            throw new CoverImageException(L.Get("TheImageIsTooLargeMaximum30Mb"));
         }
 
         _paths.EnsureCreated();
@@ -136,7 +136,7 @@ public sealed class CoverStore
         {
             TryDelete(coverPath);
             TryDelete(thumbTempPath);
-            throw new CoverImageException("No se pudo guardar la portada.");
+            throw new CoverImageException(L.Get("CouldNotSaveTheCover"));
         }
         catch (OperationCanceledException)
         {
@@ -170,7 +170,7 @@ public sealed class CoverStore
                 var info = new FileInfo(original);
                 if (!info.Exists || info.Length > MaxSourceBytes)
                 {
-                    throw new CoverImageException("La portada original no está disponible.");
+                    throw new CoverImageException(L.Get("TheOriginalCoverIsUnavailable"));
                 }
 
                 var processed = ProcessImage(File.ReadAllBytes(original), cancellationToken);
@@ -262,23 +262,23 @@ public sealed class CoverStore
         }
         catch (Exception exception) when (exception is NotSupportedException or ArgumentException or IOException or FileFormatException)
         {
-            throw new CoverImageException("El archivo no es una imagen compatible.");
+            throw new CoverImageException(L.Get("TheFileIsNotASupportedImage"));
         }
 
         if (decoder.Frames.Count == 0)
         {
-            throw new CoverImageException("La imagen no contiene ningún fotograma.");
+            throw new CoverImageException(L.Get("TheImageHasNoFrames"));
         }
 
         var frame = decoder.Frames[0];
         if (frame.PixelWidth <= 0 || frame.PixelHeight <= 0)
         {
-            throw new CoverImageException("La imagen no tiene dimensiones válidas.");
+            throw new CoverImageException(L.Get("TheImageDimensionsAreNotValid"));
         }
 
         if ((long)frame.PixelWidth * frame.PixelHeight > MaxSourcePixels)
         {
-            throw new CoverImageException("La imagen tiene demasiada resolución (máximo 30 megapíxeles).");
+            throw new CoverImageException(L.Get("TheImageResolutionIsTooHighMaximum30Megapixels"));
         }
 
         cancellationToken.ThrowIfCancellationRequested();

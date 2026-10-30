@@ -15,12 +15,12 @@ public sealed class ShellShortcutResolver : IShortcutResolver
     public ShortcutInfo Resolve(string shortcutPath)
     {
         var type = Type.GetTypeFromCLSID(ShellLinkClassId, throwOnError: true)
-                   ?? throw new InvalidOperationException("No se pudo crear el objeto ShellLink.");
+                   ?? throw new InvalidOperationException(L.Get("CouldNotCreateTheShelllinkObject"));
         object? instance = null;
         try
         {
             instance = Activator.CreateInstance(type)
-                       ?? throw new InvalidOperationException("No se pudo crear el objeto ShellLink.");
+                       ?? throw new InvalidOperationException(L.Get("CouldNotCreateTheShelllinkObject"));
 
             var link = (IShellLinkW)instance;
             var persistFile = (IPersistFile)instance;

@@ -51,7 +51,7 @@ public static class ProtectedSecret
         {
             if (!CryptProtectData(ref input, null, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, CryptProtectUiForbidden, ref output))
             {
-                throw new InvalidOperationException("No se pudo proteger el secreto.");
+                throw new InvalidOperationException(L.Get("CouldNotProtectTheSecret"));
             }
 
             var result = new byte[output.Size];

@@ -34,7 +34,7 @@ public partial class GameEditDialog : ViciotekDialogWindow
     {
         if (string.IsNullOrWhiteSpace(NameBox.Text))
         {
-            ShowError("El nombre no puede estar vacío.");
+            ShowError(L.Get("TheNameCannotBeEmpty"));
             return;
         }
         if (TargetBox.Text == _original.LaunchPath && ArgumentsBox.Text == (_original.Arguments ?? string.Empty) &&
@@ -54,7 +54,7 @@ public partial class GameEditDialog : ViciotekDialogWindow
             values is null)
         {
             AdvancedOptions.IsExpanded = true;
-            ShowError(error ?? "Revisá los datos del juego.");
+            ShowError(error ?? L.Get("CheckTheGameDetails"));
             return;
         }
 
@@ -71,10 +71,10 @@ public partial class GameEditDialog : ViciotekDialogWindow
     {
         var dialog = new OpenFileDialog
         {
-            Title = "Elegir destino del juego",
+            Title = L.Get("ChooseGameDestination"),
             CheckFileExists = true,
             Multiselect = false,
-            Filter = "Programas y accesos|*.exe;*.url|Todos los archivos|*.*"
+            Filter = L.Get("ProgramsAndShortcutsExeUrlAllFiles")
         };
 
         var current = TargetBox.Text.Trim().Trim('"');
@@ -98,7 +98,7 @@ public partial class GameEditDialog : ViciotekDialogWindow
     {
         var dialog = new OpenFolderDialog
         {
-            Title = "Elegir directorio de trabajo",
+            Title = L.Get("ChooseWorkingFolder"),
             Multiselect = false
         };
 
@@ -137,7 +137,7 @@ public partial class GameEditDialog : ViciotekDialogWindow
         ArgumentsBox.IsEnabled = !uri;
         WorkingDirectoryBox.IsEnabled = !uri;
         BrowseFolderButton.IsEnabled = !uri;
-        TargetHint.Text = uri ? "Enlace del launcher" : ".exe, .url o enlace de launcher";
+        TargetHint.Text = uri ? L.Get("LauncherLink") : L.Get("ExeUrlOrLauncherLink");
     }
 
     private void ShowError(string message)

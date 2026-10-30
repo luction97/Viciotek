@@ -50,7 +50,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
         _searchQuery = manualFallback ? string.Empty : game.CoverSearchName ?? game.Name;
         _confirmed = !manualFallback && game.SteamGridDbGameId is > 0
             ? new(game.SteamGridDbGameId.Value, game.SteamGridDbName ?? game.Name) : null;
-        _status = manualFallback ? "No encontramos una portada automáticamente." : null;
+        _status = manualFallback ? L.Get("NoCoverWasFoundAutomatically") : null;
         SearchCommand = new AsyncRelayCommand(SearchAsync, () => !IsLoading && !string.IsNullOrWhiteSpace(SearchQuery));
         ConfirmCommand = new AsyncRelayCommand(ConfirmAsync, () => !IsLoading && Selected is not null && SelectedGame is not null);
     }
@@ -72,7 +72,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
             Candidates.Clear();
             Selected = null;
             SelectedGame = null;
-            Status = SearchQuery.Trim().Length < 3 ? "Escribí al menos 3 caracteres para buscar." : "Buscando…";
+            Status = SearchQuery.Trim().Length < 3 ? L.Get("TypeAtLeast3CharactersToSearch") : L.Get("Searching");
             if (SearchQuery.Trim().Length < 3) return;
             _debounce = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
             _scheduled = SearchAfterPauseAsync(_debounce.Token);
@@ -136,7 +136,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
             foreach (var match in matches) Matches.Add(match);
             var exact = GameIdentitySearch.ExactMatches(query, matches);
             if (exact.Count == 1) await LoadGridsAsync(exact[0], revision, token);
-            else Status = matches.Count == 0 ? "Sin resultados. Probá con otro nombre." : "Elegí el juego para ver sus portadas.";
+            else Status = matches.Count == 0 ? L.Get("NoResultsTryAnotherName") : L.Get("ChooseAGameToSeeItsCovers");
         });
     }
 
@@ -168,12 +168,12 @@ public sealed class CoverGalleryViewModel : ObservableObject
                 await previous;
                 if (cancellation.IsCancellationRequested || revision != _searchRevision) return;
                 IsLoading = true;
-                Status = "Buscando…";
+                Status = L.Get("Searching");
                 await action(revision, cancellation.Token);
             }
             catch (OperationCanceledException) { }
             catch (SteamGridDbException exception) { if (revision == _searchRevision) Status = exception.Message; }
-            catch (Exception) { if (revision == _searchRevision) Status = "No pudimos buscar. Intentá de nuevo."; }
+            catch (Exception) { if (revision == _searchRevision) Status = L.Get("CouldNotSearchPleaseTryAgain"); }
             finally
             {
                 if (ReferenceEquals(_searchCancellation, cancellation)) { _searchCancellation = null; IsLoading = false; }
@@ -190,7 +190,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
         if (_closed || token.IsCancellationRequested || currentRevision != _searchRevision) return;
         SelectedGame = game;
         foreach (var grid in grids) Candidates.Add(new(grid));
-        Status = grids.Count == 0 ? "Este juego no tiene portadas verticales. Probá con otro nombre." : null;
+        Status = grids.Count == 0 ? L.Get("ThisGameHasNoPortraitCoversTryAnotherName") : null;
         _previewCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
         _previews = Task.WhenAll(Candidates.Select(candidate => LoadPreviewAsync(candidate, _previewCancellation.Token)));
     }
@@ -239,7 +239,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
             if (selected is null || game is null) return;
             var bytes = await _client.DownloadImageAsync(selected.Url, _lifetime.Token);
             if (await _apply(new(bytes, game, _matchedQuery), _lifetime.Token)) Completed?.Invoke();
-            else Status = "No se pudo guardar la portada. Intentá nuevamente.";
+            else Status = L.Get("CouldNotSaveTheCoverPleaseTryAgain");
         }
         finally { IsApplying = false; }
     });
@@ -259,7 +259,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
             try { await action(); }
             catch (OperationCanceledException) { }
             catch (SteamGridDbException exception) { if (revision == _searchRevision) Status = exception.Message; }
-            catch (Exception) { if (revision == _searchRevision) Status = "No se pudo obtener la portada. Intentá nuevamente."; }
+            catch (Exception) { if (revision == _searchRevision) Status = L.Get("CouldNotGetTheCoverPleaseTryAgain"); }
             finally
             {
                 if (ReferenceEquals(_searchCancellation, cancellation)) { _searchCancellation = null; IsLoading = false; }

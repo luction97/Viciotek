@@ -35,33 +35,33 @@ public static class ProtocolPolicy
 
         if (string.IsNullOrWhiteSpace(value))
         {
-            error = "El destino está vacío.";
+            error = L.Get("TheDestinationIsEmpty");
             return false;
         }
 
         var candidate = value.Trim();
         if (candidate.ContainsAnyControlCharacters())
         {
-            error = "El destino contiene caracteres no válidos.";
+            error = L.Get("TheDestinationContainsInvalidCharacters");
             return false;
         }
 
         if (!Uri.TryCreate(candidate, UriKind.Absolute, out var parsed))
         {
-            error = "El destino no es una URL válida.";
+            error = L.Get("TheDestinationIsNotAValidUrl");
             return false;
         }
 
         if (!AllowedSchemes.Contains(parsed.Scheme))
         {
-            error = $"El protocolo «{parsed.Scheme}» no está permitido. " +
-                    "VICIOTEK solo abre accesos de launchers compatibles.";
+            error = L.Get("The0ProtocolIsNotAllowed", parsed.Scheme) +
+                    L.Get("ViciotekOpensSupportedLauncherShortcutsOnly");
             return false;
         }
 
         if (!string.IsNullOrEmpty(parsed.UserInfo))
         {
-            error = "La URL contiene credenciales y no es segura.";
+            error = L.Get("TheUrlContainsCredentialsAndIsNotSafe");
             return false;
         }
 

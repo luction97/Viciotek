@@ -29,3 +29,5 @@
 26. **Icono actualizado y datos migrados** (2026-10-29, 1.1.1): el logo oficial provisto por el propietario se regenera a ICO con `tools/Generate-Icon.ps1` (marcos 16–256, DIB+PNG) y se usa en ejecutable, ventana, Acerca de e instalador. El diálogo Acerca de lo muestra por URI absoluta. La carpeta de datos anterior se movió a `%LOCALAPPDATA%\Viciotek` con verificación por hash; el instalador conserva `AppId`, no borra datos y añade metadatos comerciales (AppVerName, AppUpdatesURL, VersionInfo*). Se mantiene sin firma digital; SmartScreen sigue siendo riesgo aceptado.
 
 Revisión 2026-10-29; entrega 1.1.1 con icono actualizado y datos migrados.
+
+27. **Idiomas neutrales y preferencia reversible** (2026-10-29, 1.1.16): resolver familias es/en por CurrentUICulture, inglés para otras familias. RESX/ResourceManager sin dependencias nuevas; Windows/región no se reconfigura. Selector visible en Configuración y guardado con Listo; cancelar/fallar conserva idioma. No traducir nombres de juegos ni otros datos del usuario.

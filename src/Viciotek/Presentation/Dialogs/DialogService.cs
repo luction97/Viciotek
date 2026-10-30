@@ -29,10 +29,10 @@ public sealed class DialogService : IDialogService
     {
         var dialog = new OpenFileDialog
         {
-            Title = "Elegir portada",
+            Title = L.Get("ChooseCover"),
             Multiselect = false,
             CheckFileExists = true,
-            Filter = "Imágenes|*.png;*.jpg;*.jpeg;*.webp;*.bmp;*.gif;*.tif;*.tiff;*.jfif|Todos los archivos|*.*"
+            Filter = L.Get("ImagesPngJpgJpegWebpBmpGifTifTiffJfifAllFiles")
         };
 
         return ShowOpenDialog(dialog) == true ? dialog.FileName : null;
@@ -63,9 +63,9 @@ public sealed class DialogService : IDialogService
     public bool ConfirmRemove(string gameName)
     {
         var dialog = new ConfirmDialog(
-            "Quitar juego",
-            $"«{gameName}» se quitará de tu biblioteca.",
-            "Quitar");
+            L.Get("RemoveGame"),
+            L.Get("0WillBeRemovedFromYourLibrary", gameName),
+            L.Get("Remove2"));
         return ShowDialog(dialog) == true;
     }
 

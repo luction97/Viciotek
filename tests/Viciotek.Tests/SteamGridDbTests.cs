@@ -41,7 +41,7 @@ public sealed class SteamGridDbClientTests
     [Theory]
     [InlineData(HttpStatusCode.Unauthorized, "código no es válido")]
     [InlineData(HttpStatusCode.Forbidden, "código no es válido")]
-    [InlineData(HttpStatusCode.TooManyRequests, "Esperá un momento")]
+    [InlineData(HttpStatusCode.TooManyRequests, "Espera un momento")]
     [InlineData(HttpStatusCode.ServiceUnavailable, "más tarde")]
     public async Task VerifyAsync_FailureExplainsNextStepWithoutTechnicalJargon(HttpStatusCode status, string instruction)
     {

@@ -14,7 +14,7 @@ foreach ($file in Get-ChildItem -LiteralPath $root -Recurse -File) {
 if ($forbidden.Count -gt 0) {
     throw ('El paquete contiene archivos personales, sensibles o de desarrollo: ' + ($forbidden -join ', '))
 }
-foreach ($name in @('Viciotek.exe','Viciotek.dll','Viciotek.runtimeconfig.json','COPYRIGHT.md','THIRD_PARTY_NOTICES.md')) {
+foreach ($name in @('en\Viciotek.resources.dll','Viciotek.exe','Viciotek.dll','Viciotek.runtimeconfig.json','COPYRIGHT.md','THIRD_PARTY_NOTICES.md')) {
     if (-not (Test-Path -LiteralPath (Join-Path $root $name))) { throw "Falta $name en el paquete." }
 }
 Write-Output 'Payload validado: sin bibliotecas personales, claves privadas, logs ni fuentes.'

@@ -22,7 +22,7 @@ public sealed class GameLauncher : IGameLauncher
         var validation = Domain.LaunchPlanner.CreatePlan(game);
         if (!validation.IsValid || validation.Plan is null)
         {
-            return Task.FromResult(LaunchResult.Fail(validation.Error ?? "No se pudo preparar el juego."));
+            return Task.FromResult(LaunchResult.Fail(validation.Error ?? L.Get("CouldNotPrepareTheGame")));
         }
 
         var plan = validation.Plan;
@@ -90,13 +90,13 @@ public sealed class GameLauncher : IGameLauncher
     private static string DescribeWin32Error(Win32Exception exception) =>
         exception.NativeErrorCode switch
         {
-            2 or 3 => "Windows no encontró el ejecutable del juego.",
-            5 => "Windows denegó el acceso al ejecutable.",
-            740 => "El juego requiere permisos de administrador.",
+            2 or 3 => L.Get("WindowsCouldNotFindTheGameExecutable"),
+            5 => L.Get("WindowsDeniedAccessToTheExecutable"),
+            740 => L.Get("TheGameRequiresAdministratorPermissions"),
             1155 => "Windows no tiene un controlador para este protocolo de lanzamiento.",
-            1223 => "Se canceló la solicitud de permisos de Windows.",
-            193 => "El destino no es un ejecutable válido.",
-            _ => $"Windows no pudo iniciar el juego (error {exception.NativeErrorCode})."
+            1223 => L.Get("TheWindowsPermissionRequestWasCancelled"),
+            193 => L.Get("TheDestinationIsNotAValidExecutable"),
+            _ => L.Get("WindowsCouldNotLaunchGameWithError", exception.NativeErrorCode)
         };
 }
 

@@ -25,14 +25,14 @@ public static class GameEditValidator
         var cleanName = (name ?? string.Empty).Trim();
         if (cleanName.Length == 0)
         {
-            error = "El nombre no puede estar vacío.";
+            error = L.Get("TheNameCannotBeEmpty");
             return false;
         }
 
         var cleanTarget = (target ?? string.Empty).Trim().Trim('"');
         if (cleanTarget.Length == 0)
         {
-            error = "El destino no puede estar vacío.";
+            error = L.Get("TheDestinationCannotBeEmpty");
             return false;
         }
 
@@ -46,19 +46,19 @@ public static class GameEditValidator
         {
             if (!File.Exists(cleanTarget))
             {
-                error = "El archivo .url ya no existe.";
+                error = L.Get("TheUrlFileNoLongerExists");
                 return false;
             }
 
             if (!UrlShortcutReader.TryRead(cleanTarget, out var shortcut, out var readError) || shortcut is null)
             {
-                error = readError ?? "No se pudo leer el archivo .url.";
+                error = readError ?? L.Get("CouldNotReadTheUrlFile");
                 return false;
             }
 
             if (!ProtocolPolicy.TryValidate(shortcut.Url, out var shortcutUri, out var protocolError))
             {
-                error = protocolError ?? "El protocolo del acceso directo no está permitido.";
+                error = protocolError ?? L.Get("TheShortcutProtocolIsNotAllowed");
                 return false;
             }
 
@@ -73,26 +73,26 @@ public static class GameEditValidator
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
-            error = "La ruta del ejecutable no es válida.";
+            error = L.Get("TheExecutablePathIsNotValid");
             return false;
         }
 
         if (!LaunchTargetRules.IsAllowedProgram(fullPath))
         {
-            error = "El destino debe ser un ejecutable .exe, un .url o una URL de launcher compatible.";
+            error = L.Get("ChooseAnExeFileAUrlFileOrASupportedLauncherLink");
             return false;
         }
 
         if (!File.Exists(fullPath))
         {
-            error = "El ejecutable no existe en esa ubicación.";
+            error = L.Get("TheExecutableDoesNotExistAtThatLocation");
             return false;
         }
 
         var cleanArguments = string.IsNullOrWhiteSpace(arguments) ? null : arguments.Trim();
         if (cleanArguments is { Length: > 16_000 })
         {
-            error = "Los argumentos son demasiado largos.";
+            error = L.Get("TheLaunchArgumentsAreTooLong");
             return false;
         }
 
@@ -105,13 +105,13 @@ public static class GameEditValidator
             }
             catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
             {
-                error = "El directorio de trabajo no es válido.";
+                error = L.Get("TheWorkingFolderIsNotValid");
                 return false;
             }
 
             if (!Directory.Exists(cleanWorkingDirectory))
             {
-                error = "El directorio de trabajo no existe.";
+                error = L.Get("TheWorkingFolderDoesNotExist");
                 return false;
             }
         }

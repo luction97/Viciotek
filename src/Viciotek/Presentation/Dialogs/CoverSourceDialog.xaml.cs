@@ -7,7 +7,7 @@ public partial class CoverSourceDialog : ViciotekDialogWindow
     public CoverSourceDialog(bool connected, bool canChooseAutomatically)
     {
         InitializeComponent();
-        if (!connected) WebButton.Content = "Conectar SteamGridDB y buscar…";
+        if (!connected) WebButton.Content = L.Get("ConnectSteamgriddbAndSearch");
         AutomaticOptions.Visibility = connected && canChooseAutomatically ? Visibility.Visible : Visibility.Collapsed;
     }
     public CoverSource? Result { get; private set; }

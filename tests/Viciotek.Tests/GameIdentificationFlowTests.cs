@@ -83,7 +83,7 @@ public sealed class GameIdentificationFlowTests
         Assert.Single(fixture.ViewModel.Games);
         Assert.Empty(fixture.Handler.Requests);
         Assert.True(fixture.ViewModel.IsToastVisible);
-        Assert.Contains("Configurá SteamGridDB", fixture.ViewModel.ToastMessage);
+        Assert.Contains("Configura SteamGridDB", fixture.ViewModel.ToastMessage);
     });
 
     [Fact]

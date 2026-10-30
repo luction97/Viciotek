@@ -28,6 +28,7 @@ public sealed class CoverGalleryLayoutTests
         var markup = $$"""
             <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:loc="clr-namespace:Viciotek.Localization;assembly=Viciotek"
                     xmlns:presentation="clr-namespace:Viciotek.Presentation;assembly=Viciotek"
                     xmlns:controls="clr-namespace:Viciotek.Presentation.Controls;assembly=Viciotek">
                 <Window.Resources><ResourceDictionary>
@@ -66,7 +67,7 @@ public sealed class CoverGalleryLayoutTests
             Assert.InRange(panel.RealizedItemCount, minimumVisible, 60);
             Assert.Equal(120, panel.EffectiveItemWidth);
             Assert.Equal(180, panel.EffectiveItemHeight);
-            var footer = Find<Button>(window, b => Equals(b.Content, "Usar esta portada"));
+            var footer = Find<Button>(window, b => Equals(b.Content, Viciotek.Localization.Language.Get("UseThisCover")));
             Assert.True(results.TranslatePoint(new Point(0, results.ActualHeight), window).Y <= footer.TranslatePoint(new Point(), window).Y);
             Assert.True(footer.TranslatePoint(new Point(0, footer.ActualHeight), window).Y <= height);
             panel.SetVerticalOffset(panel.ExtentHeight); window.UpdateLayout();

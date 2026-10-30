@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -144,7 +144,8 @@ public partial class MainWindow : Window
     {
         var maximized = WindowState == WindowState.Maximized;
         MaximizeButton.Content = maximized ? "\uE923" : "\uE922";
-        MaximizeButton.ToolTip = maximized ? "Restaurar" : "Maximizar";
+        MaximizeButton.SetBinding(ToolTipProperty, new System.Windows.Data.Binding { Source = L.Current,
+            Path = new PropertyPath("[" + (maximized ? "Restore" : "Maximize") + "]") });
     }
 
     private void MinimizeButton_Click(object sender, RoutedEventArgs e) =>

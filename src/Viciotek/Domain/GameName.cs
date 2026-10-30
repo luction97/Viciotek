@@ -15,7 +15,7 @@ public static class GameName
         var name = Path.GetFileNameWithoutExtension(path).Trim();
         if (string.IsNullOrWhiteSpace(name))
         {
-            return "Juego sin título";
+            return L.Get("UntitledGame");
         }
 
         var changed = true;
@@ -32,6 +32,6 @@ public static class GameName
             }
         }
 
-        return string.IsNullOrWhiteSpace(name) ? "Juego sin título" : name;
+        return string.IsNullOrWhiteSpace(name) ? L.Get("UntitledGame") : name;
     }
 }

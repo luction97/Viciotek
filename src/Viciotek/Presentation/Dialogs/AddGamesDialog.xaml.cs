@@ -17,10 +17,10 @@ public partial class AddGamesDialog : ViciotekDialogWindow
     {
         var dialog = new OpenFileDialog
         {
-            Title = "Elegir juegos",
+            Title = L.Get("ChooseGames"),
             Multiselect = true,
             CheckFileExists = true,
-            Filter = "Accesos y programas|*.lnk;*.exe;*.url|Accesos directos|*.lnk|Programas|*.exe|Accesos web|*.url|Todos los archivos|*.*"
+            Filter = L.Get("ShortcutsAndProgramsLnkExeUrlShortcutsLnkProgramsExeWebShortcutsUrlAllFiles")
         };
 
         if (dialog.ShowDialog(this) == true)

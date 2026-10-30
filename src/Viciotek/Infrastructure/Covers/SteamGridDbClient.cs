@@ -128,7 +128,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
                 using var document = JsonDocument.Parse(bytes);
                 if (!document.RootElement.TryGetProperty("success", out var success) || success.ValueKind != JsonValueKind.True ||
                     !document.RootElement.TryGetProperty("data", out var data))
-                    throw new SteamGridDbException("SteamGridDB devolvió una respuesta inesperada.");
+                    throw new SteamGridDbException(L.Get("SteamgriddbReturnedAnUnexpectedResponse"));
                 var copy = data.Clone();
                 if (useCache)
                 {
@@ -149,9 +149,9 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
                 return copy;
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
-            { throw new SteamGridDbException("SteamGridDB no respondió a tiempo."); }
-            catch (HttpRequestException) { throw new SteamGridDbException("No se pudo conectar con SteamGridDB."); }
-            catch (JsonException) { throw new SteamGridDbException("SteamGridDB devolvió una respuesta inesperada."); }
+            { throw new SteamGridDbException(L.Get("SteamgriddbDidNotRespondInTime")); }
+            catch (HttpRequestException) { throw new SteamGridDbException(L.Get("CouldNotConnectToSteamgriddb")); }
+            catch (JsonException) { throw new SteamGridDbException(L.Get("SteamgriddbReturnedAnUnexpectedResponse")); }
         }
         finally { _apiGate.Release(); }
     }
@@ -159,7 +159,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
     public async Task<byte[]> DownloadImageAsync(string url, CancellationToken cancellationToken)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps || !string.IsNullOrEmpty(uri.UserInfo))
-            throw new SteamGridDbException("La dirección de la portada no es válida.");
+            throw new SteamGridDbException(L.Get("TheCoverAddressIsNotValid"));
         await _imageGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
@@ -176,15 +176,15 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
                 return await ReadLimitedAsync(response, MaxDownloadBytes, timeout.Token).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
-            { throw new SteamGridDbException("SteamGridDB no respondió a tiempo."); }
-            catch (HttpRequestException) { throw new SteamGridDbException("No se pudo descargar la portada."); }
+            { throw new SteamGridDbException(L.Get("SteamgriddbDidNotRespondInTime")); }
+            catch (HttpRequestException) { throw new SteamGridDbException(L.Get("CouldNotDownloadTheCover")); }
         }
         finally { _imageGate.Release(); }
     }
 
     private static async Task<byte[]> ReadLimitedAsync(HttpResponseMessage response, int limit, CancellationToken token)
     {
-        if (response.Content.Headers.ContentLength > limit) throw new SteamGridDbException("La respuesta descargada es demasiado grande.");
+        if (response.Content.Headers.ContentLength > limit) throw new SteamGridDbException(L.Get("TheDownloadedResponseIsTooLarge"));
         await using var stream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false);
         using var memory = new MemoryStream();
         var buffer = new byte[16 * 1024];
@@ -192,7 +192,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
         {
             var read = await stream.ReadAsync(buffer, token).ConfigureAwait(false);
             if (read == 0) break;
-            if (memory.Length + read > limit) throw new SteamGridDbException("La respuesta descargada es demasiado grande.");
+            if (memory.Length + read > limit) throw new SteamGridDbException(L.Get("TheDownloadedResponseIsTooLarge"));
             memory.Write(buffer, 0, read);
         }
         return memory.ToArray();
@@ -200,9 +200,9 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
 
     private static SteamGridDbException CreateStatusException(HttpStatusCode code) => new(code switch
     {
-        HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => "API Key inválida o sin autorización.",
-        HttpStatusCode.TooManyRequests => "Límite de solicitudes alcanzado. Intentá más tarde.",
-        HttpStatusCode.BadRequest => "SteamGridDB rechazó la búsqueda de portadas.",
+        HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => L.Get("InvalidOrUnauthorizedApiKey"),
+        HttpStatusCode.TooManyRequests => L.Get("TooManyRequestsPleaseTryAgainLater"),
+        HttpStatusCode.BadRequest => L.Get("SteamgriddbRejectedTheCoverSearch"),
         _ => "Servicio temporalmente no disponible."
     }, code);
 
@@ -227,22 +227,22 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
 
     public async Task<VerificationResult> VerifyAsync(string? apiKey, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(apiKey)) return new(false, "Pegá tu código de conexión de SteamGridDB.");
+        if (string.IsNullOrWhiteSpace(apiKey)) return new(false, L.Get("PasteYourSteamgriddbConnectionCode"));
         try
         {
             var data = await GetDataAsync("search/autocomplete/a", cancellationToken, useCache: false,
                 verificationApiKey: apiKey.Trim()).ConfigureAwait(false);
             if (data.ValueKind != JsonValueKind.Array) return new(false, "Servicio temporalmente no disponible.");
-            return new(true, "Conexión correcta.");
+            return new(true, L.Get("ConnectedSuccessfully"));
         }
         catch (SteamGridDbException exception)
         {
             return new(false, exception.StatusCode switch
             {
                 HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
-                    "Ese código no es válido. Copialo otra vez desde SteamGridDB e intentá de nuevo.",
-                HttpStatusCode.TooManyRequests => "SteamGridDB recibió muchos intentos. Esperá un momento y volvé a intentar.",
-                >= HttpStatusCode.InternalServerError => "SteamGridDB no está disponible por el momento. Intentá de nuevo más tarde.",
+                    L.Get("ThatCodeIsNotValidCopyItAgainFromSteamgriddbAndTryAgain"),
+                HttpStatusCode.TooManyRequests => L.Get("SteamgriddbReceivedTooManyAttemptsWaitAMomentAndTryAgain"),
+                >= HttpStatusCode.InternalServerError => L.Get("SteamgriddbIsTemporarilyUnavailablePleaseTryAgainLater"),
                 _ => exception.Message
             });
         }

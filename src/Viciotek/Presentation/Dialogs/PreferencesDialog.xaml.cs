@@ -16,11 +16,14 @@ public partial class PreferencesDialog : ViciotekDialogWindow
     private readonly SteamGridDbClient? _steamGrid;
     private readonly CancellationTokenSource _lifetime = new();
     private bool _verifying;
+    private string? _selectedLanguage;
 
     public PreferencesDialog(AppSettings settings, AppPaths paths, SteamGridDbClient? steamGrid = null)
     {
         InitializeComponent();
         _settings = settings;
+        _selectedLanguage = settings.Language is "es" or "en" ? settings.Language : null;
+        UpdateLanguageChoice();
         _paths = paths;
         _steamGrid = steamGrid;
         ApiKeyBox.Password = settings.SteamGridDbApiKey ?? string.Empty;
@@ -31,13 +34,35 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         DataPathBox.Text = paths.Root;
         UpdateConnectionAction();
         if (!string.IsNullOrWhiteSpace(settings.SteamGridDbApiKey))
-            ShowConnectionStatus("Conexión guardada en este equipo.");
+            ShowConnectionStatus(L.Get("ConnectionSavedOnThisComputer"));
         Closed += (_, _) => { _lifetime.Cancel(); _lifetime.Dispose(); };
     }
 
     public AppSettings? Result { get; private set; }
     public event Action<int>? CoverSizePreview;
 
+    private void LanguageButton_Click(object sender, RoutedEventArgs e)
+    {
+        LanguageButton.ContextMenu.PlacementTarget = LanguageButton;
+        LanguageButton.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+        LanguageButton.ContextMenu.IsOpen = true;
+    }
+    private void LanguageChoice_Click(object sender, RoutedEventArgs e)
+    {
+        _selectedLanguage = ((System.Windows.Controls.MenuItem)sender).Tag as string;
+        if (_selectedLanguage == "auto") _selectedLanguage = null;
+        UpdateLanguageChoice();
+    }
+    private void UpdateLanguageChoice()
+    {
+        SelectedLanguageText.Text = _selectedLanguage switch { "es" => "Español", "en" => "English", _ => L.Get("SystemDefault") };
+        SystemLanguageItem.IsChecked = _selectedLanguage is null;
+        SpanishLanguageItem.IsChecked = _selectedLanguage == "es";
+        EnglishLanguageItem.IsChecked = _selectedLanguage == "en";
+        SystemLanguageCheck.Visibility = _selectedLanguage is null ? Visibility.Visible : Visibility.Hidden;
+        SpanishLanguageCheck.Visibility = _selectedLanguage == "es" ? Visibility.Visible : Visibility.Hidden;
+        EnglishLanguageCheck.Visibility = _selectedLanguage == "en" ? Visibility.Visible : Visibility.Hidden;
+    }
     private void CoverSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (CoverSizeLabel is null) return;
@@ -46,7 +71,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
     }
 
     private void UpdateCoverSizeLabel() => CoverSizeLabel.Text = (int)CoverSizeSlider.Value switch
-    { 0 => "Pequeñas", 1 => "Medianas", 2 => "Grandes", _ => "Muy grandes" };
+    { 0 => L.Get("Small"), 1 => L.Get("Medium"), 2 => L.Get("Large"), _ => L.Get("ExtraLarge") };
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
@@ -68,6 +93,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         updated.AutoFetchCovers = AutoFetchCheckBox.IsChecked == true;
         updated.AnimationsEnabled = AnimationsCheckBox.IsChecked == true;
         updated.CoverSizePreset = (int)CoverSizeSlider.Value;
+        updated.Language = _selectedLanguage;
         Result = updated;
         DialogResult = true;
     }
@@ -86,7 +112,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         }
         catch (Exception exception) when (exception is System.ComponentModel.Win32Exception or InvalidOperationException)
         {
-            ShowStatus("No se pudo abrir el navegador. La dirección es steamgriddb.com/profile/preferences/api");
+            ShowStatus(L.Get("CouldNotOpenTheBrowserTheAddressIsSteamgriddbComProfilePreferencesApi"));
         }
     }
 
@@ -102,25 +128,25 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         var code = ApiKeyBox.Password.Trim();
         if (code.Length == 0)
         {
-            ShowConnectionStatus("Copiá el código de SteamGridDB y pegalo acá para conectar.", error: true);
+            ShowConnectionStatus(L.Get("CopyYourSteamgriddbCodeAndPasteItHereToConnect"), error: true);
             return false;
         }
         _verifying = true;
         ApiKeyBox.IsEnabled = PasteButton.IsEnabled = SaveButton.IsEnabled = VerifyButton.IsEnabled = false;
-        VerifyButton.Content = "Conectando…";
-        ShowConnectionStatus("Comprobando tu código con SteamGridDB…");
+        VerifyButton.Content = L.Get("Connecting");
+        ShowConnectionStatus(L.Get("CheckingYourCodeWithSteamgriddb"));
         try
         {
             var result = await _steamGrid.VerifyAsync(code, _lifetime.Token);
             if (_lifetime.IsCancellationRequested) return false;
-            ShowConnectionStatus(result.Success ? "Conexión comprobada. Ya podés buscar portadas." : result.Message,
+            ShowConnectionStatus(result.Success ? L.Get("ConnectionVerifiedYouCanNowFindCovers") : result.Message,
                 error: !result.Success);
             return result.Success;
         }
         catch (OperationCanceledException) { return false; }
         catch (Exception)
         {
-            ShowConnectionStatus("No pudimos conectar. Revisá tu conexión a internet e intentá de nuevo.", error: true);
+            ShowConnectionStatus(L.Get("CouldNotConnectCheckYourInternetConnectionAndTryAgain"), error: true);
             return false;
         }
         finally
@@ -147,7 +173,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         var code = ApiKeyBox.Password.Trim();
         VerifyButton.IsEnabled = !_verifying && _steamGrid is not null && code.Length > 0;
         VerifyButton.Content = code.Length > 0 && code == (_settings?.SteamGridDbApiKey ?? string.Empty).Trim()
-            ? "Verificar" : "Conectar →";
+            ? L.Get("Verify") : L.Get("Connect2");
     }
 
     private void PasteCode_Click(object sender, RoutedEventArgs e)
@@ -157,7 +183,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
             var code = Clipboard.ContainsText() ? Clipboard.GetText().Trim() : string.Empty;
             if (code.Length == 0)
             {
-                ShowConnectionStatus("Primero copiá tu código en SteamGridDB. Después volvé y elegí Pegar.", error: true);
+                ShowConnectionStatus(L.Get("FirstCopyYourCodeFromSteamgriddbThenComeBackAndChoosePaste"), error: true);
                 return;
             }
             ApiKeyBox.Password = code;
@@ -165,7 +191,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         }
         catch (ExternalException)
         {
-            ShowConnectionStatus("No pudimos pegar el código. Probá con Ctrl+V en el campo de conexión.", error: true);
+            ShowConnectionStatus(L.Get("CouldNotPasteTheCodeTryCtrlVInTheConnectionField"), error: true);
         }
     }
 
@@ -190,7 +216,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception or InvalidOperationException)
         {
-            ShowStatus("No se pudo abrir la carpeta de datos.");
+            ShowStatus(L.Get("CouldNotOpenTheDataFolder"));
         }
     }
 

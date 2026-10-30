@@ -37,3 +37,6 @@ La UI virtualiza contenedores, no metadatos: toda la biblioteca JSON se carga en
 
 ## Continuidad visual de búsqueda (1.1.11)
 El binding agrupa pulsaciones durante 120 ms; acciones explícitas aplican el texto pendiente de inmediato. CoverImage hidrata el bitmap disponible durante los bindings, sin esperar Loaded. La LRU fuerte sigue en 32 y un índice débil acotado a 128 reencuentra bitmaps de controles vivos sin retener buffers adicionales. Fallos de caché mantienen la carga asíncrona cancelable. No se cambia colección fuente, virtualización ni almacenamiento.
+
+## Localización (1.1.16)
+Localization/Language usa ResourceManager con Texts.resx (es) y Texts.en.resx (en). TextExtension crea bindings al índice del singleton y notifica Item[] al cambiar la elección guardada. No cambia culturas del proceso ni formatos numéricos/regionales. App resuelve Windows y después la preferencia persistida; MainViewModel aplica la elección únicamente después del guardado atómico. Los cambios en reglas puras se limitan a sus mensajes; condiciones y resultados funcionales se conservan.

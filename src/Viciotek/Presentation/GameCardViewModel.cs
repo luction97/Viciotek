@@ -38,7 +38,7 @@ public sealed class GameCardViewModel : ObservableObject
     private bool _isFindingCover;
     private bool _isLaunching;
     private bool _isCoverDropTarget;
-    private string _busyLabel = "Actualizando…";
+    private string _busyLabel = L.Get("Updating");
     private Brush? _fallbackBrush;
     private string? _monogram;
     private string? _searchKey;
@@ -103,7 +103,7 @@ public sealed class GameCardViewModel : ObservableObject
     }
 
     public bool IsWorking => IsBusy || IsFindingCover;
-    public string ActivityLabel => IsBusy ? BusyLabel : "Buscando portada…";
+    public string ActivityLabel => IsBusy ? BusyLabel : L.Get("FindingCover");
 
     public string BusyLabel
     {

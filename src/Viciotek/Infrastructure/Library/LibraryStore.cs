@@ -6,6 +6,7 @@ namespace Viciotek.Infrastructure.Library;
 
 public sealed class AppSettings
 {
+    public string? Language { get; set; }
     public string? SteamGridDbApiKey { get; set; }
     public string? ProtectedApiKey { get; set; }
     public bool AutoFetchCovers { get; set; } = true;
@@ -55,7 +56,7 @@ public sealed class SettingsStore
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException or InvalidOperationException)
         {
-            warning = string.Join(" ", new[] { warning, "No se pudo proteger una configuración antigua. Revisá los permisos de la carpeta de datos." }
+            warning = string.Join(" ", new[] { warning, L.Get("CouldNotProtectOlderSettingsCheckTheDataFolderPermissions") }
                 .Where(message => !string.IsNullOrWhiteSpace(message)));
         }
         return (settings, warning);
@@ -88,7 +89,7 @@ public sealed class SettingsStore
         if (backup is null || string.IsNullOrWhiteSpace(backup.SteamGridDbApiKey)) return;
         var protectedBackup = PrepareForStorage(backup);
         if (ProtectedSecret.Unprotect(protectedBackup.ProtectedApiKey) != backup.SteamGridDbApiKey.Trim())
-            throw new InvalidOperationException("No se pudo verificar la protección de la configuración antigua.");
+            throw new InvalidOperationException(L.Get("CouldNotVerifyProtectionOfOlderSettings"));
         var temporary = _backupPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
@@ -111,7 +112,7 @@ public sealed class SettingsStore
         clone.SteamGridDbApiKey = null;
         clone.ProtectedApiKey = ProtectedSecret.Protect(trimmed);
         if (trimmed is not null && ProtectedSecret.Unprotect(clone.ProtectedApiKey) != trimmed)
-            throw new InvalidOperationException("No se pudo verificar la protección de la clave.");
+            throw new InvalidOperationException(L.Get("CouldNotVerifyProtectionOfTheKey"));
         return clone;
     }
 }

@@ -1,0 +1,678 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="Launching" xml:space="preserve">
+    <value>Launching…</value>
+  </data>
+  <data name="Play" xml:space="preserve">
+    <value>Play</value>
+  </data>
+  <data name="Enter" xml:space="preserve">
+    <value>Enter</value>
+  </data>
+  <data name="ChangeCover" xml:space="preserve">
+    <value>Change cover…</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit…</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove…</value>
+  </data>
+  <data name="SearchGames" xml:space="preserve">
+    <value>Search games</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="AddGamesCtrlO" xml:space="preserve">
+    <value>Add games (Ctrl+O)</value>
+  </data>
+  <data name="AddGames" xml:space="preserve">
+    <value>Add games</value>
+  </data>
+  <data name="Minimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="Maximize" xml:space="preserve">
+    <value>Maximize</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="YourLibraryStartsHere" xml:space="preserve">
+    <value>Your library starts here</value>
+  </data>
+  <data name="AddMyFirstGame" xml:space="preserve">
+    <value>Add my first game</value>
+  </data>
+  <data name="OrDropAShortcutHere" xml:space="preserve">
+    <value>Or drop a shortcut here</value>
+  </data>
+  <data name="ConnectSteamgriddbToGetCoversAutomatically" xml:space="preserve">
+    <value>Connect SteamGridDB to get covers automatically.</value>
+  </data>
+  <data name="SetUpCovers" xml:space="preserve">
+    <value>Set up covers</value>
+  </data>
+  <data name="ClearSearch" xml:space="preserve">
+    <value>Clear search</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="YourPersonalGameLibrary" xml:space="preserve">
+    <value>Your personal game library.</value>
+  </data>
+  <data name="CreatedByLucasSiano" xml:space="preserve">
+    <value>Created by Lucas Siano</value>
+  </data>
+  <data name="2026LucasSianoAllRightsReserved" xml:space="preserve">
+    <value>© 2026 Lucas Siano. All rights reserved.</value>
+  </data>
+  <data name="DropYourGamesHere" xml:space="preserve">
+    <value>Drop your games here</value>
+  </data>
+  <data name="GameShortcutsOrFiles" xml:space="preserve">
+    <value>Game shortcuts or files</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ChooseGame" xml:space="preserve">
+    <value>Choose game</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="RemoveGame" xml:space="preserve">
+    <value>Remove game</value>
+  </data>
+  <data name="OnlyRemovesItFromYourViciotekLibraryTheInstalledGameAndItsFilesAreUnchanged" xml:space="preserve">
+    <value>Only removes it from your VICIOTEK library. The installed game and its files are unchanged.</value>
+  </data>
+  <data name="Remove2" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="FindACover" xml:space="preserve">
+    <value>Find a cover</value>
+  </data>
+  <data name="GameName" xml:space="preserve">
+    <value>Game name</value>
+  </data>
+  <data name="SearchesAsYouTypePressEnterToSearchForShortNamesToo" xml:space="preserve">
+    <value>Searches as you type. Press Enter to search for short names too.</value>
+  </data>
+  <data name="MatchingGames" xml:space="preserve">
+    <value>Matching games</value>
+  </data>
+  <data name="Searching" xml:space="preserve">
+    <value>Searching…</value>
+  </data>
+  <data name="UseThisCover" xml:space="preserve">
+    <value>Use this cover</value>
+  </data>
+  <data name="ChangeCover2" xml:space="preserve">
+    <value>Change cover</value>
+  </data>
+  <data name="SearchSteamgriddb" xml:space="preserve">
+    <value>Search SteamGridDB…</value>
+  </data>
+  <data name="ChooseAnImageFromThisComputer" xml:space="preserve">
+    <value>Choose an image from this computer…</value>
+  </data>
+  <data name="MoreOptions" xml:space="preserve">
+    <value>More options</value>
+  </data>
+  <data name="ChooseACoverAutomatically" xml:space="preserve">
+    <value>Choose a cover automatically</value>
+  </data>
+  <data name="EditGame" xml:space="preserve">
+    <value>Edit game</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>NAME</value>
+  </data>
+  <data name="AdvancedOptions" xml:space="preserve">
+    <value>Advanced options</value>
+  </data>
+  <data name="GameFileOrLink" xml:space="preserve">
+    <value>GAME FILE OR LINK</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Browse…</value>
+  </data>
+  <data name="LaunchOptionsOptional" xml:space="preserve">
+    <value>LAUNCH OPTIONS (OPTIONAL)</value>
+  </data>
+  <data name="GameFolderOptional" xml:space="preserve">
+    <value>GAME FOLDER (OPTIONAL)</value>
+  </data>
+  <data name="Choose" xml:space="preserve">
+    <value>Choose…</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="AutomaticCoversForYourGamesOptional" xml:space="preserve">
+    <value>Automatic covers for your games. Optional.</value>
+  </data>
+  <data name="GetMyCode" xml:space="preserve">
+    <value>Get my code ↗</value>
+  </data>
+  <data name="SignInAndCopyYourApiKeyCode" xml:space="preserve">
+    <value>Sign in and copy your “API Key” code.</value>
+  </data>
+  <data name="PasteYourCodeToConnect" xml:space="preserve">
+    <value>Paste your _code to connect</value>
+  </data>
+  <data name="SteamgriddbConnectionCode" xml:space="preserve">
+    <value>SteamGridDB connection code</value>
+  </data>
+  <data name="PasteCode" xml:space="preserve">
+    <value>Paste code</value>
+  </data>
+  <data name="Connect" xml:space="preserve">
+    <value>Connect</value>
+  </data>
+  <data name="ShowOrHideMoreOptions" xml:space="preserve">
+    <value>Show or hide more options</value>
+  </data>
+  <data name="Library" xml:space="preserve">
+    <value>Library</value>
+  </data>
+  <data name="FindCoversAutomaticallyWhenAddingGames" xml:space="preserve">
+    <value>Find covers automatically when adding games</value>
+  </data>
+  <data name="HoverEffectOnCovers" xml:space="preserve">
+    <value>Hover effect on covers</value>
+  </data>
+  <data name="CoverSize" xml:space="preserve">
+    <value>Cover size</value>
+  </data>
+  <data name="LocalData" xml:space="preserve">
+    <value>_Local data</value>
+  </data>
+  <data name="LocalDataFolder" xml:space="preserve">
+    <value>Local data folder</value>
+  </data>
+  <data name="OpenFolder" xml:space="preserve">
+    <value>Open folder</value>
+  </data>
+  <data name="AboutViciotek" xml:space="preserve">
+    <value>About VICIOTEK</value>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="SearchGames2" xml:space="preserve">
+    <value>Search games…</value>
+  </data>
+  <data name="NNtechnicalDetails0" xml:space="preserve">
+    <value>
+
+Technical details: {0}</value>
+  </data>
+  <data name="ViciotekEncounteredAnUnexpectedProblemButTheWindowIsStillOpenNN" xml:space="preserve">
+    <value>VICIOTEK encountered an unexpected problem, but the window is still open.
+
+</value>
+  </data>
+  <data name="TheNameCannotBeEmpty" xml:space="preserve">
+    <value>The name cannot be empty.</value>
+  </data>
+  <data name="TheDestinationCannotBeEmpty" xml:space="preserve">
+    <value>The destination cannot be empty.</value>
+  </data>
+  <data name="TheUrlFileNoLongerExists" xml:space="preserve">
+    <value>The .url file no longer exists.</value>
+  </data>
+  <data name="CouldNotReadTheUrlFile" xml:space="preserve">
+    <value>Could not read the .url file.</value>
+  </data>
+  <data name="TheShortcutProtocolIsNotAllowed" xml:space="preserve">
+    <value>The shortcut protocol is not allowed.</value>
+  </data>
+  <data name="TheExecutablePathIsNotValid" xml:space="preserve">
+    <value>The executable path is not valid.</value>
+  </data>
+  <data name="ChooseAnExeFileAUrlFileOrASupportedLauncherLink" xml:space="preserve">
+    <value>Choose an .exe file, a .url file or a supported launcher link.</value>
+  </data>
+  <data name="TheExecutableDoesNotExistAtThatLocation" xml:space="preserve">
+    <value>The executable does not exist at that location.</value>
+  </data>
+  <data name="TheWorkingFolderIsNotValid" xml:space="preserve">
+    <value>The working folder is not valid.</value>
+  </data>
+  <data name="TheWorkingFolderDoesNotExist" xml:space="preserve">
+    <value>The working folder does not exist.</value>
+  </data>
+  <data name="FoldersCannotBeAddedDropAnExecutableOrAShortcut" xml:space="preserve">
+    <value>Folders cannot be added. Drop an executable or a shortcut.</value>
+  </data>
+  <data name="TheFileDoesNotExist" xml:space="preserve">
+    <value>The file does not exist.</value>
+  </data>
+  <data name="UnsupportedFormatUseLnkExeOrUrl" xml:space="preserve">
+    <value>Unsupported format. Use .lnk, .exe or .url.</value>
+  </data>
+  <data name="CouldNotIdentifyTheDestination" xml:space="preserve">
+    <value>Could not identify the destination.</value>
+  </data>
+  <data name="AlreadyInTheLibrary" xml:space="preserve">
+    <value>Already in the library.</value>
+  </data>
+  <data name="CouldNotReadTheFile" xml:space="preserve">
+    <value>Could not read the file: </value>
+  </data>
+  <data name="TheShortcutDoesNotPointToAnExecutableViciotekCanLaunch" xml:space="preserve">
+    <value>The shortcut does not point to an executable VICIOTEK can launch.</value>
+  </data>
+  <data name="TheGameIsNotValid" xml:space="preserve">
+    <value>The game is not valid.</value>
+  </data>
+  <data name="TheGameHasNoName" xml:space="preserve">
+    <value>The game has no name.</value>
+  </data>
+  <data name="TheGameHasNoDestinationSet" xml:space="preserve">
+    <value>The game has no destination set.</value>
+  </data>
+  <data name="TheProtocolIsNotValid" xml:space="preserve">
+    <value>The protocol is not valid.</value>
+  </data>
+  <data name="TheShortcutNoLongerExistsEditTheGameToChooseAValidDestination" xml:space="preserve">
+    <value>The shortcut no longer exists. Edit the game to choose a valid destination.</value>
+  </data>
+  <data name="TheDestinationIsNotASupportedShortcut" xml:space="preserve">
+    <value>The destination is not a supported shortcut.</value>
+  </data>
+  <data name="TheExecutableNoLongerExistsAtThatLocationEditTheGameToChooseAnotherDestination" xml:space="preserve">
+    <value>The executable no longer exists at that location. Edit the game to choose another destination.</value>
+  </data>
+  <data name="TheDestinationIsEmpty" xml:space="preserve">
+    <value>The destination is empty.</value>
+  </data>
+  <data name="TheDestinationContainsInvalidCharacters" xml:space="preserve">
+    <value>The destination contains invalid characters.</value>
+  </data>
+  <data name="TheDestinationIsNotAValidUrl" xml:space="preserve">
+    <value>The destination is not a valid URL.</value>
+  </data>
+  <data name="The0ProtocolIsNotAllowed" xml:space="preserve">
+    <value>The “{0}” protocol is not allowed. </value>
+  </data>
+  <data name="TheUrlContainsCredentialsAndIsNotSafe" xml:space="preserve">
+    <value>The URL contains credentials and is not safe.</value>
+  </data>
+  <data name="TheUrlFileIsTooLarge" xml:space="preserve">
+    <value>The .url file is too large.</value>
+  </data>
+  <data name="TheUrlFileDoesNotContainADestination" xml:space="preserve">
+    <value>The .url file does not contain a destination.</value>
+  </data>
+  <data name="NoCoverWasFoundAutomatically" xml:space="preserve">
+    <value>No cover was found automatically.</value>
+  </data>
+  <data name="TypeAtLeast3CharactersToSearch" xml:space="preserve">
+    <value>Type at least 3 characters to search.</value>
+  </data>
+  <data name="NoResultsTryAnotherName" xml:space="preserve">
+    <value>No results. Try another name.</value>
+  </data>
+  <data name="ChooseAGameToSeeItsCovers" xml:space="preserve">
+    <value>Choose a game to see its covers.</value>
+  </data>
+  <data name="CouldNotSearchPleaseTryAgain" xml:space="preserve">
+    <value>Could not search. Please try again.</value>
+  </data>
+  <data name="ThisGameHasNoPortraitCoversTryAnotherName" xml:space="preserve">
+    <value>This game has no portrait covers. Try another name.</value>
+  </data>
+  <data name="CouldNotSaveTheCoverPleaseTryAgain" xml:space="preserve">
+    <value>Could not save the cover. Please try again.</value>
+  </data>
+  <data name="CouldNotGetTheCoverPleaseTryAgain" xml:space="preserve">
+    <value>Could not get the cover. Please try again.</value>
+  </data>
+  <data name="FindingCover" xml:space="preserve">
+    <value>Finding cover…</value>
+  </data>
+  <data name="NoResults" xml:space="preserve">
+    <value>No results</value>
+  </data>
+  <data name="ChooseACoverForThisImage" xml:space="preserve">
+    <value>Choose a cover for this image.</value>
+  </data>
+  <data name="CouldNotLaunchTheGame" xml:space="preserve">
+    <value>Could not launch the game: </value>
+  </data>
+  <data name="ConnectSteamgriddbInSettingsCtrlToFindCovers" xml:space="preserve">
+    <value>Connect SteamGridDB in Settings (Ctrl+,) to find covers.</value>
+  </data>
+  <data name="CouldNotGetACoverAutomatically" xml:space="preserve">
+    <value>Could not get a cover automatically.</value>
+  </data>
+  <data name="FindingCovers" xml:space="preserve">
+    <value>Finding covers…</value>
+  </data>
+  <data name="CouldNotGetTheCover" xml:space="preserve">
+    <value>Could not get the cover.</value>
+  </data>
+  <data name="CouldNotSaveTheChanges" xml:space="preserve">
+    <value>Could not save the changes.</value>
+  </data>
+  <data name="CouldNotSaveTheChange" xml:space="preserve">
+    <value>Could not save the change.</value>
+  </data>
+  <data name="CouldNotSaveTheGames" xml:space="preserve">
+    <value>Could not save the games.</value>
+  </data>
+  <data name="CouldNotAddTheGames" xml:space="preserve">
+    <value>Could not add the games: </value>
+  </data>
+  <data name="CouldNotSaveTheSettings" xml:space="preserve">
+    <value>Could not save the settings.</value>
+  </data>
+  <data name="CouldNotSaveTheCover" xml:space="preserve">
+    <value>Could not save the cover.</value>
+  </data>
+  <data name="CouldNotUpdateTheCover" xml:space="preserve">
+    <value>Could not update the cover.</value>
+  </data>
+  <data name="ThatGameIsAlreadyInTheLibrary" xml:space="preserve">
+    <value>That game is already in the library.</value>
+  </data>
+  <data name="ThoseGamesAreAlreadyInTheLibrary" xml:space="preserve">
+    <value>Those games are already in the library.</value>
+  </data>
+  <data name="0More" xml:space="preserve">
+    <value> (+{0} more)</value>
+  </data>
+  <data name="NoGamesWereAdded" xml:space="preserve">
+    <value>No games were added.</value>
+  </data>
+  <data name="CouldNotSaveTheLibrary" xml:space="preserve">
+    <value> Could not save the library.</value>
+  </data>
+  <data name="SetUpSteamgriddbInSettingsToFindCovers" xml:space="preserve">
+    <value> Set up SteamGridDB in Settings to find covers.</value>
+  </data>
+  <data name="SteamgriddbReturnedAnUnexpectedResponse" xml:space="preserve">
+    <value>SteamGridDB returned an unexpected response.</value>
+  </data>
+  <data name="SteamgriddbDidNotRespondInTime" xml:space="preserve">
+    <value>SteamGridDB did not respond in time.</value>
+  </data>
+  <data name="CouldNotConnectToSteamgriddb" xml:space="preserve">
+    <value>Could not connect to SteamGridDB.</value>
+  </data>
+  <data name="TheCoverAddressIsNotValid" xml:space="preserve">
+    <value>The cover address is not valid.</value>
+  </data>
+  <data name="CouldNotDownloadTheCover" xml:space="preserve">
+    <value>Could not download the cover.</value>
+  </data>
+  <data name="TheDownloadedResponseIsTooLarge" xml:space="preserve">
+    <value>The downloaded response is too large.</value>
+  </data>
+  <data name="InvalidOrUnauthorizedApiKey" xml:space="preserve">
+    <value>Invalid or unauthorized API Key.</value>
+  </data>
+  <data name="TooManyRequestsPleaseTryAgainLater" xml:space="preserve">
+    <value>Too many requests. Please try again later.</value>
+  </data>
+  <data name="SteamgriddbRejectedTheCoverSearch" xml:space="preserve">
+    <value>SteamGridDB rejected the cover search.</value>
+  </data>
+  <data name="PasteYourSteamgriddbConnectionCode" xml:space="preserve">
+    <value>Paste your SteamGridDB connection code.</value>
+  </data>
+  <data name="ConnectedSuccessfully" xml:space="preserve">
+    <value>Connected successfully.</value>
+  </data>
+  <data name="ThatCodeIsNotValidCopyItAgainFromSteamgriddbAndTryAgain" xml:space="preserve">
+    <value>That code is not valid. Copy it again from SteamGridDB and try again.</value>
+  </data>
+  <data name="SteamgriddbReceivedTooManyAttemptsWaitAMomentAndTryAgain" xml:space="preserve">
+    <value>SteamGridDB received too many attempts. Wait a moment and try again.</value>
+  </data>
+  <data name="SteamgriddbIsTemporarilyUnavailablePleaseTryAgainLater" xml:space="preserve">
+    <value>SteamGridDB is temporarily unavailable. Please try again later.</value>
+  </data>
+  <data name="TheImageNoLongerExists" xml:space="preserve">
+    <value>The image no longer exists.</value>
+  </data>
+  <data name="TheImageIsTooLargeMaximum30Mb" xml:space="preserve">
+    <value>The image is too large (maximum 30 MB).</value>
+  </data>
+  <data name="CouldNotReadTheImage" xml:space="preserve">
+    <value>Could not read the image.</value>
+  </data>
+  <data name="TheImageIsEmpty" xml:space="preserve">
+    <value>The image is empty.</value>
+  </data>
+  <data name="TheOriginalCoverIsUnavailable" xml:space="preserve">
+    <value>The original cover is unavailable.</value>
+  </data>
+  <data name="TheFileIsNotASupportedImage" xml:space="preserve">
+    <value>The file is not a supported image.</value>
+  </data>
+  <data name="TheImageHasNoFrames" xml:space="preserve">
+    <value>The image has no frames.</value>
+  </data>
+  <data name="TheImageDimensionsAreNotValid" xml:space="preserve">
+    <value>The image dimensions are not valid.</value>
+  </data>
+  <data name="TheImageResolutionIsTooHighMaximum30Megapixels" xml:space="preserve">
+    <value>The image resolution is too high (maximum 30 megapixels).</value>
+  </data>
+  <data name="CouldNotProtectOlderSettingsCheckTheDataFolderPermissions" xml:space="preserve">
+    <value>Could not protect older settings. Check the data folder permissions.</value>
+  </data>
+  <data name="CouldNotVerifyProtectionOfOlderSettings" xml:space="preserve">
+    <value>Could not verify protection of older settings.</value>
+  </data>
+  <data name="CouldNotVerifyProtectionOfTheKey" xml:space="preserve">
+    <value>Could not verify protection of the key.</value>
+  </data>
+  <data name="CouldNotPrepareTheGame" xml:space="preserve">
+    <value>Could not prepare the game.</value>
+  </data>
+  <data name="WindowsCouldNotFindTheGameExecutable" xml:space="preserve">
+    <value>Windows could not find the game executable.</value>
+  </data>
+  <data name="WindowsDeniedAccessToTheExecutable" xml:space="preserve">
+    <value>Windows denied access to the executable.</value>
+  </data>
+  <data name="TheGameRequiresAdministratorPermissions" xml:space="preserve">
+    <value>The game requires administrator permissions.</value>
+  </data>
+  <data name="TheWindowsPermissionRequestWasCancelled" xml:space="preserve">
+    <value>The Windows permission request was cancelled.</value>
+  </data>
+  <data name="TheDestinationIsNotAValidExecutable" xml:space="preserve">
+    <value>The destination is not a valid executable.</value>
+  </data>
+  <data name="CouldNotCreateTheShelllinkObject" xml:space="preserve">
+    <value>Could not create the ShellLink object.</value>
+  </data>
+  <data name="ABackupOfYourDataWasRestored" xml:space="preserve">
+    <value>A backup of your data was restored.</value>
+  </data>
+  <data name="TheDocumentIsEmpty" xml:space="preserve">
+    <value>The document is empty.</value>
+  </data>
+  <data name="TheSavedDataWasDamagedTheLatestSafeCopyWasRestored" xml:space="preserve">
+    <value>The saved data was damaged. The latest safe copy was restored.</value>
+  </data>
+  <data name="TheSavedDataWasDamagedAndCouldNotBeRestored" xml:space="preserve">
+    <value>The saved data was damaged and could not be restored.</value>
+  </data>
+  <data name="CouldNotRecoverTheSavedData" xml:space="preserve">
+    <value>Could not recover the saved data.</value>
+  </data>
+  <data name="CouldNotProtectTheSecret" xml:space="preserve">
+    <value>Could not protect the secret.</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version </value>
+  </data>
+  <data name="ChooseGames" xml:space="preserve">
+    <value>Choose games</value>
+  </data>
+  <data name="ConnectSteamgriddbAndSearch" xml:space="preserve">
+    <value>Connect SteamGridDB and search…</value>
+  </data>
+  <data name="ChooseCover" xml:space="preserve">
+    <value>Choose cover</value>
+  </data>
+  <data name="ImagesPngJpgJpegWebpBmpGifTifTiffJfifAllFiles" xml:space="preserve">
+    <value>Images|*.png;*.jpg;*.jpeg;*.webp;*.bmp;*.gif;*.tif;*.tiff;*.jfif|All files|*.*</value>
+  </data>
+  <data name="0WillBeRemovedFromYourLibrary" xml:space="preserve">
+    <value>“{0}” will be removed from your library.</value>
+  </data>
+  <data name="CheckTheGameDetails" xml:space="preserve">
+    <value>Check the game details.</value>
+  </data>
+  <data name="ChooseGameDestination" xml:space="preserve">
+    <value>Choose game destination</value>
+  </data>
+  <data name="ChooseWorkingFolder" xml:space="preserve">
+    <value>Choose working folder</value>
+  </data>
+  <data name="ConnectionSavedOnThisComputer" xml:space="preserve">
+    <value>Connection saved on this computer.</value>
+  </data>
+  <data name="Small" xml:space="preserve">
+    <value>Small</value>
+  </data>
+  <data name="CouldNotOpenTheBrowserTheAddressIsSteamgriddbComProfilePreferencesApi" xml:space="preserve">
+    <value>Could not open the browser. The address is steamgriddb.com/profile/preferences/api</value>
+  </data>
+  <data name="CopyYourSteamgriddbCodeAndPasteItHereToConnect" xml:space="preserve">
+    <value>Copy your SteamGridDB code and paste it here to connect.</value>
+  </data>
+  <data name="CheckingYourCodeWithSteamgriddb" xml:space="preserve">
+    <value>Checking your code with SteamGridDB…</value>
+  </data>
+  <data name="ConnectionVerifiedYouCanNowFindCovers" xml:space="preserve">
+    <value>Connection verified. You can now find covers.</value>
+  </data>
+  <data name="CouldNotConnectCheckYourInternetConnectionAndTryAgain" xml:space="preserve">
+    <value>Could not connect. Check your internet connection and try again.</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="Connect2" xml:space="preserve">
+    <value>Connect →</value>
+  </data>
+  <data name="FirstCopyYourCodeFromSteamgriddbThenComeBackAndChoosePaste" xml:space="preserve">
+    <value>First copy your code from SteamGridDB. Then come back and choose Paste.</value>
+  </data>
+  <data name="CouldNotPasteTheCodeTryCtrlVInTheConnectionField" xml:space="preserve">
+    <value>Could not paste the code. Try Ctrl+V in the connection field.</value>
+  </data>
+  <data name="CouldNotOpenTheDataFolder" xml:space="preserve">
+    <value>Could not open the data folder.</value>
+  </data>
+  <data name="Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="Large" xml:space="preserve">
+    <value>Large</value>
+  </data>
+  <data name="ExtraLarge" xml:space="preserve">
+    <value>Extra large</value>
+  </data>
+  <data name="Updating" xml:space="preserve">
+    <value>Updating…</value>
+  </data>
+  <data name="UpdatingCover" xml:space="preserve">
+    <value>Updating cover…</value>
+  </data>
+  <data name="Connecting" xml:space="preserve">
+    <value>Connecting…</value>
+  </data>
+  <data name="FewerOptions" xml:space="preserve">
+    <value>Fewer options</value>
+  </data>
+  <data name="Restore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="ViciotekCouldNotStartNN" xml:space="preserve">
+    <value>VICIOTEK could not start.
+
+</value>
+  </data>
+  <data name="OnlyLnkShortcutsExeProgramsOrUrlFilesCanBeAdded" xml:space="preserve">
+    <value>Only .lnk shortcuts, .exe programs or .url files can be added.</value>
+  </data>
+  <data name="WindowsCouldNotLaunchTheGame" xml:space="preserve">
+    <value>Windows could not launch the game.</value>
+  </data>
+  <data name="0Added" xml:space="preserve">
+    <value>“{0}” added.</value>
+  </data>
+  <data name="0GamesAdded" xml:space="preserve">
+    <value>{0} games added.</value>
+  </data>
+  <data name="1WasAlreadyInTheLibrary" xml:space="preserve">
+    <value> 1 was already in the library.</value>
+  </data>
+  <data name="0WereAlreadyInTheLibrary" xml:space="preserve">
+    <value> {0} were already in the library.</value>
+  </data>
+  <data name="1FileCouldNotBeAdded" xml:space="preserve">
+    <value> 1 file could not be added.</value>
+  </data>
+  <data name="0FilesCouldNotBeAdded" xml:space="preserve">
+    <value> {0} files could not be added.</value>
+  </data>
+  <data name="ShortcutsAndProgramsLnkExeUrlShortcutsLnkProgramsExeWebShortcutsUrlAllFiles" xml:space="preserve">
+    <value>Shortcuts and programs|*.lnk;*.exe;*.url|Shortcuts|*.lnk|Programs|*.exe|Web shortcuts|*.url|All files|*.*</value>
+  </data>
+  <data name="ProgramsAndShortcutsExeUrlAllFiles" xml:space="preserve">
+    <value>Programs and shortcuts|*.exe;*.url|All files|*.*</value>
+  </data>
+  <data name="LauncherLink" xml:space="preserve">
+    <value>Launcher link</value>
+  </data>
+  <data name="ExeUrlOrLauncherLink" xml:space="preserve">
+    <value>.exe, .url or launcher link</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="SystemDefault" xml:space="preserve">
+    <value>System default</value>
+  </data>
+  <data name="Spanish" xml:space="preserve">
+    <value>Español</value>
+  </data>
+  <data name="English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="ViciotekOpensSupportedLauncherShortcutsOnly" xml:space="preserve">
+    <value>VICIOTEK only opens shortcuts for supported launchers.</value>
+  </data>
+  <data name="TheLaunchArgumentsAreTooLong" xml:space="preserve">
+    <value>The launch arguments are too long.</value>
+  </data>
+  <data name="OnlyExeAndComFilesCanBeLaunched" xml:space="preserve">
+    <value>For safety, only .exe or .com programs can be launched.</value>
+  </data>
+  <data name="WindowsCouldNotLaunchGameWithError" xml:space="preserve">
+    <value>Windows could not launch the game (error {0}).</value>
+  </data>
+  <data name="UntitledGame" xml:space="preserve">
+    <value>Untitled game</value>
+  </data>
+</root>

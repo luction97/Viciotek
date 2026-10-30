@@ -1,7 +1,15 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.15**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.16**, C#/WPF/.NET 8 para Windows 11.
 
+## Español e inglés con selección automática — 1.1.16
+- Catálogos RESX de español neutro e inglés general, 221 pares de textos. ResourceManager estándar sin paquetes nuevos. UI XAML con bindings de localización reactivos; mensajes, validaciones, errores, importación, selectores de archivo, accesibilidad y tooltips traducidos. No se traducen los nombres/datos aportados por el usuario.
+- Al iniciar se elige por CurrentUICulture de Windows: es-* → español; en-* → inglés; otros idiomas → inglés. AppSettings.Language opcional/aditivo: null sigue Windows, es/en fuerza elección. No modifica CurrentCulture ni formatos regionales. library.json no cambia.
+- Configuración → Idioma: Sistema, Español, English, con selección marcada y semántica accesible. Listo guarda y aplica sin reiniciar. Cancelar y fallo de guardado conservan el idioma anterior; cambiar de idioma no dispara red ni modifica portadas. Preferencia antigua sin campo mantiene detección automática.
+- CONFIRMADO: build Release -warnaserror sin errores/advertencias; 251/251 tests. Diecisiete casos nuevos: variantes es-AR/es-ES/es-MX/es-419 y en-US/en-GB/en-AU, idioma no soportado, elección explícita, binding vivo, catálogos/variables de formato, persistencia/clone, guardar/cancelar/fallo. SteamGridSmoke offline PASS. Renders WPF reales en ambos idiomas inspeccionados para biblioteca y Configuración.
+- Publicación requiere el satélite en/Viciotek.resources.dll para evitar entregar un paquete sin inglés. Ambos ZIPs 1.1.16 pasan SmokePublished, SHA256 e iconos verificados. Instalador generado. SmokeInstaller intentado y bloqueado al instalar (salida 1): install.log confirma instancia personal 1.1.15 activa; no se llegó a actualizar/desinstalar ni se cerró esa instancia. Sin cambios a geometría, imágenes, selección, lanzamiento ni virtualización de portadas. Sin credenciales personales ni push.
+- Límites: mensajes nativos de Windows/errores externos dependen del sistema; no se cambia idioma de títulos propios. Matriz DPI/multimonitor y firma digital siguen pendientes.
+- Próximo paso concreto: cerrar la instancia personal y repetir SmokeInstaller; instalar 1.1.16 y probar Configuración → Idioma. Fuentes guardadas en Git sin push.
 ## Marca oficial integrada y publicación conjunta — 1.1.15
 - El propietario autoriza integrar su kit final y reanudar publicación. Icono canónico Assets/viciotek.ico: ocho marcos PNG 16/24/32/40/48/64/128/256 suministrados, sin regenerar ni redibujar. Referencias actualizadas en csproj, ventana, instalador y herramientas de generación/verificación. Se registra la eliminación del icono anterior, ya retirada por el propietario.
 - Logo RGBA suministrado en Acerca de (URI del ensamblado explícita) y junto a la marca de la barra (24 DIP, decodificación acotada a 48 px). Imágenes de panel lateral/cabecera originales incorporadas a Inno Setup. Accesos y Programas usan el icono del ejecutable. Vista previa y ZIP de entrega conservados fuera de Git/payload.

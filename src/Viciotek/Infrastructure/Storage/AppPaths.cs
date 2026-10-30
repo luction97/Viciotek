@@ -64,7 +64,7 @@ public sealed class AtomicJsonFile<T> where T : class
                 return new JsonReadResult<T>(null, null);
             }
 
-            return TryReadFile(_backupPath, "Se recuperó una copia de seguridad de los datos.");
+            return TryReadFile(_backupPath, L.Get("ABackupOfYourDataWasRestored"));
         }
 
         try
@@ -73,7 +73,7 @@ public sealed class AtomicJsonFile<T> where T : class
             var value = JsonSerializer.Deserialize<T>(json, AppJson.Options);
             if (value is null)
             {
-                throw new JsonException("El documento está vacío.");
+                throw new JsonException(L.Get("TheDocumentIsEmpty"));
             }
 
             return new JsonReadResult<T>(value, null);
@@ -83,10 +83,10 @@ public sealed class AtomicJsonFile<T> where T : class
             PreserveCorruptFile();
             if (File.Exists(_backupPath))
             {
-                return TryReadFile(_backupPath, "Los datos estaban dañados. Se recuperó la última copia segura.");
+                return TryReadFile(_backupPath, L.Get("TheSavedDataWasDamagedTheLatestSafeCopyWasRestored"));
             }
 
-            return new JsonReadResult<T>(null, "Los datos guardados estaban dañados y no se pudieron recuperar.");
+            return new JsonReadResult<T>(null, L.Get("TheSavedDataWasDamagedAndCouldNotBeRestored"));
         }
     }
 
@@ -165,12 +165,12 @@ public sealed class AtomicJsonFile<T> where T : class
             var json = File.ReadAllText(path);
             var value = JsonSerializer.Deserialize<T>(json, AppJson.Options);
             return value is null
-                ? new JsonReadResult<T>(null, "No se pudieron recuperar los datos guardados.")
+                ? new JsonReadResult<T>(null, L.Get("CouldNotRecoverTheSavedData"))
                 : new JsonReadResult<T>(value, warning);
         }
         catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException or NotSupportedException)
         {
-            return new JsonReadResult<T>(null, "No se pudieron recuperar los datos guardados.");
+            return new JsonReadResult<T>(null, L.Get("CouldNotRecoverTheSavedData"));
         }
     }
 

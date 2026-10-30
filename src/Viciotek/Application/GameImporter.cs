@@ -37,13 +37,13 @@ public sealed class GameImporter
             {
                 if (Directory.Exists(path))
                 {
-                    outcome.Problems.Add(new ImportProblem(path, "Las carpetas no se agregan. Arrastrá un ejecutable o un acceso directo."));
+                    outcome.Problems.Add(new ImportProblem(path, L.Get("FoldersCannotBeAddedDropAnExecutableOrAShortcut")));
                     continue;
                 }
 
                 if (!File.Exists(path))
                 {
-                    outcome.Problems.Add(new ImportProblem(path, "El archivo no existe."));
+                    outcome.Problems.Add(new ImportProblem(path, L.Get("TheFileDoesNotExist")));
                     continue;
                 }
 
@@ -52,7 +52,7 @@ public sealed class GameImporter
                     !extension.Equals(".exe", StringComparison.OrdinalIgnoreCase) &&
                     !extension.Equals(".url", StringComparison.OrdinalIgnoreCase))
                 {
-                    outcome.Problems.Add(new ImportProblem(path, "Formato no compatible. Usá .lnk, .exe o .url."));
+                    outcome.Problems.Add(new ImportProblem(path, L.Get("UnsupportedFormatUseLnkExeOrUrl")));
                     continue;
                 }
 
@@ -64,7 +64,7 @@ public sealed class GameImporter
 
                 if (creation.Game is null)
                 {
-                    outcome.Problems.Add(new ImportProblem(path, creation.Error ?? "No se pudo interpretar el destino."));
+                    outcome.Problems.Add(new ImportProblem(path, creation.Error ?? L.Get("CouldNotIdentifyTheDestination")));
                     continue;
                 }
 
@@ -73,7 +73,7 @@ public sealed class GameImporter
                 if (!keys.Add(duplicateKey))
                 {
                     outcome.DuplicateCount++;
-                    outcome.Problems.Add(new ImportProblem(path, "Ya está en la biblioteca."));
+                    outcome.Problems.Add(new ImportProblem(path, L.Get("AlreadyInTheLibrary")));
                     continue;
                 }
 
@@ -83,7 +83,7 @@ public sealed class GameImporter
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or InvalidOperationException or System.Runtime.InteropServices.COMException)
             {
-                outcome.Problems.Add(new ImportProblem(path, "No se pudo leer el archivo: " + exception.Message));
+                outcome.Problems.Add(new ImportProblem(path, L.Get("CouldNotReadTheFile") + exception.Message));
             }
         }
 
@@ -119,7 +119,7 @@ public sealed class GameImporter
         if (string.IsNullOrWhiteSpace(target))
         {
             return new CreationResult(null,
-                "El acceso directo no apunta a un ejecutable que VICIOTEK pueda iniciar.");
+                L.Get("TheShortcutDoesNotPointToAnExecutableViciotekCanLaunch"));
         }
 
         if (!LaunchTargetRules.IsAllowedProgram(target))
@@ -148,7 +148,7 @@ public sealed class GameImporter
     {
         if (!UrlShortcutReader.TryRead(urlPath, out var info, out var readError) || info is null)
         {
-            return new CreationResult(null, readError ?? "No se pudo leer el archivo .url.");
+            return new CreationResult(null, readError ?? L.Get("CouldNotReadTheUrlFile"));
         }
 
         return new CreationResult(new Game

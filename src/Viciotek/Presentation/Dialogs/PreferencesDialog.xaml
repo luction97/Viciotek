@@ -1,8 +1,9 @@
 <local:ViciotekDialogWindow x:Class="Viciotek.Presentation.Dialogs.PreferencesDialog"
                           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:Viciotek.Localization"
                           xmlns:local="clr-namespace:Viciotek.Presentation.Dialogs"
-                          Title="Configuración"
+                          Title="{loc:Text Settings}"
                           FontFamily="{StaticResource AppFont}" FontSize="14"
                           Foreground="{StaticResource TextPrimaryBrush}"
                           Width="660"
@@ -18,7 +19,7 @@
             <Grid Grid.Row="0"
                   Background="Transparent"
                   MouseLeftButtonDown="Header_MouseLeftButtonDown">
-                <TextBlock Text="Configuración"
+                <TextBlock Text="{loc:Text Settings}"
                            Margin="32,0,0,0"
                            VerticalAlignment="Center"
                            FontFamily="{StaticResource DisplayFont}"
@@ -33,7 +34,7 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         Margin="0,0,18,0"
-                        ToolTip="Cerrar"
+                        ToolTip="{loc:Text Close}"
                         Click="CancelButton_Click" />
             </Grid>
 
@@ -50,19 +51,19 @@
                         </Border>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <TextBlock Text="SteamGridDB" FontSize="15" FontWeight="Medium" />
-                            <TextBlock Text="Portadas automáticas para tus juegos. Opcional."
+                            <TextBlock Text="{loc:Text AutomaticCoversForYourGamesOptional}"
                                        Foreground="{StaticResource TextSecondaryBrush}" FontSize="14" TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Grid>
                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="24" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                         <TextBlock Text="1" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
-                    <Button Grid.Column="1" FontSize="14" Content="Obtener mi código ↗" Style="{StaticResource LinkButtonStyle}"
+                    <Button Grid.Column="1" FontSize="14" Content="{loc:Text GetMyCode}" Style="{StaticResource LinkButtonStyle}"
                             HorizontalAlignment="Left" Padding="0" Click="OpenSteamGridDb_Click" />
                     </Grid>
-                    <TextBlock Text="Iniciá sesión y copiá tu código «API Key»."
+                    <TextBlock Text="{loc:Text SignInAndCopyYourApiKeyCode}"
                                Style="{StaticResource FieldHintStyle}" FontSize="14" LineHeight="20" TextWrapping="Wrap"
                                Foreground="{StaticResource TextSecondaryBrush}" Margin="24,4,0,18" />
-                    <StackPanel Orientation="Horizontal"><TextBlock Text="2" Width="24" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" /><Label Content="Pegá el _código para conectar" Target="{Binding ElementName=ApiKeyBox}"
+                    <StackPanel Orientation="Horizontal"><TextBlock Text="2" Width="24" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" /><Label Content="{loc:Text PasteYourCodeToConnect}" Target="{Binding ElementName=ApiKeyBox}"
                            Foreground="{StaticResource TextSecondaryBrush}" Padding="0,0,0,10" /></StackPanel>
                     <Grid Margin="24,0,0,0">
                         <Grid.ColumnDefinitions>
@@ -71,14 +72,14 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <PasswordBox FontSize="15" x:Name="ApiKeyBox"
-                                     AutomationProperties.Name="Código de conexión de SteamGridDB"
+                                     AutomationProperties.Name="{loc:Text SteamgriddbConnectionCode}"
                                      PasswordChanged="ApiKeyBox_PasswordChanged"
                                      Style="{StaticResource FormPasswordBoxStyle}" />
                         <Button FontSize="14" x:Name="PasteButton" Grid.Column="1" Content="&#xE77F;" FontFamily="{StaticResource IconFont}"
                                 Style="{StaticResource IconButtonStyle}"
-                                Margin="8,0,0,0" VerticalAlignment="Center" ToolTip="Pegar código"
+                                Margin="8,0,0,0" VerticalAlignment="Center" ToolTip="{loc:Text PasteCode}"
                                 Click="PasteCode_Click" />
-                        <Button FontSize="14" x:Name="VerifyButton" Grid.Column="2" Content="Conectar"
+                        <Button FontSize="14" x:Name="VerifyButton" Grid.Column="2" Content="{loc:Text Connect}"
                                 Style="{StaticResource PrimaryButtonStyle}" Margin="4,0,0,0"
                                 IsEnabled="False" Click="VerifyConnection_Click" />
                     </Grid>
@@ -86,6 +87,28 @@
                                Foreground="{StaticResource TextSecondaryBrush}" Margin="24,10,0,0"
                                Visibility="Collapsed" AutomationProperties.LiveSetting="Polite" />
                     </StackPanel></Border>
+                                        <Button x:Name="LanguageButton" AutomationProperties.Name="{loc:Text Language}" Style="{StaticResource GhostButtonStyle}" HorizontalAlignment="Left"
+                            Padding="0" Margin="0,12,0,0" Click="LanguageButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{loc:Text Language}" />
+                            <TextBlock Text=" · " />
+                            <TextBlock x:Name="SelectedLanguageText" />
+                            <TextBlock Text="⌄" Margin="10,0,0,0" />
+                        </StackPanel>
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem x:Name="SystemLanguageItem" IsCheckable="True" Header="{loc:Text SystemDefault}" Tag="auto" Click="LanguageChoice_Click">
+                                    <MenuItem.Icon><TextBlock x:Name="SystemLanguageCheck" Text="✓" /></MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem x:Name="SpanishLanguageItem" IsCheckable="True" Header="Español" Tag="es" Click="LanguageChoice_Click">
+                                    <MenuItem.Icon><TextBlock x:Name="SpanishLanguageCheck" Text="✓" /></MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem x:Name="EnglishLanguageItem" IsCheckable="True" Header="English" Tag="en" Click="LanguageChoice_Click">
+                                    <MenuItem.Icon><TextBlock x:Name="EnglishLanguageCheck" Text="✓" /></MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
                     <Expander x:Name="LibraryOptions" IsExpanded="False" Margin="0,20,0,4"
                               Foreground="{StaticResource TextPrimaryBrush}"
                               FontSize="14" FocusVisualStyle="{StaticResource FocusRingStyle}">
@@ -93,7 +116,7 @@
                             <ControlTemplate TargetType="{x:Type Expander}">
                                 <StackPanel>
                                     <ToggleButton x:Name="OptionsToggle" Background="Transparent"
-                                                  AutomationProperties.Name="Mostrar u ocultar más opciones"
+                                                  AutomationProperties.Name="{loc:Text ShowOrHideMoreOptions}"
                                                   Foreground="{StaticResource TextSecondaryBrush}" BorderThickness="0"
                                                   HorizontalAlignment="Left" Padding="0,8" Cursor="Hand"
                                                   IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
@@ -102,7 +125,7 @@
                                             <ControlTemplate TargetType="{x:Type ToggleButton}">
                                                 <Border Background="Transparent" Padding="{TemplateBinding Padding}">
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock x:Name="OptionsLabel" Opacity="0.82" Text="Más opciones" />
+                                                        <TextBlock x:Name="OptionsLabel" Opacity="0.82" Text="{loc:Text MoreOptions}" />
                                                         <TextBlock x:Name="Chevron" Text="⌄" Margin="10,0,0,0" />
                                                     </StackPanel>
                                                 </Border>
@@ -112,7 +135,7 @@
                                                         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
                                                     </Trigger>
                                                     <Trigger Property="IsChecked" Value="True">
-                                                        <Setter TargetName="OptionsLabel" Property="Text" Value="Menos opciones" />
+                                                        <Setter TargetName="OptionsLabel" Property="Text" Value="{loc:Text FewerOptions}" />
                                                         <Setter TargetName="Chevron" Property="Text" Value="⌃" />
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
@@ -129,27 +152,27 @@
                             </ControlTemplate>
                         </Expander.Template>
                         <Border Style="{StaticResource DialogSectionStyle}"><StackPanel>
-                            <TextBlock Text="Biblioteca" FontSize="15" FontWeight="Medium"
+                            <TextBlock Text="{loc:Text Library}" FontSize="15" FontWeight="Medium"
                                        Foreground="{StaticResource TextPrimaryBrush}" Margin="0" />
                             <CheckBox x:Name="AutoFetchCheckBox"
-                                      Content="Buscar portadas automáticamente al agregar juegos"
+                                      Content="{loc:Text FindCoversAutomaticallyWhenAddingGames}"
                                       Style="{StaticResource CheckBoxStyle}" Margin="0,10,0,0" />
 
                             <CheckBox x:Name="AnimationsCheckBox"
-                                      Content="Efecto al pasar el cursor sobre las portadas"
+                                      Content="{loc:Text HoverEffectOnCovers}"
                                       Style="{StaticResource CheckBoxStyle}" Margin="0,10,0,0" />
 
                             <Grid Margin="0,18,0,8">
-                                <TextBlock Text="Tamaño de las portadas" />
+                                <TextBlock Text="{loc:Text CoverSize}" />
                                 <TextBlock x:Name="CoverSizeLabel" HorizontalAlignment="Right"
                                            Foreground="{StaticResource TextSecondaryBrush}" />
                             </Grid>
                             <Slider x:Name="CoverSizeSlider" Minimum="0" Maximum="3" TickFrequency="1"
                                     IsSnapToTickEnabled="True" IsMoveToPointEnabled="True"
                                     SmallChange="1" LargeChange="1" Value="2"
-                                    AutomationProperties.Name="Tamaño de las portadas"
+                                    AutomationProperties.Name="{loc:Text CoverSize}"
                                     Style="{StaticResource CoverSizeSliderStyle}" ValueChanged="CoverSizeSlider_ValueChanged" />
-                            <Label Content="_Datos locales" Target="{Binding ElementName=DataPathBox}"
+                            <Label Content="{loc:Text LocalData}" Target="{Binding ElementName=DataPathBox}"
                                    FontSize="15" FontWeight="Medium" Padding="0"
                                    Foreground="{StaticResource TextPrimaryBrush}" Margin="0,18,0,8" />
                             <Grid>
@@ -157,9 +180,9 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <TextBox x:Name="DataPathBox" AutomationProperties.Name="Carpeta de datos locales"
+                                <TextBox x:Name="DataPathBox" AutomationProperties.Name="{loc:Text LocalDataFolder}"
                                          Style="{StaticResource FormTextBoxStyle}" IsReadOnly="True" Background="Transparent" BorderBrush="Transparent" Padding="0" />
-                                <Button FontSize="14" Grid.Column="1" Content="Abrir carpeta"
+                                <Button FontSize="14" Grid.Column="1" Content="{loc:Text OpenFolder}"
                                         Style="{StaticResource GhostButtonStyle}" Height="38"
                                         Margin="8,0,0,0" Click="OpenDataFolder_Click" />
                             </Grid>
@@ -173,7 +196,7 @@
 
             <Border Grid.Row="2">
                 <Grid Margin="32,0">
-                    <Button FontSize="14" x:Name="AboutButton" Content="Acerca de VICIOTEK"
+                    <Button FontSize="14" x:Name="AboutButton" Content="{loc:Text AboutViciotek}"
                             Style="{StaticResource GhostButtonStyle}"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center"
@@ -181,7 +204,7 @@
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center">
-                        <Button FontSize="14" x:Name="SaveButton" Content="Listo"
+                        <Button FontSize="14" x:Name="SaveButton" Content="{loc:Text Done}"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 Margin="8,0,0,0"
                                 IsDefault="True"

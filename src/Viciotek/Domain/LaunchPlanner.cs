@@ -30,18 +30,18 @@ public static class LaunchPlanner
     {
         if (game is null)
         {
-            return LaunchValidation.Invalid("El juego no es válido.");
+            return LaunchValidation.Invalid(L.Get("TheGameIsNotValid"));
         }
 
         if (string.IsNullOrWhiteSpace(game.Name))
         {
-            return LaunchValidation.Invalid("El juego no tiene nombre.");
+            return LaunchValidation.Invalid(L.Get("TheGameHasNoName"));
         }
 
         var launchPath = (game.LaunchPath ?? string.Empty).Trim();
         if (launchPath.Length == 0)
         {
-            return LaunchValidation.Invalid("El juego no tiene un destino configurado.");
+            return LaunchValidation.Invalid(L.Get("TheGameHasNoDestinationSet"));
         }
 
         return game.LaunchKind switch
@@ -56,7 +56,7 @@ public static class LaunchPlanner
     {
         if (!ProtocolPolicy.TryValidate(launchPath, out var uri, out var error))
         {
-            return LaunchValidation.Invalid(error ?? "El protocolo no es válido.");
+            return LaunchValidation.Invalid(error ?? L.Get("TheProtocolIsNotValid"));
         }
 
         return LaunchValidation.Valid(new LaunchPlan(uri.AbsoluteUri, null, null, LaunchMode.Shell));
@@ -67,14 +67,14 @@ public static class LaunchPlanner
         if (!File.Exists(shortcutPath))
         {
             return LaunchValidation.Invalid(
-                "El acceso directo ya no existe. Editá el juego para elegir un destino válido.");
+                L.Get("TheShortcutNoLongerExistsEditTheGameToChooseAValidDestination"));
         }
 
         var extension = Path.GetExtension(shortcutPath);
         if (!string.Equals(extension, ".lnk", StringComparison.OrdinalIgnoreCase) &&
             !string.Equals(extension, ".url", StringComparison.OrdinalIgnoreCase))
         {
-            return LaunchValidation.Invalid("El destino no es un acceso directo compatible.");
+            return LaunchValidation.Invalid(L.Get("TheDestinationIsNotASupportedShortcut"));
         }
 
         return LaunchValidation.Valid(new LaunchPlan(shortcutPath, null, null, LaunchMode.Shell));
@@ -89,23 +89,23 @@ public static class LaunchPlanner
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
-            return LaunchValidation.Invalid("La ruta del ejecutable no es válida.");
+            return LaunchValidation.Invalid(L.Get("TheExecutablePathIsNotValid"));
         }
 
         if (!LaunchTargetRules.IsAllowedProgram(fullPath))
         {
-            return LaunchValidation.Invalid("Por seguridad, solo se pueden iniciar ejecutables .exe o .com.");
+            return LaunchValidation.Invalid(L.Get("OnlyExeAndComFilesCanBeLaunched"));
         }
 
         if (!File.Exists(fullPath))
         {
             return LaunchValidation.Invalid(
-                "El ejecutable ya no existe en esa ubicación. Editá el juego para elegir otro destino.");
+                L.Get("TheExecutableNoLongerExistsAtThatLocationEditTheGameToChooseAnotherDestination"));
         }
 
         if ((game.Arguments?.Length ?? 0) > 16_000)
         {
-            return LaunchValidation.Invalid("Los argumentos son demasiado largos.");
+            return LaunchValidation.Invalid(L.Get("TheLaunchArgumentsAreTooLong"));
         }
 
         var workingDirectory = game.WorkingDirectory;

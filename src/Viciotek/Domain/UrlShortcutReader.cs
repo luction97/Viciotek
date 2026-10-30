@@ -16,13 +16,13 @@ public static class UrlShortcutReader
             var fileInfo = new FileInfo(path);
             if (!fileInfo.Exists)
             {
-                error = "El archivo no existe.";
+                error = L.Get("TheFileDoesNotExist");
                 return false;
             }
 
             if (fileInfo.Length > MaxFileSize)
             {
-                error = "El archivo .url es demasiado grande.";
+                error = L.Get("TheUrlFileIsTooLarge");
                 return false;
             }
 
@@ -58,7 +58,7 @@ public static class UrlShortcutReader
 
             if (string.IsNullOrWhiteSpace(url))
             {
-                error = "El archivo .url no contiene un destino.";
+                error = L.Get("TheUrlFileDoesNotContainADestination");
                 return false;
             }
 
@@ -87,7 +87,7 @@ public static class UrlShortcutReader
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or PathTooLongException)
         {
-            error = "No se pudo leer el archivo .url.";
+            error = L.Get("CouldNotReadTheUrlFile");
             return false;
         }
     }

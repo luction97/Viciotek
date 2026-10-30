@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using Viciotek.Application;
@@ -24,6 +24,7 @@ public partial class App : System.Windows.Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        L.Use(null);
         ShutdownMode = ShutdownMode.OnMainWindowClose;
 
         DispatcherUnhandledException += OnDispatcherUnhandledException;
@@ -47,6 +48,7 @@ public partial class App : System.Windows.Application
             var settingsStore = new SettingsStore(paths);
             var libraryStore = new LibraryStore(paths);
             var (settings, settingsWarning) = settingsStore.Load();
+            L.Use(settings.Language);
             var (games, libraryWarning) = libraryStore.Load();
             var startupWarning = JoinWarnings(settingsWarning, libraryWarning);
 
@@ -85,8 +87,8 @@ public partial class App : System.Windows.Application
         {
             Log(exception, "Inicio");
             MessageBox.Show(
-                "VICIOTEK no pudo iniciar.\n\n" + exception.Message +
-                (_logPath is null ? string.Empty : $"\n\nDetalle técnico: {_logPath}"),
+                L.Get("ViciotekCouldNotStartNN") + exception.Message +
+                (_logPath is null ? string.Empty : L.Get("NNtechnicalDetails0", _logPath)),
                 "VICIOTEK",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
@@ -98,8 +100,8 @@ public partial class App : System.Windows.Application
     {
         Log(e.Exception, "Interfaz");
         MessageBox.Show(
-            "VICIOTEK encontró un problema inesperado, pero la ventana sigue abierta.\n\n" + e.Exception.Message +
-            (_logPath is null ? string.Empty : $"\n\nDetalle técnico: {_logPath}"),
+            L.Get("ViciotekEncounteredAnUnexpectedProblemButTheWindowIsStillOpenNN") + e.Exception.Message +
+            (_logPath is null ? string.Empty : L.Get("NNtechnicalDetails0", _logPath)),
             "VICIOTEK",
             MessageBoxButton.OK,
             MessageBoxImage.Warning);

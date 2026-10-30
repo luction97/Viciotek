@@ -131,7 +131,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
     }
 
-    public string NoResultsText => "Sin resultados";
+    public string NoResultsText => L.Get("NoResults");
 
     public bool ShowEmptyState => Games.Count == 0;
     public bool ShowCoverSetupHint => ShowEmptyState && !IsSteamGridConfigured;
@@ -179,10 +179,10 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     }
 
     public void ShowImageDropHint() =>
-        ShowToast("Elegí una portada para esta imagen.", isError: false);
+        ShowToast(L.Get("ChooseACoverForThisImage"), isError: false);
 
     public void ShowUnsupportedDropHint() =>
-        ShowToast("Solo se pueden agregar accesos .lnk, ejecutables .exe o archivos .url.", isError: true);
+        ShowToast(L.Get("OnlyLnkShortcutsExeProgramsOrUrlFilesCanBeAdded"), isError: true);
 
     public void SetCoverDropTarget(GameCardViewModel? card)
     {
@@ -298,14 +298,14 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             {
                 _launchRequested = false;
                 card.IsLaunching = false;
-                ShowToast(result.Error ?? "Windows no pudo iniciar el juego.", isError: true);
+                ShowToast(result.Error ?? L.Get("WindowsCouldNotLaunchTheGame"), isError: true);
             }
         }
         catch (Exception exception)
         {
             _launchRequested = false;
             card.IsLaunching = false;
-            ShowToast("No se pudo iniciar el juego: " + exception.Message, isError: true);
+            ShowToast(L.Get("CouldNotLaunchTheGame") + exception.Message, isError: true);
         }
     }
 
@@ -346,7 +346,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
         if (!_steamGrid.IsConfigured)
         {
-            ShowToast("Conectá SteamGridDB en Configuración (Ctrl+,) para buscar portadas.", isError: false);
+            ShowToast(L.Get("ConnectSteamgriddbInSettingsCtrlToFindCovers"), isError: false);
             return;
         }
 
@@ -368,7 +368,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
         catch (Exception)
         {
-            ShowToast("No se pudo obtener la portada automática.", isError: true);
+            ShowToast(L.Get("CouldNotGetACoverAutomatically"), isError: true);
         }
     }
 
@@ -385,7 +385,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
         if (!_steamGrid.IsConfigured)
         {
-            ShowToast("Conectá SteamGridDB en Configuración (Ctrl+,) para buscar portadas.", isError: false);
+            ShowToast(L.Get("ConnectSteamgriddbInSettingsCtrlToFindCovers"), isError: false);
             return;
         }
 
@@ -394,7 +394,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         try
         {
             if (!Games.Contains(card) || card.IsBusy || (manualFallback && card.Model.CoverFileName is not null)) return;
-            card.SetBusy("Buscando portadas…");
+            card.SetBusy(L.Get("FindingCovers"));
             ownsBusyState = true;
             var before = card.Model.Clone();
             var resolved = await Task.Run(() => _importer.ResolveIdentityForCoverSearch(before), _lifetime.Token);
@@ -420,7 +420,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
         catch (Exception)
         {
-            ShowToast("No se pudo obtener la portada.", isError: true);
+            ShowToast(L.Get("CouldNotGetTheCover"), isError: true);
         }
         finally
         {
@@ -488,7 +488,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                 UpdateViewState();
                 await PruneCoversAsync();
             }
-            ReportSaveFailure(saved, "No se pudieron guardar los cambios.");
+            ReportSaveFailure(saved, L.Get("CouldNotSaveTheChanges"));
         }
         finally
         {
@@ -522,7 +522,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                 UpdateViewState();
                 await PruneCoversAsync();
             }
-            ReportSaveFailure(saved, "No se pudo guardar el cambio.");
+            ReportSaveFailure(saved, L.Get("CouldNotSaveTheChange"));
         }
         finally
         {
@@ -563,7 +563,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             var saved = outcome.Added.Count == 0 || await PersistAsync(existing.Concat(outcome.Added).ToList());
             if (!saved)
             {
-                ShowToast("No se pudieron guardar los juegos.", isError: true);
+                ShowToast(L.Get("CouldNotSaveTheGames"), isError: true);
                 return;
             }
 
@@ -595,7 +595,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
         catch (Exception exception)
         {
-            ShowToast("No se pudieron agregar los juegos: " + exception.Message, isError: true);
+            ShowToast(L.Get("CouldNotAddTheGames") + exception.Message, isError: true);
         }
         finally
         {
@@ -632,6 +632,9 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             _settings.AutoFetchCovers = updated.AutoFetchCovers;
             _settings.AnimationsEnabled = updated.AnimationsEnabled;
             _settings.CoverSizePreset = updated.CoverSizePreset;
+            _settings.Language = updated.Language;
+            L.Use(_settings.Language);
+            OnPropertyChanged(nameof(NoResultsText));
             _steamGrid.UpdateApiKey(_settings.SteamGridDbApiKey);
             OnPropertyChanged(nameof(IsSteamGridConfigured));
             OnPropertyChanged(nameof(ShowCoverSetupHint));
@@ -641,7 +644,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            ShowToast("No se pudieron guardar las preferencias.", isError: true);
+            ShowToast(L.Get("CouldNotSaveTheSettings"), isError: true);
         }
     }
 
@@ -652,12 +655,12 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             return;
         }
 
-        card.SetBusy("Actualizando portada…");
+        card.SetBusy(L.Get("UpdatingCover"));
         try
         {
             var saved = await CommitCoverAsync(card, () => _covers.SetFromFileAsync(
                 card.Model.Id, imagePath, card.Model.CoverFileName, _lifetime.Token));
-            ReportSaveFailure(saved, "No se pudo guardar la portada.");
+            ReportSaveFailure(saved, L.Get("CouldNotSaveTheCover"));
         }
         catch (OperationCanceledException)
         {
@@ -668,7 +671,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
         catch (Exception)
         {
-            ShowToast("No se pudo actualizar la portada.", isError: true);
+            ShowToast(L.Get("CouldNotUpdateTheCover"), isError: true);
         }
         finally
         {
@@ -763,7 +766,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                     return; // Do not retry the whole batch on auth, network, or rate-limit errors.
                 }
                 catch (CoverImageException exception) { ShowToast(exception.Message, isError: true); }
-                catch (Exception) { ShowToast("No se pudo obtener la portada automática.", isError: true); return; }
+                catch (Exception) { ShowToast(L.Get("CouldNotGetACoverAutomatically"), isError: true); return; }
             }
         }
         finally { _automaticGate.Release(); }
@@ -798,7 +801,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             onlyIfMissing: true, identity: identity, resolvedMetadata: resolved,
             canCommit: () => !card.IsBusy && SameIdentity(card.Model, before));
         if (!saved && SameIdentity(card.Model, before) && card.Model.CoverFileName is null)
-            ShowToast("No se pudo guardar la portada.", isError: true);
+            ShowToast(L.Get("CouldNotSaveTheCover"), isError: true);
         return false;
     }
 
@@ -886,27 +889,27 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         if (outcome.Added.Count > 0)
         {
             message = outcome.Added.Count == 1
-                ? $"«{outcome.Added[0].Name}» agregado."
-                : $"{outcome.Added.Count} juegos agregados.";
+                ? L.Get("0Added", outcome.Added[0].Name)
+                : L.Get("0GamesAdded", outcome.Added.Count);
             if (outcome.DuplicateCount > 0)
             {
                 message += outcome.DuplicateCount == 1
-                    ? " 1 ya estaba en la biblioteca."
-                    : $" {outcome.DuplicateCount} ya estaban en la biblioteca.";
+                    ? L.Get("1WasAlreadyInTheLibrary")
+                    : L.Get("0WereAlreadyInTheLibrary", outcome.DuplicateCount);
             }
 
             if (errors > 0)
             {
                 message += errors == 1
-                    ? " 1 archivo no se pudo agregar."
-                    : $" {errors} archivos no se pudieron agregar.";
+                    ? L.Get("1FileCouldNotBeAdded")
+                    : L.Get("0FilesCouldNotBeAdded", errors);
             }
         }
         else if (outcome.DuplicateCount > 0 && errors == 0)
         {
             message = outcome.DuplicateCount == 1
-                ? "Ese juego ya está en la biblioteca."
-                : "Esos juegos ya están en la biblioteca.";
+                ? L.Get("ThatGameIsAlreadyInTheLibrary")
+                : L.Get("ThoseGamesAreAlreadyInTheLibrary");
         }
         else if (outcome.Problems.Count > 0)
         {
@@ -914,25 +917,25 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             message = $"{Path.GetFileName(first.Path)}: {first.Message}";
             if (outcome.Problems.Count > 1)
             {
-                message += $" (+{outcome.Problems.Count - 1} más)";
+                message += L.Get("0More", outcome.Problems.Count - 1);
             }
 
             isError = true;
         }
         else
         {
-            message = "No se agregó ningún juego.";
+            message = L.Get("NoGamesWereAdded");
             isError = true;
         }
 
         if (!saved)
         {
-            message += " No se pudo guardar la biblioteca.";
+            message += L.Get("CouldNotSaveTheLibrary");
             isError = true;
         }
 
         if (outcome.Added.Count > 0 && _settings.AutoFetchCovers && !_steamGrid.IsConfigured)
-            message += " Configurá SteamGridDB en Configuración para buscar portadas.";
+            message += L.Get("SetUpSteamgriddbInSettingsToFindCovers");
 
         return new ImportToast(message, isError);
     }
