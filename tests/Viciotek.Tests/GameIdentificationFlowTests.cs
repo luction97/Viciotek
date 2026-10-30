@@ -14,6 +14,34 @@ namespace Viciotek.Tests;
 
 public sealed class GameIdentificationFlowTests
 {
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public Task PickerAndDrop_ShortcutImportsFetchCoverAndPreserveLaunchDetails(bool pick) => WpfTest.RunAsync(async () =>
+    {
+        var target = @"C:\Fixture\mk.exe";
+        await using var fixture = new Fixture(shortcuts: new FixedShortcut(target), metadata: new EmptyMetadata());
+        var shortcut = fixture.CreateExecutable("Mortal Kombat 1.lnk");
+        if (pick)
+        {
+            fixture.Dialogs.FilesToPick = [shortcut];
+            await fixture.ViewModel.AddGamesFromDialogAsync();
+        }
+        else await fixture.ViewModel.HandleDroppedFilesAsync([shortcut]);
+        var card = Assert.Single(fixture.ViewModel.Games);
+        await WpfTest.WaitUntilAsync(() => card.Model.CoverFileName is not null);
+        var saved = Assert.Single(fixture.Library.Load().Games);
+        Assert.Equal("Mortal Kombat 1", saved.Name);
+        Assert.Equal(shortcut, saved.ShortcutPath);
+        Assert.Equal(target, saved.LaunchPath);
+        Assert.Equal("--fixture", saved.Arguments);
+        Assert.Equal(@"C:\Fixture", saved.WorkingDirectory);
+        Assert.Equal(42, saved.SteamGridDbGameId);
+        Assert.Contains(fixture.Handler.Requests, uri => uri.AbsolutePath.Contains("/search/autocomplete/Mortal%20Kombat%201"));
+        Assert.True(File.Exists(card.CoverPath));
+        Assert.Equal(0, fixture.Dialogs.Count);
+    });
+
     [Fact]
     public Task ChangeCover_WebWithoutConnection_OpensSettingsAndHonorsCancel() => WpfTest.RunAsync(async () =>
     {
@@ -423,12 +451,13 @@ public sealed class GameIdentificationFlowTests
         public Handler Handler { get; }
 
         public Fixture(bool autoFetch = true, Func<HttpRequestMessage, HttpResponseMessage>? response = null,
-            IReadOnlyList<Game>? games = null, string? apiKey = "fixture-key")
+            IReadOnlyList<Game>? games = null, string? apiKey = "fixture-key",
+            IShortcutResolver? shortcuts = null, IGameMetadataReader? metadata = null)
         {
             Paths.EnsureCreated();
             Library = new(Paths);
             Handler = new(response ?? DefaultResponse);
-            var importer = new GameImporter(new NoShortcuts(), new GameIdentityResolver(new Metadata()));
+            var importer = new GameImporter(shortcuts ?? new NoShortcuts(), new GameIdentityResolver(metadata ?? new Metadata()));
             ViewModel = new(games ?? [], new AppSettings { AutoFetchCovers = autoFetch }, Library, new SettingsStore(Paths),
                 importer, new GameLauncher(), new CoverStore(Paths), new SteamGridDbClient(apiKey, Handler), Dialogs, null);
         }
@@ -461,11 +490,16 @@ public sealed class GameIdentificationFlowTests
     }
     private sealed class NoShortcuts : IShortcutResolver
     { public ShortcutInfo Resolve(string shortcutPath) => throw new NotSupportedException(); }
+    private sealed class FixedShortcut(string target) : IShortcutResolver
+    { public ShortcutInfo Resolve(string shortcutPath) => new(target, "--fixture", @"C:\Fixture"); }
+    private sealed class EmptyMetadata : IGameMetadataReader
+    { public LocalGameMetadata Read(Game game) => new(); }
     private sealed class Metadata : IGameMetadataReader
     { public LocalGameMetadata Read(Game game) => new(InstallationFolder: "Mortal Kombat 1"); }
 
     private sealed class Dialogs : IDialogService
     {
+        public string[]? FilesToPick { get; set; }
         public CoverSource? Source { get; set; } = CoverSource.Local;
         public CoverSource? ChooseCoverSource(bool connected, bool canChooseAutomatically) => Source;
         public int PreferenceCount { get; private set; }
@@ -480,7 +514,7 @@ public sealed class GameIdentificationFlowTests
             LastWasFallback = manualFallback;
             if (OnOpen is not null) await OnOpen(game, apply, manualFallback, cancellationToken);
         }
-        public string[]? PickGameFiles() => null;
+        public string[]? PickGameFiles() => FilesToPick;
         public string? PickCoverFile() => null;
         public GameEditResult? EditGame(Game game) => EditResult;
         public bool ConfirmRemove(string gameName) => false;

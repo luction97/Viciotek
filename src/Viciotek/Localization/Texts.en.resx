@@ -675,4 +675,7 @@ Technical details: {0}</value>
   <data name="DragGamesToAdd" xml:space="preserve"><value>Drag your games here to add them</value></data>
   <data name="ShortcutsOrExecutables" xml:space="preserve"><value>Shortcuts or executable files</value></data>
   <data name="ReleaseToAdd" xml:space="preserve"><value>Drop to add</value></data>
+  <data name="DragShortcutToStart" xml:space="preserve"><value>Drag a shortcut or executable here to get started.</value></data>
+  <data name="ForAutomaticCovers" xml:space="preserve"><value>To get covers automatically:</value></data>
+  <data name="ConnectSteamGridOptional" xml:space="preserve"><value>Connect SteamGridDB (optional)</value></data>
 </root>

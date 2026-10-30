@@ -1,6 +1,13 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.20**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.21**, C#/WPF/.NET 8 para Windows 11.
+
+## Accesos directos intactos y conexión opcional visible — 1.1.21
+- CONFIRMADO: el selector compartido tenía DereferenceLinks=true por defecto. Ahora conserva la ruta .lnk mediante DereferenceLinks=false: el importador puede leer nombre, argumentos y directorio originales igual que al arrastrar. Sin cambios al algoritmo de búsqueda ni a la condición de automatismo (conexión configurada y AutoFetchCovers activo). INFERIDO: la pérdida de identidad por resolver el acceso directo explica la diferencia reportada; no se accede al archivo personal del caso.
+- Regresión del selector reproducida en rojo antes del arreglo. Dos casos de importación con resolver/HTTP simulados verifican elegir/arrastrar, consulta por nombre descriptivo del acceso, portada guardada y datos de lanzamiento preservados. CONFIRMADO: 270/270 tests; seis casos de bienvenida comprueban layout y conexión visible/oculta en es/en, incluyendo viewport pequeño.
+- Bienvenida: «Todos tus juegos en un solo lugar», una sola instrucción de arrastre y Elegir juego. Si falta conexión muestra Conectar SteamGridDB (opcional), abre Configuración con el instructivo existente y desaparece al conectarse. No abre modales ni red al iniciar, y no impide agregar sin conexión. Revisión visual de MainWindow real a 1280×800/760×540 en es/en con datos aislados.
+- Entrega CONFIRMADA: build Release -warnaserror limpio; ambos ZIPs con SmokePublished PASS, SHA256 e iconos oficiales verificados; instalador generado. SmokeInstaller intentado y detenido en instalación (salida 1): install.log confirma bloqueo por VICIOTEK abierto, proceso 8160 desde dist/1.1.20-framework-dependent; no se cierra esa instancia. Actualizar/desinstalar con el paquete nuevo no se llegó a probar.
+- Próximo paso concreto: cerrar la instancia personal y repetir SmokeInstaller; probar elegir el acceso directo original con la cuenta propia. Sin pruebas con red/cuenta reales ni acceso a datos personales. Fuentes guardadas en Git sin push.
 
 ## Bienvenida visible e importación directa — 1.1.20
 - Ajuste posterior de texto elegido por el propietario: «Todos tus juegos en un solo lugar» / «All your games in one place». CONFIRMADO: build Release -warnaserror limpio y 21/21 pruebas de localización/layout aprobadas. Cambio en fuentes; los paquetes 1.1.20 ya generados conservan el título anterior. Próximo paso: incorporar el texto en la siguiente distribución.

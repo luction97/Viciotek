@@ -29,6 +29,8 @@ public partial class AddGamesDialog : ViciotekDialogWindow
         Title = L.Get("ChooseGames"),
         Multiselect = true,
         CheckFileExists = true,
+        // Keep the selected shortcut: its title, arguments and launcher identity matter.
+        DereferenceLinks = false,
         Filter = L.Get("ShortcutsAndProgramsLnkExeUrlShortcutsLnkProgramsExeWebShortcutsUrlAllFiles")
     };
 

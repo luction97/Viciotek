@@ -675,4 +675,7 @@ Detalle técnico: {0}</value>
   <data name="DragGamesToAdd" xml:space="preserve"><value>Arrastra aquí tus juegos para agregarlos</value></data>
   <data name="ShortcutsOrExecutables" xml:space="preserve"><value>Accesos directos o archivos ejecutables</value></data>
   <data name="ReleaseToAdd" xml:space="preserve"><value>Suelta para agregar</value></data>
+  <data name="DragShortcutToStart" xml:space="preserve"><value>Arrastra aquí un acceso directo o ejecutable para empezar.</value></data>
+  <data name="ForAutomaticCovers" xml:space="preserve"><value>Para obtener portadas automáticamente:</value></data>
+  <data name="ConnectSteamGridOptional" xml:space="preserve"><value>Conectar SteamGridDB (opcional)</value></data>
 </root>

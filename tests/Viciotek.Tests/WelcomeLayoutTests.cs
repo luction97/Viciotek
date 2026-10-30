@@ -10,11 +10,13 @@ namespace Viciotek.Tests;
 public sealed class WelcomeLayoutTests
 {
     [Theory]
-    [InlineData("es", 760, 440)]
-    [InlineData("en", 760, 440)]
-    [InlineData("es", 1280, 700)]
-    [InlineData("en", 1920, 1000)]
-    public Task Welcome_IsReadableAndFitsTheLibraryViewport(string language, double width, double height) => WpfTest.RunAsync(async () =>
+    [InlineData("es", 760, 440, false)]
+    [InlineData("en", 760, 440, false)]
+    [InlineData("es", 1280, 700, false)]
+    [InlineData("en", 1920, 1000, false)]
+    [InlineData("es", 760, 440, true)]
+    [InlineData("en", 760, 440, true)]
+    public Task Welcome_IsReadableAndFitsTheLibraryViewport(string language, double width, double height, bool connected) => WpfTest.RunAsync(async () =>
     {
         var previous = Language.Code;
         Language.Use(language);
@@ -38,7 +40,7 @@ public sealed class WelcomeLayoutTests
         window.Width = width; window.Height = height;
         window.WindowStyle = WindowStyle.None; window.ResizeMode = ResizeMode.NoResize;
         window.Left = -3000; window.ShowInTaskbar = false; window.ShowActivated = false;
-        window.DataContext = new { ShowEmptyState = true };
+        window.DataContext = new { ShowEmptyState = true, ShowCoverSetupHint = !connected };
         try
         {
             window.Show(); window.UpdateLayout();
@@ -54,15 +56,19 @@ public sealed class WelcomeLayoutTests
                 Assert.InRange(bounds.Bottom, 0, height);
             }
             var texts = content.Children.OfType<TextBlock>().ToArray();
-            Assert.Equal(3, texts.Length);
+            Assert.Equal(2, texts.Length);
             Assert.True(texts[0].FontSize >= 32);
             Assert.True(texts[1].FontSize >= 20);
-            Assert.True(texts[2].FontSize >= 15);
             var button = Assert.Single(content.Children.OfType<Button>());
             Assert.Equal(Language.Get("ChooseGame"), button.Content);
             Assert.True(button.ActualHeight >= 44);
             Assert.True(button.Focusable);
             Assert.True(button.IsTabStop);
+            var setup = Assert.Single(content.Children.OfType<StackPanel>());
+            Assert.Equal(!connected, setup.IsVisible);
+            var connect = Assert.Single(setup.Children.OfType<Button>());
+            Assert.Equal(Language.Get("ConnectSteamGridOptional"), connect.Content);
+            Assert.True(connect.Focusable);
             await Task.CompletedTask;
         }
         finally { window.Close(); Language.Use(previous); }
