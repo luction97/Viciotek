@@ -8,6 +8,43 @@ namespace Viciotek.Tests;
 
 public sealed class CoverAutocompleteTests
 {
+    [Theory]
+    [InlineData("M")]
+    [InlineData("MK")]
+    [InlineData("   ")]
+    public Task AutomaticSearch_AcceptsShortNamesAndSkipsBlankInput(string query) => WpfTest.RunAsync(async () =>
+    {
+        string? requestedPath = null;
+        using var handler = new Handler((request, _) =>
+        {
+            requestedPath = request.RequestUri!.AbsolutePath;
+            return Task.FromResult(Result(1, "Mortal Kombat"));
+        });
+        using var client = new SteamGridDbClient("fixture", handler);
+        var vm = new CoverGalleryViewModel(client, new Game(), (_, _) => Task.FromResult(true), true);
+        try
+        {
+            vm.SearchQuery = query;
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                await Task.Delay(450);
+                Assert.Equal(0, handler.Calls);
+                Assert.Null(vm.Status);
+            }
+            else
+            {
+                await WpfTest.WaitUntilAsync(() => vm.Matches.Count == 1 && !vm.IsLoading);
+                Assert.True(vm.ShowSuggestions);
+                Assert.Equal(1, handler.Calls);
+                Assert.EndsWith("/" + query, requestedPath);
+                vm.SearchQuery = "";
+                Assert.Null(vm.Status);
+                Assert.Empty(vm.Matches);
+            }
+        }
+        finally { await vm.CloseAsync(); }
+    });
+
     [Fact]
     public Task TypingBelowThresholdAfterDebounceThenTypingAgain_DoesNotUseDisposedSource() => WpfTest.RunAsync(async () =>
     {
@@ -127,14 +164,14 @@ public sealed class CoverAutocompleteTests
     });
 
     [Fact]
-    public Task Typing_UsesThresholdAndCoalescesBurst() => WpfTest.RunAsync(async () =>
+    public Task Typing_SkipsWhitespaceAndCoalescesBurst() => WpfTest.RunAsync(async () =>
     {
         using var handler = new Handler((_, _) => Task.FromResult(Result(2, "God of War")));
         using var client = new SteamGridDbClient("fixture", handler);
         var vm = new CoverGalleryViewModel(client, new Game(), (_, _) => Task.FromResult(true), true);
         try
         {
-            vm.SearchQuery = "go";
+            vm.SearchQuery = "   ";
             await Task.Delay(450);
             Assert.Equal(0, handler.Calls);
             vm.SearchQuery = "god";

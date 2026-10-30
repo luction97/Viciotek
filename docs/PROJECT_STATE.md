@@ -1,7 +1,12 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.18**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.19**, C#/WPF/.NET 8 para Windows 11.
 
+## Búsqueda sin mínimo de caracteres — 1.1.19
+- Buscar portada acepta cualquier texto no vacío, incluyendo una o dos letras como M/MK. Conserva debounce de 350 ms, cancelación y respuestas ordenadas. Vacío/espacios limpian resultados y estado sin consultar. Se retira el aviso de tres caracteres de ambos catálogos y se simplifica el tooltip obsoleto sobre nombres cortos.
+- CONFIRMADO: 261/261 tests; nuevos casos automáticos M/MK/espacios verifican consulta, sugerencias y limpieza. Regresión de agrupación de pulsaciones adaptada a la nueva regla. Revisión WPF en es/en verifica MK automático sin Enter, sugerencias y elección por teclado. Sin cambios a nombres de juegos, portadas ni selección.
+- Entrega CONFIRMADA: build Release -warnaserror limpio, ambos ZIPs con SmokePublished PASS y SmokeInstaller completo PASS (instalar, actualizar, bloquear con app abierta, desinstalar y preservar datos/archivo ajeno). Iconos y SHA256 verificados; sin pruebas con cuenta/red reales del proveedor ni datos personales.
+- Próximo paso concreto: instalar 1.1.19 y comprobar nombres breves con la cuenta propia. Fuentes guardadas en Git sin push.
 ## Corrección de cancelación y simplificación de recomendaciones — 1.1.18
 - Causa CONFIRMADA: al editar de >=3 caracteres a <3, SearchQuery cancelaba y disponía _debounce pero conservaba la referencia. La siguiente edición o CloseAsync llamaba Cancel sobre ese CTS dispuesto. Nueva regresión reprodujo ObjectDisposedException antes del arreglo.
 - CancelDebounce toma la referencia, limpia el campo antes de cancelar y libera únicamente la fuente retirada. Se reutiliza en edición, inicio de búsqueda/selección y cierre. Sin catch que esconda ObjectDisposedException y sin modificar cliente HTTP, datos o portadas.

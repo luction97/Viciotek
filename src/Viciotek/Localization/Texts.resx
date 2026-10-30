@@ -106,7 +106,7 @@
     <value>Nombre del juego</value>
   </data>
   <data name="SearchesAsYouTypePressEnterToSearchForShortNamesToo" xml:space="preserve">
-    <value>Busca mientras escribís. Enter busca también nombres cortos.</value>
+    <value>Busca mientras escribes.</value>
   </data>
   <data name="MatchingGames" xml:space="preserve">
     <value>Juegos encontrados</value>
@@ -318,9 +318,6 @@ Detalle técnico: {0}</value>
   </data>
   <data name="NoCoverWasFoundAutomatically" xml:space="preserve">
     <value>No encontramos una portada automáticamente.</value>
-  </data>
-  <data name="TypeAtLeast3CharactersToSearch" xml:space="preserve">
-    <value>Escribe al menos 3 caracteres para buscar.</value>
   </data>
   <data name="NoResultsTryAnotherName" xml:space="preserve">
     <value>Sin resultados. Prueba con otro nombre.</value>

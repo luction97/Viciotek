@@ -106,7 +106,7 @@
     <value>Game name</value>
   </data>
   <data name="SearchesAsYouTypePressEnterToSearchForShortNamesToo" xml:space="preserve">
-    <value>Searches as you type. Press Enter to search for short names too.</value>
+    <value>Searches as you type.</value>
   </data>
   <data name="MatchingGames" xml:space="preserve">
     <value>Matching games</value>
@@ -318,9 +318,6 @@ Technical details: {0}</value>
   </data>
   <data name="NoCoverWasFoundAutomatically" xml:space="preserve">
     <value>No cover was found automatically.</value>
-  </data>
-  <data name="TypeAtLeast3CharactersToSearch" xml:space="preserve">
-    <value>Type at least 3 characters to search.</value>
   </data>
   <data name="NoResultsTryAnotherName" xml:space="preserve">
     <value>No results. Try another name.</value>

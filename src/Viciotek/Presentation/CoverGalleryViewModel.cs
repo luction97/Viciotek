@@ -73,8 +73,8 @@ public sealed class CoverGalleryViewModel : ObservableObject
             Candidates.Clear();
             Selected = null;
             SelectedGame = null;
-            Status = SearchQuery.Trim().Length < 3 ? L.Get("TypeAtLeast3CharactersToSearch") : L.Get("Searching");
-            if (SearchQuery.Trim().Length < 3) return;
+            Status = string.IsNullOrWhiteSpace(SearchQuery) ? null : L.Get("Searching");
+            if (string.IsNullOrWhiteSpace(SearchQuery)) return;
             _debounce = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
             _scheduled = SearchAfterPauseAsync(_debounce.Token);
         }
