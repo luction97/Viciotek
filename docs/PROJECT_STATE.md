@@ -1,6 +1,11 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-29. Producto: **VICIOTEK 1.1.19**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.19**, C#/WPF/.NET 8 para Windows 11.
+
+## Cursor del buscador de portadas — ajuste posterior a 1.1.19
+- Al abrir la galería, el cursor se sitúa al final del nombre, sin seleccionar texto. Al aceptar una sugerencia por clic o Enter se enfoca el campo y se coloca al final del nombre completado, antes de esperar la carga. No se fuerza la posición durante la edición ni al llegar resultados asíncronos.
+- CONFIRMADO: build Release -warnaserror sin advertencias/errores y 261/261 tests. Harness WPF con ventana real en es/en verifica apertura con nombre, selección por Enter, escritura al final y conservación de una posición elegida por el usuario durante la respuesta HTTP simulada. Sin datos personales ni consultas reales; portadas y lógica de búsqueda intactas.
+- Límites: ajuste compilado en fuentes; no se genera un nuevo instalador en esta corrección. Próximo paso concreto: incluirlo en la siguiente distribución y comprobar la selección por ratón con la cuenta del propietario.
 
 ## Búsqueda sin mínimo de caracteres — 1.1.19
 - Buscar portada acepta cualquier texto no vacío, incluyendo una o dos letras como M/MK. Conserva debounce de 350 ms, cancelación y respuestas ordenadas. Vacío/espacios limpian resultados y estado sin consultar. Se retira el aviso de tres caracteres de ambos catálogos y se simplifica el tooltip obsoleto sobre nombres cortos.

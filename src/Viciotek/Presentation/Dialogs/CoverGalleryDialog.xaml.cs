@@ -18,6 +18,7 @@ public partial class CoverGalleryDialog : ViciotekDialogWindow
         Loaded += async (_, _) =>
         {
             SearchBox.Focus();
+            SearchBox.Select(SearchBox.Text.Length, 0);
             await viewModel.InitializeAsync();
         };
     }
@@ -27,12 +28,19 @@ public partial class CoverGalleryDialog : ViciotekDialogWindow
     private async void Suggestion_MouseUp(object sender, MouseButtonEventArgs e)
     {
         if (ItemsControl.ContainerFromElement(Suggestions, e.OriginalSource as DependencyObject) is ListBoxItem { Content: SteamGridGame game })
-        { e.Handled = true; SearchBox.Focus(); await _viewModel.SelectGameAsync(game); }
+        { e.Handled = true; await SelectSuggestionAsync(game); }
     }
     private async void Suggestions_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter && Suggestions.SelectedItem is SteamGridGame game)
-        { e.Handled = true; SearchBox.Focus(); await _viewModel.SelectGameAsync(game); }
+        { e.Handled = true; await SelectSuggestionAsync(game); }
+    }
+    private async Task SelectSuggestionAsync(SteamGridGame game)
+    {
+        var selection = _viewModel.SelectGameAsync(game);
+        SearchBox.Focus();
+        SearchBox.Select(SearchBox.Text.Length, 0);
+        await selection;
     }
     private async void SearchBox_KeyDown(object sender, KeyEventArgs e)
     {
