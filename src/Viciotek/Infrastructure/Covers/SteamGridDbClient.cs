@@ -17,7 +17,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
     // Official API v2 dimensions. 300x450 is NOT supported and causes HTTP 400 for the entire request.
     public const string VerticalDimensions = "600x900,342x482,660x930";
     private const int MaxDownloadBytes = 30 * 1024 * 1024;
-    private readonly HttpClient _httpClient;
+    private readonly Lazy<HttpClient> _httpClient;
     private readonly SemaphoreSlim _apiGate = new(1, 1);
     private readonly SemaphoreSlim _imageGate = new(2, 2);
     private readonly Dictionary<string, (DateTimeOffset Expires, JsonElement Data, int Weight)> _cache = new(StringComparer.OrdinalIgnoreCase);
@@ -31,12 +31,17 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
     public SteamGridDbClient(string? apiKey, HttpMessageHandler? handler = null)
     {
         UpdateApiKey(apiKey);
-        _httpClient = handler is null ? new HttpClient() : new HttpClient(handler, disposeHandler: false);
-        _httpClient.Timeout = Timeout.InfiniteTimeSpan;
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Viciotek/1.0 (Windows)");
+        _httpClient = new Lazy<HttpClient>(() =>
+        {
+            var client = handler is null ? new HttpClient() : new HttpClient(handler, disposeHandler: false);
+            client.Timeout = Timeout.InfiniteTimeSpan;
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Viciotek/1.0 (Windows)");
+            return client;
+        });
     }
 
     public bool IsConfigured => _apiKey is not null;
+    internal bool IsTransportCreated => _httpClient.IsValueCreated;
 
     public void UpdateApiKey(string? apiKey)
     {
@@ -119,7 +124,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", verificationApiKey ?? _apiKey);
             try
             {
-                using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
+                using var response = await _httpClient.Value.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
                 _nextRequest = DateTimeOffset.UtcNow.AddMilliseconds(250);
                 ObserveRateLimit(response);
                 if (response.StatusCode == HttpStatusCode.NotFound) return default;
@@ -170,7 +175,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
                 if (IsRateLimited) throw CreateStatusException(HttpStatusCode.TooManyRequests);
                 // Never send the API key to image/CDN hosts.
                 using var request = new HttpRequestMessage(HttpMethod.Get, uri);
-                using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
+                using var response = await _httpClient.Value.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
                 ObserveRateLimit(response);
                 if (!response.IsSuccessStatusCode) throw CreateStatusException(response.StatusCode);
                 return await ReadLimitedAsync(response, MaxDownloadBytes, timeout.Token).ConfigureAwait(false);
@@ -252,7 +257,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
 
     public void Dispose()
     {
-        _httpClient.Dispose();
+        if (_httpClient.IsValueCreated) _httpClient.Value.Dispose();
         _apiGate.Dispose();
         _imageGate.Dispose();
     }

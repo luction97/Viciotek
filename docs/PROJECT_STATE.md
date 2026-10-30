@@ -1,6 +1,15 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.23**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.24**, C#/WPF/.NET 8 para Windows 11.
+
+## Animación visible tras el primer render y apertura más ligera — 1.1.24
+- La entrada se prepara en Loaded y comienza en el primer ContentRendered, con fundido de 420 ms y movimiento 12→0 DIP. Evita consumir la duración durante la preparación inicial de WPF. Se conserva una vez por apertura vacía, preferencias Windows/app, acciones disponibles y liberación de relojes. Sin retrasar Show ni añadir timers/red/pantalla de carga. ContentRendered indica frame WPF, no presentación física GPU ni fin de animación.
+- Cliente HTTP de SteamGridDB diferido con Lazy<HttpClient> seguro para inicialización concurrente; se crea al hacer una solicitud y Dispose no lo crea si nunca se usó. Se conservan cabeceras, timeout, autenticación y propiedad del handler. No se toca persistencia, selección, portadas ni layout.
+- CONFIRMADO: 274/274 tests. Dos regresiones nuevas cubren construcción/cambio de clave/cierre sin crear transporte; verificaciones existentes comprueban creación al solicitar y ausencia sin clave. Harness WPF real verifica que no se anima antes de ContentRendered, sí al render inicial, estado intermedio visible a 100 ms y final sin repetición; renders es/en a 1280×800/760×540.
+- Rendimiento CONFIRMADO solo en este equipo y con caché caliente (5 muestras por tanda y un calentamiento descartado): biblioteca vacía, medianas FirstContentRendered 644,1/615,8 ms en 1.1.23 frente a 575,4/588,7 ms en candidato; 500 juegos sintéticos, 646,4→639,9 ms y portadas visibles listas 674,1→664,9 ms, diferencia pequeña. No se extrapola a arranque frío, otros equipos ni RAM. Experimento ReadyToRun: 634,2 ms en vacío, sin mejora relevante; no se incorpora. Evidencia aislada en artifacts/ux-1.1.24, fuera de Git/payload.
+- Paquete final CONFIRMADO, mismas condiciones de 5 muestras y calentamiento: vacío 593,0 ms hasta ContentRendered y 598,3 ms hasta estado de portadas listo; 500 juegos 668,6/694,3 ms. La mejora se observa en vacío; las variaciones de biblioteca poblada no permiten concluir una aceleración. La medición no espera a completar el fundido.
+- Entrega CONFIRMADA: build Release -warnaserror limpio; ambos ZIPs con SmokePublished PASS; SmokeInstaller completo PASS (instalar, actualizar, bloqueo con app abierta, desinstalar y preservar datos/archivo ajeno); SHA256 e iconos oficiales verificados. Fuentes guardadas en Git sin push.
+- Próximo paso concreto: instalar 1.1.24 y revisar percepción de entrada/apertura con el propietario; arranque frío y otros equipos pendientes.
 
 ## Entrada suave de la bienvenida — 1.1.23
 - Fundido 0→1 y desplazamiento vertical 8→0 DIP en 280 ms, con salida cúbica en el movimiento. Se aplica al bloque central completo al abrir una biblioteca vacía, una vez por ventana. No se repite por buscar, redimensionar, retornar de Configuración o recibir otro Loaded. Sin preferencias nuevas ni cambios a persistencia, portadas o importación.

@@ -26,6 +26,7 @@ public partial class MainWindow : Window
     private bool _geometrySaved;
     private bool _closeInProgress;
     private bool _welcomeEntranceHandled;
+    private bool _welcomeEntrancePending;
 
     public MainWindow(
         MainViewModel viewModel,
@@ -58,6 +59,7 @@ public partial class MainWindow : Window
             WindowAppearance.RestrictMaximizedToWorkArea(this);
         };
         Loaded += OnLoaded;
+        ContentRendered += OnFirstContentRendered;
         StateChanged += OnStateChanged;
         Closing += OnClosing;
         Closed += OnClosed;
@@ -74,12 +76,22 @@ public partial class MainWindow : Window
         if (!_welcomeEntranceHandled)
         {
             _welcomeEntranceHandled = true;
-            if (_viewModel.ShowEmptyState)
-                BeginWelcomeEntrance(WelcomeContent, _viewModel.AnimationsEnabled && SystemParameters.ClientAreaAnimation);
+            _welcomeEntrancePending = _viewModel.ShowEmptyState && _viewModel.AnimationsEnabled && SystemParameters.ClientAreaAnimation;
+            if (_welcomeEntrancePending) WelcomeContent.Opacity = 0;
         }
         _viewModel.ShowPendingNotice();
         // Keep search opt-in: opening the library must not show a caret or select text.
         Keyboard.Focus(this);
+    }
+
+    private void OnFirstContentRendered(object? sender, EventArgs e)
+    {
+        ContentRendered -= OnFirstContentRendered;
+        if (!_welcomeEntrancePending) return;
+        _welcomeEntrancePending = false;
+        WelcomeContent.Opacity = 1;
+        if (_viewModel.ShowEmptyState)
+            BeginWelcomeEntrance(WelcomeContent, _viewModel.AnimationsEnabled && SystemParameters.ClientAreaAnimation);
     }
 
     internal static void BeginWelcomeEntrance(FrameworkElement content, bool enabled)
@@ -87,10 +99,10 @@ public partial class MainWindow : Window
         if (!enabled) return;
         var offset = new TranslateTransform();
         content.RenderTransform = offset;
-        var duration = TimeSpan.FromMilliseconds(280);
+        var duration = TimeSpan.FromMilliseconds(420);
         var fade = new DoubleAnimation(0, 1, duration) { FillBehavior = FillBehavior.Stop };
         fade.Completed += (_, _) => ClearWelcomeEntrance(content);
-        offset.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(8, 0, duration)
+        offset.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(12, 0, duration)
         {
             EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
             FillBehavior = FillBehavior.Stop
@@ -150,6 +162,7 @@ public partial class MainWindow : Window
     private void OnClosed(object? sender, EventArgs e)
     {
         ClearWelcomeEntrance(WelcomeContent);
+        ContentRendered -= OnFirstContentRendered;
         _viewModel.CloseRequested -= OnCloseRequested;
         _viewModel.ScrollToTopRequested -= OnScrollToTopRequested;
         _viewModel.ScrollToItemRequested -= OnScrollToItemRequested;

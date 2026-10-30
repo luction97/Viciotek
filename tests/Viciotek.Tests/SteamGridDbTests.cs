@@ -6,6 +6,19 @@ namespace Viciotek.Tests;
 
 public sealed class SteamGridDbClientTests
 {
+    [Theory]
+    [InlineData(null)]
+    [InlineData("fixture-key")]
+    public void StartupAndDispose_DoNotInitializeOptionalHttpTransport(string? key)
+    {
+        using var client = new SteamGridDbClient(key);
+        Assert.Equal(key is not null, client.IsConfigured);
+        client.UpdateApiKey("another-fixture-key");
+        Assert.False(client.IsTransportCreated);
+        client.Dispose();
+        Assert.False(client.IsTransportCreated);
+    }
+
     private sealed class StatusHandler : HttpMessageHandler
     {
         private readonly HttpStatusCode _status;
@@ -23,7 +36,9 @@ public sealed class SteamGridDbClientTests
     public async Task VerifyAsync_ReportsAuthenticationAndServiceStatus(HttpStatusCode status, bool expectedSuccess)
     {
         using var client = new SteamGridDbClient("test-key", new StatusHandler(status));
+        Assert.False(client.IsTransportCreated);
         var result = await client.VerifyAsync(CancellationToken.None);
+        Assert.True(client.IsTransportCreated);
         Assert.Equal(expectedSuccess, result.Success);
         Assert.False(string.IsNullOrWhiteSpace(result.Message));
     }
@@ -36,6 +51,7 @@ public sealed class SteamGridDbClientTests
         var result = await client.VerifyAsync(CancellationToken.None);
         Assert.False(result.Success);
         Assert.Equal(0, handler.Count);
+        Assert.False(client.IsTransportCreated);
     }
 
     [Theory]
