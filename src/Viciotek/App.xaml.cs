@@ -65,6 +65,11 @@ public partial class App : System.Windows.Application
                 new Infrastructure.Detection.SteamDetector(),
                 new Infrastructure.Detection.EpicDetector(),
                 new Infrastructure.Detection.GogDetector(),
+                new Infrastructure.Detection.XboxDetector(),
+                new Infrastructure.Detection.RegistryPublisherDetector("EA app", new[] { "Electronic Arts", "EA " }),
+                new Infrastructure.Detection.RegistryPublisherDetector("Ubisoft Connect", new[] { "Ubisoft" }),
+                new Infrastructure.Detection.RegistryPublisherDetector("Battle.net", new[] { "Blizzard" }),
+                new Infrastructure.Detection.RegistryPublisherDetector("Amazon Games", new[] { "Amazon" }),
             });
             var viewModel = new MainViewModel(
                 games,
