@@ -2,6 +2,20 @@
 
 Última revisión: 2026-10-31. Producto: **VICIOTEK 1.1.34**, C#/WPF/.NET 8 para Windows 11.
 
+## Paquete Microsoft Store — preparación de primera publicación — 2026-10-31
+- Paquete sin costos preparado: `PRIVACY.md`, `store/CHECKLIST.md`, `store/STORE_LISTING.md`, `store/assets` (iconos 300/512/1080 desde `src/Viciotek/Assets/viciotek.png` y capturas `store-library/empty/hover`) y scripts `tools/Generate-StoreAssets.ps1`, `SeedStoreData.ps1`, `Capture-StoreScreenshots.ps1`, `Test-StoreAssets.ps1`.
+- Assets validados con `tools/Test-StoreAssets.ps1` PASS: iconos cuadrados con dimensiones exactas; capturas ≥1366x768, landscape y ≤50MB.
+- CHECKLIST de envío alineado a requisitos Store: instalador Inno Setup standalone con `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-`, return codes, x64, Windows 10 22000+, precio Free, sin compras en-app.
+- Continúa la entrega 1.1.34 CONFIRMADA (commit `d9c0ec9`, ProductVersion `1.1.34+d9c0ec972a07d56d0429ca0a4669d1ab834d320b`, sin firma NotSigned, SHA256 verificado, ambos ZIPs SmokePublished y SmokeInstaller PASS). Store re-firma; falta cuenta dev individual gratuita, reserva de nombre, listings completos, envío y certificación.
+
+## Control de gamepad — XInput + WinMM (genéricos) — ajuste posterior a 1.1.34
+- Control de joystick implementado con dos backends: XInput (xinput1_4.dll) y WinMM (winmm.dll, multimedia) para joysticks genéricos/DirectInput como Redragon. Polling vía DispatcherTimer 50 ms en MainWindow; XInput tiene prioridad (índices 0-3), si no hay dispositivo conectado se consulta WinMM.
+- Detección automática al iniciar: en OnLoaded se verifica si hay joystick conectado (XInput 0-3 o WinMM) y, si lo hay y no hay selección, se selecciona el primer juego. Primer movimiento del joystick también selecciona el primer juego si no había selección.
+- Movimiento en cualquier dirección (arriba/abajo/izquierda/derecha) con D-pad, stick o POV hat; botón 1 (WinMM) o botón Launch 0x0010 (XInput) inicia el juego seleccionado.
+- WinMM usa flags básicos (X|Y|Buttons|POV) con fallback a todos los ejes para compatibilidad con joysticks que no soportan todos los ejes.
+- Mapeo puro en Domain (GamepadInput): ResolveMoveDirection (XInput) y ResolveMoveDirectionWinMM (WinMM) con dead zone 8192; tests unitarios 14 nuevos (346/346 total).
+- Sin NuGet ni UI nueva; sin cambios a portadas ni lógica de lanzamiento. Sin hardware real validado en esta sesión.
+
 ## Configuración simple y búsqueda manual paginada — 1.1.34
 - Con conexión guardada se ocultan estado técnico y Revisar conexión; queda Desconectar SteamGridDB, con ConfirmDialog existente sin aviso de quitar juegos. Cancelar/Escape/cerrar no modifica clave ni resultado. Confirmar devuelve desconexión a la ruta segura existente. Sin conexión mantiene acceso al formulario; Idioma, Más opciones y Acerca de intactos.
 - Retirados recortes manuales Take(100) de nombres, cuatro ediciones y muestra final de 24. Autocomplete conserva todos los IDs únicos que entregue el proveedor (su contrato no ofrece páginas). La galería recorre todas las coincidencias, no solo exactos/primer homónimo: una página por turno y por juego, con continuación automática al desplazarse y Ver más portadas como alternativa de teclado. Elegir una recomendación enfoca ese juego. Cada imagen conserva el ID de su juego; selección/persistencia siguen explícitas.

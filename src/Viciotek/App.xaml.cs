@@ -60,6 +60,12 @@ public partial class App : System.Windows.Application
             var covers = new CoverStore(paths);
             var steamGrid = new SteamGridDbClient(settings.SteamGridDbApiKey);
             var dialogs = new DialogService(paths, steamGrid);
+            var scanner = new Infrastructure.Detection.InstalledGameScanner(new IInstalledGameDetector[]
+            {
+                new Infrastructure.Detection.SteamDetector(),
+                new Infrastructure.Detection.EpicDetector(),
+                new Infrastructure.Detection.GogDetector(),
+            });
             var viewModel = new MainViewModel(
                 games,
                 settings,
@@ -70,7 +76,8 @@ public partial class App : System.Windows.Application
                 covers,
                 steamGrid,
                 dialogs,
-                startupWarning);
+                startupWarning,
+                scanner);
 
             _iconService = new IconService();
             var window = new MainWindow(

@@ -5,6 +5,7 @@ using System.Windows.Data;
 using Viciotek.Application;
 using Viciotek.Domain;
 using Viciotek.Infrastructure.Covers;
+using Viciotek.Infrastructure.Detection;
 using Viciotek.Infrastructure.Imaging;
 using Viciotek.Infrastructure.Library;
 using Viciotek.Infrastructure.Processes;
@@ -46,6 +47,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     private Task? _closeTask;
     private bool _closing;
     private readonly string? _startupWarning;
+    private readonly InstalledGameScanner? _installedScanner;
     private CancellationTokenSource? _toastCancellation;
     private GameCardViewModel? _coverDropTarget;
     private bool _isImporting;
@@ -68,7 +70,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         CoverStore covers,
         SteamGridDbClient steamGrid,
         IDialogService dialogs,
-        string? startupWarning)
+        string? startupWarning,
+        InstalledGameScanner? installedScanner = null)
     {
         _settings = settings;
         _libraryStore = libraryStore;
@@ -79,6 +82,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         _steamGrid = steamGrid;
         _dialogs = dialogs;
         _startupWarning = startupWarning;
+        _installedScanner = installedScanner;
         _coverInvitationOffered = games.Count > 0;
 
         Games = new ObservableCollection<GameCardViewModel>(
@@ -547,10 +551,101 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
     public async Task AddGamesFromDialogAsync()
     {
+        if (_installedScanner is not null)
+        {
+            var detected = await Task.Run(() => _installedScanner.ScanAll(), _lifetime.Token);
+            if (detected.Count > 0)
+            {
+                var dialog = new DetectInstalledGamesDialog(detected);
+                if (dialog.ShowDialog() == true && dialog.Selected.Count > 0)
+                {
+                    await ImportDetectedGamesAsync(dialog.Selected);
+                    return;
+                }
+            }
+        }
         var files = _dialogs.PickGameFiles(directly: true);
         if (files is { Length: > 0 })
         {
             await ImportFilesAsync(files);
+        }
+    }
+
+    public Task ImportDetectedGamesAsync(IReadOnlyList<DetectedGame> detected) =>
+        RunOperationAsync(() => ImportDetectedGamesCoreAsync(detected));
+
+    private async Task ImportDetectedGamesCoreAsync(IReadOnlyList<DetectedGame> detected)
+    {
+        if (_isImporting) return;
+        IsImporting = true;
+        var acquired = false;
+        var addedCards = new List<GameCardViewModel>();
+        try
+        {
+            await _coverUpdateGate.WaitAsync(_lifetime.Token);
+            acquired = true;
+            var existing = Games.Select(card => card.Model.Clone()).ToList();
+            var keys = new HashSet<string>(existing.Select(GameIdentity.CreateDuplicateKey), StringComparer.Ordinal);
+            var nextOrder = existing.Count == 0 ? 0 : existing.Max(g => g.SortOrder) + 1;
+
+            var added = new List<Game>();
+            foreach (var d in detected)
+            {
+                var game = new Game
+                {
+                    Id = Guid.NewGuid(),
+                    Name = d.Name,
+                    LaunchPath = d.LaunchPath,
+                    LaunchKind = d.LaunchKind,
+                    Arguments = d.Arguments,
+                    WorkingDirectory = d.WorkingDirectory,
+                    IconPath = d.IconPath,
+                    AddedAt = DateTimeOffset.UtcNow,
+                };
+                var duplicateKey = GameIdentity.CreateDuplicateKey(game);
+                if (!keys.Add(duplicateKey)) continue;
+                game.SortOrder = nextOrder++;
+                added.Add(game);
+            }
+
+            if (added.Count == 0)
+            {
+                ShowToast("No se encontraron juegos nuevos.", isError: false);
+                return;
+            }
+
+            var saved = await PersistAsync(existing.Concat(added).ToList());
+            if (!saved)
+            {
+                ShowToast(L.Get("CouldNotSaveTheGames"), isError: true);
+                return;
+            }
+
+            foreach (var game in added)
+            {
+                var card = new GameCardViewModel(game, this, _covers);
+                Games.Add(card);
+                addedCards.Add(card);
+            }
+
+            if (!_coverInvitationOffered && addedCards.Count > 0)
+            {
+                _coverInvitationOffered = true;
+                _showCoverSetupHint = !_steamGrid.IsConfigured;
+            }
+
+            if (addedCards.Count > 0 && SearchQuery.Length > 0)
+            {
+                SearchQuery = string.Empty;
+            }
+
+            UpdateViewState();
+            ShowToast($"Se importaron {added.Count} juego(s).", isError: false);
+        }
+        finally
+        {
+            if (acquired) _coverUpdateGate.Release();
+            IsImporting = false;
         }
     }
 

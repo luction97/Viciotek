@@ -4,9 +4,12 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Interop;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using Viciotek.Domain;
 using Viciotek.Infrastructure.Imaging;
+using Viciotek.Infrastructure.Input;
 using Viciotek.Infrastructure.Library;
 using Viciotek.Infrastructure.Shell;
 using Viciotek.Presentation;
@@ -27,6 +30,7 @@ public partial class MainWindow : Window
     private bool _closeInProgress;
     private bool _welcomeEntranceHandled;
     private bool _welcomeEntrancePending;
+    private readonly DispatcherTimer _gamepadTimer;
 
     public MainWindow(
         MainViewModel viewModel,
@@ -69,6 +73,9 @@ public partial class MainWindow : Window
         _viewModel.ScrollToItemRequested += OnScrollToItemRequested;
 
         UpdateCaptionButtons();
+
+        _gamepadTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+        _gamepadTimer.Tick += OnGamepadTick;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -82,6 +89,33 @@ public partial class MainWindow : Window
         _viewModel.ShowPendingNotice();
         // Keep search opt-in: opening the library must not show a caret or select text.
         Keyboard.Focus(this);
+        _gamepadTimer.Start();
+        // Inicializar DirectInput con el HWND de la ventana para joysticks genéricos.
+        var hwnd = new WindowInteropHelper(this).Handle;
+        DirectInputJoystick.Initialize(hwnd);
+        // Detectar joystick al iniciar: si hay dispositivo conectado, seleccionar el primer juego.
+        Dispatcher.BeginInvoke(DispatcherPriority.Background, () =>
+        {
+            var hasJoystick = false;
+            for (var i = 0; i < 4; i++)
+            {
+                if (XInputGamepad.GetState(i).Connected != 0) { hasJoystick = true; break; }
+            }
+            if (!hasJoystick)
+            {
+                hasJoystick = WinMMJoystick.GetState().Connected != 0;
+            }
+            if (!hasJoystick)
+            {
+                hasJoystick = DirectInputJoystick.GetState().Connected != 0;
+            }
+            if (hasJoystick && Gallery.SelectedItem is null && _viewModel.GamesView.Cast<GameCardViewModel>().Any())
+            {
+                var first = _viewModel.GamesView.Cast<GameCardViewModel>().First();
+                Gallery.ScrollToItem(first);
+                Gallery.SelectedItem = first;
+            }
+        });
     }
 
     private void OnFirstContentRendered(object? sender, EventArgs e)
@@ -163,6 +197,8 @@ public partial class MainWindow : Window
     {
         ClearWelcomeEntrance(WelcomeContent);
         ContentRendered -= OnFirstContentRendered;
+        _gamepadTimer.Stop();
+        DirectInputJoystick.Shutdown();
         _viewModel.CloseRequested -= OnCloseRequested;
         _viewModel.ScrollToTopRequested -= OnScrollToTopRequested;
         _viewModel.ScrollToItemRequested -= OnScrollToItemRequested;
@@ -183,6 +219,130 @@ public partial class MainWindow : Window
                 Gallery.ScrollToItem(card);
                 Gallery.SelectedItem = card;
             });
+    }
+
+    private void OnGamepadTick(object? sender, EventArgs e)
+    {
+        XInputGamepadState state = default;
+        var xinputFound = false;
+        for (var i = 0; i < 4; i++)
+        {
+            var s = XInputGamepad.GetState(i);
+            if (s.Connected != 0)
+            {
+                state = s;
+                xinputFound = true;
+                break;
+            }
+        }
+
+        if (!xinputFound)
+        {
+            var winmm = WinMMJoystick.GetState();
+            if (winmm.Connected == 0)
+            {
+                var di = DirectInputJoystick.GetState();
+                if (di.Connected == 0)
+                {
+                    return;
+                }
+                // DirectInput: normalize axes. DirectInput axes are typically -1000..1000 or 0..65535.
+                var diX = NormalizeDirectInputAxis(di.AxisX);
+                var diY = NormalizeDirectInputAxis(di.AxisY);
+                var diDirection = GamepadInput.ResolveMoveDirection(diX, diY, 0);
+                if (diDirection != GamepadMoveDirection.None)
+                {
+                    MoveGameSelection(diDirection);
+                    return;
+                }
+                // Launch button: first button
+                if (di.Buttons != null && di.Buttons.Length > 0 && (di.Buttons[0] & 0x80) != 0)
+                {
+                    LaunchSelectedGame();
+                }
+                return;
+            }
+
+            var direction = GamepadInput.ResolveMoveDirectionWinMM(winmm.X, winmm.Y, winmm.Pov);
+            if (direction != GamepadMoveDirection.None)
+            {
+                MoveGameSelection(direction);
+                return;
+            }
+
+            if ((winmm.Buttons & WinMMJoystick.LaunchButton) == WinMMJoystick.LaunchButton)
+            {
+                LaunchSelectedGame();
+            }
+            return;
+        }
+
+        var xdirection = GamepadInput.ResolveMoveDirection(state.AxisLeftX, state.AxisLeftY, state.Buttons);
+        if (xdirection != GamepadMoveDirection.None)
+        {
+            MoveGameSelection(xdirection);
+            return;
+        }
+
+        if ((state.Buttons & GamepadInput.LaunchButton) == GamepadInput.LaunchButton)
+        {
+            LaunchSelectedGame();
+        }
+    }
+
+    private void MoveGameSelection(GamepadMoveDirection direction)
+    {
+        if (direction == GamepadMoveDirection.None)
+        {
+            return;
+        }
+
+        var cards = _viewModel.GamesView.Cast<GameCardViewModel>().ToList();
+        if (cards.Count == 0)
+        {
+            return;
+        }
+
+        var selected = Gallery.SelectedItem as GameCardViewModel;
+        var index = cards.FindIndex(card => ReferenceEquals(card, selected));
+        if (index < 0)
+        {
+            // No hay selección: el primer movimiento del joystick selecciona el primer juego.
+            var first = cards[0];
+            Gallery.ScrollToItem(first);
+            Gallery.SelectedItem = first;
+            return;
+        }
+
+        var step = direction is GamepadMoveDirection.Down or GamepadMoveDirection.Right ? 1 : -1;
+        var targetIndex = index + step;
+        if (targetIndex < 0 || targetIndex >= cards.Count)
+        {
+            return;
+        }
+
+        var target = cards[targetIndex];
+        Gallery.ScrollToItem(target);
+        Gallery.SelectedItem = target;
+    }
+
+    private static short NormalizeDirectInputAxis(int value)
+    {
+        // DirectInput axes can be -1000..1000 or 0..65535.
+        if (value >= 0 && value <= 65535)
+        {
+            return (short)(value - 32768);
+        }
+        // Scale -1000..1000 to -32768..32767
+        return (short)(value * 32);
+    }
+
+    private void LaunchSelectedGame()
+    {
+        if (_viewModel.SelectedGame is { } card && card.PlayCommand.CanExecute(null))
+        {
+            card.PlayCommand.Execute(null);
+        }
     }
 
     private void UpdateCaptionButtons()

@@ -318,3 +318,54 @@ public sealed class UrlShortcutReaderTests
         }
     }
 }
+
+public sealed class GamepadInputTests
+{
+    [Theory]
+    [InlineData(0, 0, (ushort)0x0000, GamepadMoveDirection.None)]
+    [InlineData(0, 0, (ushort)0x0002, GamepadMoveDirection.Down)]
+    [InlineData(0, 0, (ushort)0x0001, GamepadMoveDirection.Up)]
+    public void ResolveMoveDirection_UsesDpadButtonsWhenPressed(short stickX, short stickY, ushort dpadButtons, GamepadMoveDirection expected) =>
+        Assert.Equal(expected, GamepadInput.ResolveMoveDirection(stickX, stickY, dpadButtons));
+
+    [Theory]
+    [InlineData(0, -16384, (ushort)0x0000, GamepadMoveDirection.Up)]
+    [InlineData(0, 16384, (ushort)0x0000, GamepadMoveDirection.Down)]
+    [InlineData(0, 8192, (ushort)0x0000, GamepadMoveDirection.None)]
+    [InlineData(-16384, 0, (ushort)0x0000, GamepadMoveDirection.Left)]
+    [InlineData(16384, 0, (ushort)0x0000, GamepadMoveDirection.Right)]
+    public void ResolveMoveDirection_UsesLeftStickWithDeadZone(short stickX, short stickY, ushort dpadButtons, GamepadMoveDirection expected) =>
+        Assert.Equal(expected, GamepadInput.ResolveMoveDirection(stickX, stickY, dpadButtons));
+
+    [Fact]
+    public void ResolveMoveDirection_DpadTakesPrecedenceOverStick() =>
+        Assert.Equal(GamepadMoveDirection.Down, GamepadInput.ResolveMoveDirection(0, 0, (ushort)0x0002));
+
+    [Fact]
+    public void GamepadConstants_ExposeLaunchButtonAndDeadZone()
+    {
+        Assert.Equal((ushort)0x0010, GamepadInput.LaunchButton);
+        Assert.Equal(8192, GamepadInput.DeadZone);
+    }
+
+    [Theory]
+    [InlineData(32768u, 0u, 4294967295u, GamepadMoveDirection.Up)]
+    [InlineData(32768u, 65535u, 4294967295u, GamepadMoveDirection.Down)]
+    [InlineData(0u, 32768u, 4294967295u, GamepadMoveDirection.Left)]
+    [InlineData(65535u, 32768u, 4294967295u, GamepadMoveDirection.Right)]
+    [InlineData(32768u, 32768u, 4294967295u, GamepadMoveDirection.None)]
+    public void ResolveMoveDirectionWinMM_UsesAxes(uint x, uint y, uint pov, GamepadMoveDirection expected) =>
+        Assert.Equal(expected, GamepadInput.ResolveMoveDirectionWinMM(x, y, pov));
+
+    [Theory]
+    [InlineData(0u, GamepadMoveDirection.Up)]
+    [InlineData(9000u, GamepadMoveDirection.Right)]
+    [InlineData(18000u, GamepadMoveDirection.Down)]
+    [InlineData(27000u, GamepadMoveDirection.Left)]
+    public void ResolveMoveDirectionWinMM_PovHat(uint pov, GamepadMoveDirection expected) =>
+        Assert.Equal(expected, GamepadInput.ResolveMoveDirectionWinMM(32768u, 32768u, pov));
+
+    [Fact]
+    public void WinMMToSigned_ConvertsCenter() =>
+        Assert.Equal(0, GamepadInput.WinMMToSigned(32768u));
+}
