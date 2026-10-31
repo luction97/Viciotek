@@ -29,7 +29,6 @@ public sealed class SteamDetector : IInstalledGameDetector
                         if (Path.GetFileNameWithoutExtension(file) != $"appmanifest_{id}") continue;
                         if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(directory)) continue;
                         if (directory.IndexOfAny(['/', '\\']) >= 0 || directory is "." or "..") continue;
-                        // Exclude tools/runtimes/common Steam components
                         if (IsNonGame(id, name)) continue;
 
                         var installDir = Path.Combine(steamapps, "common", directory);
@@ -61,8 +60,9 @@ public sealed class SteamDetector : IInstalledGameDetector
     private static IEnumerable<string> FindSteamappsFolders()
     {
         var found = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        // Common Steam locations
         var candidates = new List<string>();
+
+        // Registry: SteamPath
         try
         {
             using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam");
@@ -70,26 +70,26 @@ public sealed class SteamDetector : IInstalledGameDetector
             if (!string.IsNullOrWhiteSpace(steamPath))
             {
                 candidates.Add(Path.Combine(steamPath, "steamapps"));
-                // libraryfolders.vdf
                 var vdf = Path.Combine(steamPath, "steamapps", "libraryfolders.vdf");
-                if (File.Exists(vdf))
-                {
-                    foreach (var line in File.ReadAllLines(vdf))
-                    {
-                        var m = Regex.Match(line, "\"path\"\\s*\"([^\"]+)\"");
-                        if (m.Success)
-                        {
-                            var p = m.Groups[1].Value.Replace("\\\\", "\\");
-                            candidates.Add(Path.Combine(p, "steamapps"));
-                        }
-                    }
-                }
+                if (File.Exists(vdf)) ParseVdf(vdf, candidates);
             }
         }
         catch { }
-        // Default locations
-        candidates.Add(@"C:\Program Files (x86)\Steam\steamapps");
-        candidates.Add(@"C:\Program Files\Steam\steamapps");
+
+        // Search all fixed drives
+        foreach (var drive in DriveHelper.GetFixedDrives())
+        {
+            foreach (var root in new[] { "Program Files (x86)\\Steam", "Program Files\\Steam", "Steam", "SteamLibrary" })
+            {
+                var p = Path.Combine(drive, root);
+                if (Directory.Exists(p))
+                {
+                    candidates.Add(Path.Combine(p, "steamapps"));
+                    var vdf = Path.Combine(p, "steamapps", "libraryfolders.vdf");
+                    if (File.Exists(vdf)) ParseVdf(vdf, candidates);
+                }
+            }
+        }
 
         var result = new List<string>();
         foreach (var c in candidates)
@@ -103,9 +103,25 @@ public sealed class SteamDetector : IInstalledGameDetector
         return result;
     }
 
+    private static void ParseVdf(string vdf, List<string> candidates)
+    {
+        try
+        {
+            foreach (var line in File.ReadAllLines(vdf))
+            {
+                var m = Regex.Match(line, "\"path\"\\s*\"([^\"]+)\"");
+                if (m.Success)
+                {
+                    var p = m.Groups[1].Value.Replace("\\\\", "\\");
+                    candidates.Add(Path.Combine(p, "steamapps"));
+                }
+            }
+        }
+        catch { }
+    }
+
     private static string? FindLaunchExecutable(string installDir)
     {
-        // Look for exe in root or bin subfolders, skip known non-game exes
         try
         {
             var exes = Directory.EnumerateFiles(installDir, "*.exe", SearchOption.TopDirectoryOnly).ToList();
@@ -118,11 +134,9 @@ public sealed class SteamDetector : IInstalledGameDetector
                         exes.AddRange(Directory.EnumerateFiles(p, "*.exe", SearchOption.TopDirectoryOnly));
                 }
             }
-            // Prefer exe matching folder name
             var folderName = Path.GetFileName(installDir);
             var match = exes.FirstOrDefault(e => Path.GetFileNameWithoutExtension(e).Equals(folderName, StringComparison.OrdinalIgnoreCase));
             if (match is not null) return match;
-            // Otherwise first non-launcher exe
             return exes.FirstOrDefault(e => !IsLauncherExe(Path.GetFileName(e)));
         }
         catch { return null; }
@@ -130,12 +144,10 @@ public sealed class SteamDetector : IInstalledGameDetector
 
     private static bool IsNonGame(int appId, string name)
     {
-        // Steam runtime/redistributable app ids and common tools
         var lower = name.ToLowerInvariant();
         if (lower.Contains("redistributable") || lower.Contains("runtime") || lower.Contains("sdk") ||
             lower.Contains("dedicated server") || lower.Contains("tool") || lower.Contains("editor")) return true;
-        // Known Steam client apps
-        if (appId is 228980 or 1007 or 250820) return true; // Steam CEF, Steamworks SDK, SteamVR? keep simple
+        if (appId is 228980 or 1007) return true;
         return false;
     }
 

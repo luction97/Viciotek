@@ -13,7 +13,6 @@ public sealed class GogDetector : IInstalledGameDetector
         var results = new List<DetectedGame>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        // Scan common GOG install locations and registry
         var roots = new List<string>();
         try
         {
@@ -26,11 +25,15 @@ public sealed class GogDetector : IInstalledGameDetector
             }
         }
         catch { }
-        roots.Add(@"C:\GOG Games");
-        roots.Add(@"C:\Program Files (x86)\GOG Galaxy\Games");
-        roots.Add(@"C:\Program Files\GOG Galaxy\Games");
 
-        // Also scan registry uninstall for GOG games
+        foreach (var drive in DriveHelper.GetFixedDrives())
+        {
+            roots.Add(Path.Combine(drive, "GOG Games"));
+            roots.Add(Path.Combine(drive, "GOG Galaxy", "Games"));
+            roots.Add(Path.Combine(drive, "Program Files (x86)", "GOG Galaxy", "Games"));
+            roots.Add(Path.Combine(drive, "Program Files", "GOG Galaxy", "Games"));
+        }
+
         foreach (var root in roots.Distinct(StringComparer.OrdinalIgnoreCase))
         {
             if (!Directory.Exists(root)) continue;
@@ -48,7 +51,6 @@ public sealed class GogDetector : IInstalledGameDetector
                             var name = root2.TryGetProperty("name", out var n) ? n.GetString() : null;
                             if (string.IsNullOrWhiteSpace(name)) continue;
 
-                            // playTasks
                             string? exe = null, args = null, workingDir = dir;
                             if (root2.TryGetProperty("playTasks", out var tasks) && tasks.ValueKind == JsonValueKind.Array)
                             {

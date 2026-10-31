@@ -92,6 +92,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         _hasVisibleGames = Games.Count > 0;
 
         AddGamesCommand = new AsyncRelayCommand(AddGamesFromDialogAsync);
+        ScanInstalledGamesCommand = new AsyncRelayCommand(AddGamesFromDialogAsync);
         OpenPreferencesCommand = new AsyncRelayCommand(OpenPreferencesAsync);
         ConnectCoversCommand = new AsyncRelayCommand(ConnectCoversAsync);
         DismissCoverSetupCommand = new RelayCommand(() =>
@@ -105,6 +106,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public ObservableCollection<GameCardViewModel> Games { get; }
     public ICollectionView GamesView { get; }
     public AsyncRelayCommand AddGamesCommand { get; }
+    public AsyncRelayCommand ScanInstalledGamesCommand { get; }
     public AsyncRelayCommand OpenPreferencesCommand { get; }
     public AsyncRelayCommand ConnectCoversCommand { get; }
     public RelayCommand DismissCoverSetupCommand { get; }

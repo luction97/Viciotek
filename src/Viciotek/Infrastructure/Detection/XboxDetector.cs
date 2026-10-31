@@ -13,62 +13,63 @@ public sealed class XboxDetector : IInstalledGameDetector
         var results = new List<DetectedGame>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        // Game Pass PC games install under C:\XboxGames\<Game>\Content
-        var xboxGames = @"C:\XboxGames";
-        if (Directory.Exists(xboxGames))
+        foreach (var drive in DriveHelper.GetFixedDrives())
         {
-            try
+            // Game Pass PC games install under <drive>:\XboxGames\<Game>\Content
+            var xboxGames = Path.Combine(drive, "XboxGames");
+            if (Directory.Exists(xboxGames))
             {
-                foreach (var dir in Directory.EnumerateDirectories(xboxGames))
+                try
                 {
-                    var content = Path.Combine(dir, "Content");
-                    var searchRoot = Directory.Exists(content) ? content : dir;
-                    var exe = FindExe(searchRoot);
-                    if (exe is null) continue;
-                    var name = Path.GetFileName(dir);
-                    if (IsNonGame(name)) continue;
-                    var key = exe.ToUpperInvariant();
-                    if (!seen.Add(key)) continue;
-                    results.Add(new DetectedGame(name, Platform, exe, LaunchKind.Executable, null, Path.GetDirectoryName(exe), exe));
-                }
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
-        }
-
-        // WindowsApps: games with a real executable in their folder
-        var windowsApps = @"C:\Program Files\WindowsApps";
-        if (Directory.Exists(windowsApps))
-        {
-            try
-            {
-                foreach (var dir in Directory.EnumerateDirectories(windowsApps))
-                {
-                    var manifest = Path.Combine(dir, "AppxManifest.xml");
-                    if (!File.Exists(manifest)) continue;
-                    try
+                    foreach (var dir in Directory.EnumerateDirectories(xboxGames))
                     {
-                        var doc = XDocument.Load(manifest);
-                        var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
-                        var identity = doc.Descendants(ns + "Identity").FirstOrDefault();
-                        var displayName = identity?.Attribute("Name")?.Value;
-                        if (string.IsNullOrWhiteSpace(displayName)) continue;
-                        // Only consider if there's an Application with Executable
-                        var app = doc.Descendants(ns + "Application").FirstOrDefault(a => a.Attribute("Executable") is not null);
-                        if (app is null) continue;
-                        var exeName = app.Attribute("Executable")?.Value;
-                        if (string.IsNullOrWhiteSpace(exeName)) continue;
-                        var exePath = Path.Combine(dir, exeName!);
-                        if (!File.Exists(exePath)) continue;
-                        // Filter out non-games
-                        if (IsNonGame(displayName!)) continue;
-                        var key = exePath.ToUpperInvariant();
+                        var content = Path.Combine(dir, "Content");
+                        var searchRoot = Directory.Exists(content) ? content : dir;
+                        var exe = FindExe(searchRoot);
+                        if (exe is null) continue;
+                        var name = Path.GetFileName(dir);
+                        if (IsNonGame(name)) continue;
+                        var key = exe.ToUpperInvariant();
                         if (!seen.Add(key)) continue;
-                        results.Add(new DetectedGame(displayName!, Platform, exePath, LaunchKind.Executable, null, Path.GetDirectoryName(exePath), exePath));
+                        results.Add(new DetectedGame(name, Platform, exe, LaunchKind.Executable, null, Path.GetDirectoryName(exe), exe));
                     }
-                    catch { }
                 }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
             }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+
+            // WindowsApps on this drive
+            var windowsApps = Path.Combine(drive, "Program Files", "WindowsApps");
+            if (Directory.Exists(windowsApps))
+            {
+                try
+                {
+                    foreach (var dir in Directory.EnumerateDirectories(windowsApps))
+                    {
+                        var manifest = Path.Combine(dir, "AppxManifest.xml");
+                        if (!File.Exists(manifest)) continue;
+                        try
+                        {
+                            var doc = XDocument.Load(manifest);
+                            var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
+                            var identity = doc.Descendants(ns + "Identity").FirstOrDefault();
+                            var displayName = identity?.Attribute("Name")?.Value;
+                            if (string.IsNullOrWhiteSpace(displayName)) continue;
+                            var app = doc.Descendants(ns + "Application").FirstOrDefault(a => a.Attribute("Executable") is not null);
+                            if (app is null) continue;
+                            var exeName = app.Attribute("Executable")?.Value;
+                            if (string.IsNullOrWhiteSpace(exeName)) continue;
+                            var exePath = Path.Combine(dir, exeName!);
+                            if (!File.Exists(exePath)) continue;
+                            if (IsNonGame(displayName!)) continue;
+                            var key = exePath.ToUpperInvariant();
+                            if (!seen.Add(key)) continue;
+                            results.Add(new DetectedGame(displayName!, Platform, exePath, LaunchKind.Executable, null, Path.GetDirectoryName(exePath), exePath));
+                        }
+                        catch { }
+                    }
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+            }
         }
 
         return results;
