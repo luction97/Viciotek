@@ -42,7 +42,14 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         _steamGrid = steamGrid;
         ApiKeyBox.Password = settings.SteamGridDbApiKey ?? string.Empty;
         DataObject.AddPastingHandler(ApiKeyBox, ApiKeyBox_Pasting);
+        ApiKeyBox.PasswordChanged += (_, _) =>
+        {
+            var hasKey = !string.IsNullOrWhiteSpace(ApiKeyBox.Password);
+            AutoFetchCheckBox.IsEnabled = hasKey;
+            if (!hasKey) AutoFetchCheckBox.IsChecked = false;
+        };
         AutoFetchCheckBox.IsChecked = settings.AutoFetchCovers;
+        AutoFetchCheckBox.IsEnabled = !string.IsNullOrWhiteSpace(settings.SteamGridDbApiKey);
         AnimationsCheckBox.IsChecked = settings.AnimationsEnabled;
         CoverSizeSlider.Value = settings.CoverSizePreset;
         UpdateCoverSizeLabel();
@@ -118,8 +125,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         updated.SteamGridDbApiKey = string.IsNullOrWhiteSpace(ApiKeyBox.Password)
             ? null
             : ApiKeyBox.Password.Trim();
-        updated.AutoFetchCovers = AutoFetchCheckBox.IsChecked == true ||
-            (_connectionOnly && string.IsNullOrWhiteSpace(_settings.SteamGridDbApiKey));
+        updated.AutoFetchCovers = AutoFetchCheckBox.IsChecked == true && !string.IsNullOrWhiteSpace(updated.SteamGridDbApiKey);
         updated.AnimationsEnabled = AnimationsCheckBox.IsChecked == true;
         updated.CoverSizePreset = (int)CoverSizeSlider.Value;
         updated.Language = _selectedLanguage;

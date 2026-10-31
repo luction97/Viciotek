@@ -154,6 +154,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public string NoResultsText => L.Get("NoResults");
 
     public bool ShowEmptyState => Games.Count == 0;
+    public bool ShowSteamGridInvitation => !IsSteamGridConfigured;
     public bool ShowCoverSetupHint => _showCoverSetupHint && Games.Count > 0 && !IsSteamGridConfigured;
     public bool ShowNoResults => Games.Count > 0 && !_hasVisibleGames;
 
@@ -754,6 +755,11 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         updated.SteamGridDbApiKey = string.IsNullOrWhiteSpace(updated.SteamGridDbApiKey)
             ? null
             : updated.SteamGridDbApiKey.Trim();
+        // Centralized rule: no API key => auto-fetch disabled
+        if (string.IsNullOrWhiteSpace(updated.SteamGridDbApiKey))
+        {
+            updated.AutoFetchCovers = false;
+        }
         try
         {
             var wasConfigured = _steamGrid.IsConfigured;
@@ -784,6 +790,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             if (keyChanged || wasConfigured != !string.IsNullOrWhiteSpace(_settings.SteamGridDbApiKey))
                 _steamGrid.UpdateApiKey(_settings.SteamGridDbApiKey);
             OnPropertyChanged(nameof(IsSteamGridConfigured));
+            OnPropertyChanged(nameof(ShowSteamGridInvitation));
             OnPropertyChanged(nameof(ShowCoverSetupHint));
             OnPropertyChanged(nameof(AnimationsEnabled));
             foreach (var card in Games) card.RefreshCoverAvailability();
