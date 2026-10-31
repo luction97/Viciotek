@@ -25,6 +25,16 @@ public partial class CoverGalleryDialog : ViciotekDialogWindow
 
     private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
 
+    private void Preview_Loaded(object sender, RoutedEventArgs e)
+    { if (sender is FrameworkElement { DataContext: CoverCandidate candidate }) _viewModel.SetPreviewVisible(candidate, true); }
+    private void Preview_Unloaded(object sender, RoutedEventArgs e)
+    { if (sender is FrameworkElement { DataContext: CoverCandidate candidate }) _viewModel.SetPreviewVisible(candidate, false); }
+    private async void CoverResults_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (e.VerticalChange > 0 && e.ExtentHeight - e.VerticalOffset - e.ViewportHeight < 300 && _viewModel.LoadMoreCommand.CanExecute(null))
+            await _viewModel.LoadMoreAsync();
+    }
+
     private async void Suggestion_MouseUp(object sender, MouseButtonEventArgs e)
     {
         if (ItemsControl.ContainerFromElement(Suggestions, e.OriginalSource as DependencyObject) is ListBoxItem { Content: SteamGridGame game })

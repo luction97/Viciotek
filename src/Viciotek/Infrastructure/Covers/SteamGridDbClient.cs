@@ -61,7 +61,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
         if (!IsConfigured || string.IsNullOrWhiteSpace(term)) return [];
         var data = await GetDataAsync("search/autocomplete/" + Uri.EscapeDataString(term.Trim()), cancellationToken).ConfigureAwait(false);
         return data.ValueKind == JsonValueKind.Array
-            ? data.EnumerateArray().Select(ParseGame).OfType<SteamGridGame>().DistinctBy(game => game.Id).Take(100).ToList()
+            ? data.EnumerateArray().Select(ParseGame).OfType<SteamGridGame>().DistinctBy(game => game.Id).ToList()
             : [];
     }
 
@@ -76,6 +76,31 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
 
     public Task<IReadOnlyList<SteamGridGrid>> GetGridsAsync(int gameId, CancellationToken cancellationToken) =>
         GetGridsAsync(gameId, VerticalDimensions, cancellationToken);
+
+    public sealed record GridPage(IReadOnlyList<SteamGridGrid> Grids, bool HasMore);
+
+    public async Task<GridPage> GetGridPageAsync(int gameId, int page, CancellationToken token)
+    {
+        if (!IsConfigured || gameId <= 0 || page < 0) return new([], false);
+        const int batchSize = 24;
+        var response = await GetDataAsync($"grids/game/{gameId}?types=static&nsfw=false&humor=false&limit={batchSize}&page={page}",
+            token, includeEnvelope: true).ConfigureAwait(false);
+        if (response.ValueKind != JsonValueKind.Object || !response.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Array)
+            return new([], false);
+        var grids = new List<SteamGridGrid>();
+        foreach (var grid in data.EnumerateArray())
+        {
+            var url = HttpsUrl(grid, "url");
+            var width = Number(grid, "width");
+            var height = Number(grid, "height");
+            if (url is not null && width > 0 && height > width && !IsTrue(grid, "nsfw") && !IsTrue(grid, "humor"))
+                grids.Add(new(Number(grid, "id"), url, width, height, HttpsUrl(grid, "thumb")));
+        }
+        var limit = response.TryGetProperty("limit", out var size) && size.ValueKind == JsonValueKind.Number && size.TryGetInt32(out var actual) && actual > 0 ? actual : batchSize;
+        var more = response.TryGetProperty("total", out var total) && total.ValueKind == JsonValueKind.Number && total.TryGetInt64(out var count)
+            ? ((long)page + 1) * limit < count : data.GetArrayLength() >= limit;
+        return new(grids, more);
+    }
 
     public async Task<IReadOnlyList<SteamGridGrid>> GetGridsAsync(int gameId, string dimensions, CancellationToken cancellationToken)
     {
@@ -107,7 +132,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
             ? uri.AbsoluteUri : null;
 
     private async Task<JsonElement> GetDataAsync(string relativeUrl, CancellationToken cancellationToken, bool useCache = true,
-        string? verificationApiKey = null)
+        string? verificationApiKey = null, bool includeEnvelope = false)
     {
         await _apiGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -118,7 +143,8 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
                 _cacheBytes = 0;
                 _cachedRevision = _credentialRevision;
             }
-            if (useCache && _cache.TryGetValue(relativeUrl, out var cached) && cached.Expires > DateTimeOffset.UtcNow) return cached.Data;
+            var cacheKey = includeEnvelope ? "response:" + relativeUrl : relativeUrl;
+            if (useCache && _cache.TryGetValue(cacheKey, out var cached) && cached.Expires > DateTimeOffset.UtcNow) return cached.Data;
             if (IsRateLimited) throw CreateStatusException(HttpStatusCode.TooManyRequests);
             var delay = _nextRequest - DateTimeOffset.UtcNow;
             if (delay > TimeSpan.Zero) await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
@@ -138,11 +164,11 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
                 if (!document.RootElement.TryGetProperty("success", out var success) || success.ValueKind != JsonValueKind.True ||
                     !document.RootElement.TryGetProperty("data", out var data))
                     throw new SteamGridDbException(L.Get("SteamgriddbReturnedAnUnexpectedResponse"));
-                var copy = data.Clone();
+                var copy = includeEnvelope ? document.RootElement.Clone() : data.Clone();
                 if (useCache)
                 {
                     var weight = copy.GetRawText().Length * 2;
-                    if (_cache.Remove(relativeUrl, out var previous)) _cacheBytes -= previous.Weight;
+                    if (_cache.Remove(cacheKey, out var previous)) _cacheBytes -= previous.Weight;
                     while (_cache.Count > 0 && (_cache.Count >= 64 || _cacheBytes + weight > 2 * 1024 * 1024))
                     {
                         var first = _cache.Keys.First();
@@ -151,7 +177,7 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
                     }
                     if (weight <= 2 * 1024 * 1024)
                     {
-                        _cache[relativeUrl] = (DateTimeOffset.UtcNow.AddMinutes(5), copy, weight);
+                        _cache[cacheKey] = (DateTimeOffset.UtcNow.AddMinutes(5), copy, weight);
                         _cacheBytes += weight;
                     }
                 }

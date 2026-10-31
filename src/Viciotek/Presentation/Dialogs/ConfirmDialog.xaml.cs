@@ -4,13 +4,14 @@ namespace Viciotek.Presentation.Dialogs;
 
 public partial class ConfirmDialog : ViciotekDialogWindow
 {
-    public ConfirmDialog(string title, string message, string confirmLabel, string? details = null)
+    public ConfirmDialog(string title, string message, string confirmLabel, string? details = null, bool showRemovalHint = true)
     {
         InitializeComponent();
         Title = title;
         TitleText.Text = title;
         MessageText.Text = message;
         ConfirmButton.Content = confirmLabel;
+        if (!showRemovalHint) RemovalHint.Visibility = Visibility.Collapsed;
         if (details is not null)
         {
             SizeToContent = SizeToContent.Height;

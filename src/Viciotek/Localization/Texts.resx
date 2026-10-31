@@ -697,4 +697,7 @@ Detalle técnico: {0}</value>
 <data name="CoversForGame" xml:space="preserve"><value>Portadas de «{0}»</value></data>
 <data name="SteamGridConnected" xml:space="preserve"><value>Conectado a SteamGridDB.</value></data>
 <data name="ChooseEditionCover" xml:space="preserve"><value>Hay varias ediciones. Elige la portada de tu juego.</value></data>
+<data name="MoreCoverResults" xml:space="preserve"><value>Ver más portadas</value></data>
+<data name="SearchCoverResults" xml:space="preserve"><value>Portadas para «{0}»</value></data>
+<data name="ConfirmDisconnectSteamGrid" xml:space="preserve"><value>Tus juegos y portadas se conservarán.</value></data>
 </root>

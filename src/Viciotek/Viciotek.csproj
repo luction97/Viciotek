@@ -11,8 +11,8 @@
     <RootNamespace>Viciotek</RootNamespace>
     <ApplicationIcon>Assets\viciotek.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.1.33</Version>
-    <FileVersion>1.1.33.0</FileVersion>
+    <Version>1.1.34</Version>
+    <FileVersion>1.1.34.0</FileVersion>
     <Product>VICIOTEK</Product>
     <Description>Biblioteca personal de videojuegos.</Description>
     <Company>Lucas Siano</Company>

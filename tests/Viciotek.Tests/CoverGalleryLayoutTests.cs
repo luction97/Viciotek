@@ -23,7 +23,7 @@ public sealed class CoverGalleryLayoutTests
         var source = XDocument.Load(Path.Combine(AppContext.BaseDirectory, "UiFixtures", "CoverGalleryDialog.xaml"));
         var content = source.Root!.Elements().Single();
         foreach (var attribute in content.DescendantsAndSelf().Attributes().Where(a =>
-                     a.Name.LocalName is "Click" or "KeyDown" or "MouseLeftButtonDown" or "SelectionChanged" or "PreviewKeyDown" or "PreviewMouseLeftButtonUp" or "IsKeyboardFocusWithinChanged").ToArray())
+                     a.Name.LocalName is "Click" or "KeyDown" or "MouseLeftButtonDown" or "SelectionChanged" or "PreviewKeyDown" or "PreviewMouseLeftButtonUp" or "IsKeyboardFocusWithinChanged" or "Loaded" or "Unloaded" or "ScrollViewer.ScrollChanged").ToArray())
             attribute.Remove(); // Exercise production layout without dialog code-behind or network.
         var markup = $$"""
             <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

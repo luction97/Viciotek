@@ -40,6 +40,15 @@ public sealed class CoverGalleryViewModel : ObservableObject
     private bool _closed;
     private CoverCandidate? _selected;
     private readonly SteamGridGame? _confirmed;
+    private sealed class ResultSource(SteamGridGame game) { public SteamGridGame Game = game; public int Page; public bool Finished; }
+    private readonly List<ResultSource> _sources = [];
+    private readonly HashSet<(int Game, string Url)> _seen = [];
+    private readonly Dictionary<CoverCandidate, Task> _previewRequests = [];
+    private readonly LinkedList<CoverCandidate> _previewCache = [];
+    private readonly HashSet<CoverCandidate> _visiblePreviews = [];
+    private int _sourceIndex;
+    public bool HasMoreResults => _sources.Any(source => !source.Finished);
+    public AsyncRelayCommand LoadMoreCommand { get; }
 
     public CoverGalleryViewModel(SteamGridDbClient client, Game game,
         Func<CoverSelection, CancellationToken, Task<bool>> apply, bool manualFallback = false,
@@ -54,6 +63,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
         _confirmed = !manualFallback && game.SteamGridDbGameId is > 0
             ? new(game.SteamGridDbGameId.Value, game.SteamGridDbName ?? game.Name) : null;
         _status = manualFallback ? L.Get("NoCoverWasFoundAutomatically") : null;
+        LoadMoreCommand = new AsyncRelayCommand(LoadMoreAsync, () => !IsLoading && HasMoreResults);
         SearchCommand = new AsyncRelayCommand(SearchAsync, () => !IsLoading && !string.IsNullOrWhiteSpace(SearchQuery));
         ConfirmCommand = new AsyncRelayCommand(ConfirmAsync, () => !IsLoading && Selected is not null && (Selected.Game is not null || SelectedGame is not null));
     }
@@ -71,6 +81,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
             _previewCancellation?.Cancel();
             CancelDebounce();
             _suggestionsRequested = true;
+            _sources.Clear(); UpdatePaging();
             Matches.Clear();
             OnPropertyChanged(nameof(ShowSuggestions));
             Candidates.Clear();
@@ -102,6 +113,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
             if (!SetProperty(ref _isLoading, value)) return;
             SearchCommand.RaiseCanExecuteChanged();
             ConfirmCommand.RaiseCanExecuteChanged();
+            LoadMoreCommand.RaiseCanExecuteChanged();
         }
     }
     public CoverCandidate? Selected
@@ -150,6 +162,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
         {
             await ClearPreviewsAsync();
             if (token.IsCancellationRequested || revision != _searchRevision) return;
+            _sources.Clear(); UpdatePaging();
             Matches.Clear();
             SelectedGame = null;
             if (query.Length == 0) return;
@@ -158,13 +171,10 @@ public sealed class CoverGalleryViewModel : ObservableObject
             _matchedQuery = query;
             foreach (var match in matches) Matches.Add(match);
             OnPropertyChanged(nameof(ShowSuggestions));
-            var exact = GameIdentitySearch.ExactMatches(query, matches);
-            // Homonyms are separate games: preview a balanced sample, never just the first edition.
-            var homonyms = exact.Count > 0 ? exact : matches.Where(game =>
-                GameTitle.Normalize(game.Name) == GameTitle.Normalize(matches.FirstOrDefault()?.Name ?? string.Empty)).ToList();
-            if (homonyms.Count > 1) await LoadHomonymsAsync(homonyms, revision, token);
-            else if ((exact.FirstOrDefault() ?? matches.FirstOrDefault()) is { } preview) await LoadGridsAsync(preview, revision, token);
-            else Status = matches.Count == 0 ? L.Get("NoResultsTryAnotherName") : L.Get("ChooseAGameToSeeItsCovers");
+            SetSources(matches.GroupBy(game => GameTitle.Normalize(game.Name))
+                .SelectMany(group => group.OrderByDescending(game => game.ReleaseYear)));
+            if (matches.Count > 0) await LoadNextPageAsync(revision, token);
+            else Status = L.Get("NoResultsTryAnotherName");
         });
     }
 
@@ -210,36 +220,70 @@ public sealed class CoverGalleryViewModel : ObservableObject
             }
         }
     }
+    private void SetSources(IEnumerable<SteamGridGame> games)
+    {
+        _sources.Clear(); _sources.AddRange(games.Select(game => new ResultSource(game)));
+        _sourceIndex = 0; _seen.Clear(); UpdatePaging();
+    }
+    private void UpdatePaging() { OnPropertyChanged(nameof(HasMoreResults)); LoadMoreCommand.RaiseCanExecuteChanged(); }
+    public Task LoadMoreAsync() => IsLoading || !HasMoreResults ? Task.CompletedTask : RunLatestAsync(LoadNextPageAsync);
+
     private async Task LoadGridsAsync(SteamGridGame game, int? revision = null, CancellationToken? requestToken = null)
     {
-        var currentRevision = revision ?? _searchRevision;
-        var token = requestToken ?? _searchCancellation?.Token ?? _lifetime.Token;
-        if (currentRevision != _searchRevision) return;
-        var grids = await _client.GetGridsAsync(game.Id, token);
-        if (_closed || token.IsCancellationRequested || currentRevision != _searchRevision) return;
-        SelectedGame = game;
-        foreach (var grid in grids) Candidates.Add(new(grid, game));
-        Status = grids.Count == 0 ? L.Get("ThisGameHasNoPortraitCoversTryAnotherName") : L.Get("CoversForGame", game.DisplayName);
-        _previewCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
-        _previews = Task.WhenAll(Candidates.Select(candidate => LoadPreviewAsync(candidate, _previewCancellation.Token)));
+        SetSources([game]);
+        await LoadNextPageAsync(revision ?? _searchRevision, requestToken ?? _searchCancellation?.Token ?? _lifetime.Token);
     }
 
-    private async Task LoadHomonymsAsync(IReadOnlyList<SteamGridGame> games, int revision, CancellationToken token)
+    private async Task LoadNextPageAsync(int revision, CancellationToken token)
     {
-        var editions = games.OrderByDescending(game => game.ReleaseYear).Take(4).ToArray();
-        var perEdition = 24 / editions.Length;
-        foreach (var game in editions)
-        {
-            var grids = await _client.GetGridsAsync(game.Id, token);
-            if (_closed || token.IsCancellationRequested || revision != _searchRevision) return;
-            foreach (var grid in grids.Take(perEdition)) Candidates.Add(new(grid, game));
-        }
-        SelectedGame = null;
-        Status = Candidates.Count == 0 ? L.Get("ThisGameHasNoPortraitCoversTryAnotherName") : L.Get("ChooseEditionCover");
-        _previewCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
-        _previews = Task.WhenAll(Candidates.Select(candidate => LoadPreviewAsync(candidate, _previewCancellation.Token)));
+        var sources = _sources.ToArray();
+        if (sources.Length == 0) return;
+        var index = _sourceIndex;
+        for (var i = 0; i < sources.Length && sources[index % sources.Length].Finished; i++) index++;
+        var source = sources[index % sources.Length];
+        if (source.Finished) return;
+        var page = await _client.GetGridPageAsync(source.Game.Id, source.Page, token);
+        if (_closed || token.IsCancellationRequested || revision != _searchRevision) return;
+        var added = new List<CoverCandidate>();
+        foreach (var grid in page.Grids)
+            if (_seen.Add((source.Game.Id, grid.Url))) { var candidate = new CoverCandidate(grid, source.Game); Candidates.Add(candidate); added.Add(candidate); }
+        source.Page++;
+        source.Finished = !page.HasMore || (page.Grids.Count > 0 && added.Count == 0);
+        _sourceIndex = index + 1;
+        SelectedGame = sources.Length == 1 ? source.Game : Candidates.Select(candidate => candidate.Game!).DistinctBy(game => game.Id).Take(2).Count() == 1 ? Candidates[0].Game : null;
+        Status = Candidates.Count == 0 ? HasMoreResults ? null : L.Get("ThisGameHasNoPortraitCoversTryAnotherName")
+            : sources.Length == 1 ? L.Get("CoversForGame", source.Game.DisplayName) : L.Get("SearchCoverResults", _matchedQuery);
+        UpdatePaging();
+        foreach (var candidate in added.Take(24)) _ = EnsurePreviewAsync(candidate);
     }
 
+    public Task EnsurePreviewAsync(CoverCandidate candidate)
+    {
+        if (_closed || !Candidates.Contains(candidate) || candidate.ThumbnailUrl is null) return Task.CompletedTask;
+        if (candidate.Thumbnail is not null) { TouchPreview(candidate); return Task.CompletedTask; }
+        if (_previewRequests.TryGetValue(candidate, out var pending) && !pending.IsCompleted) return pending;
+        _previewCancellation ??= CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        var task = LoadPreviewAsync(candidate, _previewCancellation.Token);
+        _previewRequests[candidate] = task;
+        _previews = Task.WhenAll(_previews, task);
+        return task;
+    }
+    public void SetPreviewVisible(CoverCandidate candidate, bool visible)
+    {
+        if (visible) { _visiblePreviews.Add(candidate); _ = EnsurePreviewAsync(candidate); }
+        else { _visiblePreviews.Remove(candidate); if (candidate.Thumbnail is not null) TouchPreview(candidate); }
+    }
+    private void TouchPreview(CoverCandidate candidate)
+    {
+        _previewCache.Remove(candidate); _previewCache.AddLast(candidate);
+        while (_previewCache.Count > 48)
+        {
+            var oldest = _previewCache.First;
+            while (oldest is not null && _visiblePreviews.Contains(oldest.Value)) oldest = oldest.Next;
+            if (oldest is null) break;
+            oldest.Value.Thumbnail = null; _previewCache.Remove(oldest);
+        }
+    }
     private async Task LoadPreviewAsync(CoverCandidate candidate, CancellationToken token)
     {
         // Missing provider thumbnails never trigger downloads of all full-resolution originals.
@@ -263,6 +307,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
                 bitmap.Freeze();
                 return bitmap;
             }, token);
+            TouchPreview(candidate);
         }
         catch (OperationCanceledException) { }
         catch (Exception exception) when (exception is SteamGridDbException or IOException or NotSupportedException or ArgumentException or InvalidOperationException)
@@ -321,6 +366,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
         _previewCancellation = null;
         Selected = null;
         Candidates.Clear();
+        _previewRequests.Clear(); _previewCache.Clear(); _visiblePreviews.Clear();
     }
 
     public async Task CloseAsync()

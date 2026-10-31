@@ -48,16 +48,12 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         UpdateCoverSizeLabel();
         DataPathBox.Text = paths.Root;
         UpdateConnectionAction();
-        if (!string.IsNullOrWhiteSpace(settings.SteamGridDbApiKey))
-            ShowConnectionStatus(L.Get("ConnectionSavedOnThisComputer"));
         if (!connectionOnly)
         {
             ConnectionForm.Visibility = Visibility.Collapsed;
             ConnectionSummary.Visibility = Visibility.Visible;
             var connected = !string.IsNullOrWhiteSpace(settings.SteamGridDbApiKey);
-            SavedConnectionText.Text = L.Get(connected ? "ConnectionSavedOnThisComputer" : "CoverConnectionBenefit");
-            SavedConnectionText.Visibility = connected ? Visibility.Visible : Visibility.Collapsed;
-            ManageConnectionButton.Content = L.Get(connected ? "ReviewCoverConnectionAction" : "ConnectSteamGridOptional");
+            ManageConnectionButton.Visibility = connected ? Visibility.Collapsed : Visibility.Visible;
             DisconnectButton.Visibility = connected ? Visibility.Visible : Visibility.Collapsed;
         }
         Closed += (_, _) => { _lifetime.Cancel(); _lifetime.Dispose(); };
@@ -138,6 +134,9 @@ public partial class PreferencesDialog : ViciotekDialogWindow
 
     private void Disconnect_Click(object sender, RoutedEventArgs e)
     {
+        var confirmation = new ConfirmDialog(L.Get("DisconnectSteamGrid"), L.Get("ConfirmDisconnectSteamGrid"),
+            L.Get("DisconnectSteamGrid"), showRemovalHint: false) { Owner = this };
+        if (confirmation.ShowDialog() != true) return;
         ApiKeyBox.Password = string.Empty;
         AutoFetchCheckBox.IsChecked = false;
         SaveAndClose();

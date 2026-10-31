@@ -86,7 +86,6 @@
                                Visibility="Collapsed" AutomationProperties.LiveSetting="Polite" />
                     </StackPanel>
                     <StackPanel x:Name="ConnectionSummary" Visibility="Collapsed">
-                        <TextBlock x:Name="SavedConnectionText" FontSize="15" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
                         <Button x:Name="ManageConnectionButton" Content="{loc:Text ConnectSteamGridOptional}" Style="{StaticResource PrimaryButtonStyle}"
                                 HorizontalAlignment="Left" Padding="0" Margin="0,10,0,0" Click="ManageConnection_Click" />
                         <Button x:Name="DisconnectButton" Content="{loc:Text DisconnectSteamGrid}" Style="{StaticResource GhostButtonStyle}"

@@ -27,6 +27,7 @@ public sealed class CoverAutocompleteTests
         {
             vm.SearchQuery = query;
             await vm.SearchAsync();
+            await vm.LoadMoreAsync();
             Assert.Equal(new int?[] { 2018, 2005 }, vm.Candidates.Select(candidate => candidate.Game!.ReleaseYear));
             Assert.Contains(vm.Matches, game => game.DisplayName == "God of War (2018)");
             Assert.Contains(vm.Matches, game => game.DisplayName == "God of War (2005)");
@@ -71,7 +72,7 @@ public sealed class CoverAutocompleteTests
             await WpfTest.WaitUntilAsync(() => vm.Candidates.Count == 1 && !vm.IsLoading);
             Assert.Equal(5, vm.SelectedGame?.Id);
             Assert.Equal(query, vm.SearchQuery);
-            Assert.Contains("First result", vm.Status);
+            Assert.Contains(query, vm.Status);
             Assert.True(vm.ShowSuggestions);
             Assert.Null(vm.Selected);
             Assert.False(vm.ConfirmCommand.CanExecute(null));

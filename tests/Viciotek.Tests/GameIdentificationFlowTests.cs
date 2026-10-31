@@ -722,6 +722,7 @@ public sealed class GameIdentificationFlowTests
         {
             await gallery.SearchAsync();
             Assert.Equal(2, gallery.Matches.Count);
+            await gallery.LoadMoreAsync();
             Assert.NotEmpty(gallery.Candidates);
             Assert.Null(gallery.SelectedGame);
             Assert.Equal(new[] { 1, 2 }, gallery.Candidates.Select(candidate => candidate.Game!.Id));

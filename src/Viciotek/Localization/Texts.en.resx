@@ -697,4 +697,7 @@ Technical details: {0}</value>
 <data name="CoversForGame" xml:space="preserve"><value>Covers for “{0}”</value></data>
 <data name="SteamGridConnected" xml:space="preserve"><value>Connected to SteamGridDB.</value></data>
 <data name="ChooseEditionCover" xml:space="preserve"><value>Several editions match. Choose your game's cover.</value></data>
+<data name="MoreCoverResults" xml:space="preserve"><value>More covers</value></data>
+<data name="SearchCoverResults" xml:space="preserve"><value>Covers for “{0}”</value></data>
+<data name="ConfirmDisconnectSteamGrid" xml:space="preserve"><value>Your games and covers will be kept.</value></data>
 </root>
