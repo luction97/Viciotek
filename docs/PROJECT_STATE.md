@@ -1,6 +1,13 @@
 # Estado del proyecto
 
-Última revisión: 2026-10-30. Producto: **VICIOTEK 1.1.30**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-10-31. Producto: **VICIOTEK 1.1.31**, C#/WPF/.NET 8 para Windows 11.
+
+## Primera importación antes de conectar — 1.1.31
+- Bienvenida reducida a título, instrucción de arrastre y Elegir juego destacado. Se elimina el bloque de conexión del estado vacío. Tras la primera importación guardada, sin conexión, aparece una invitación integrada en biblioteca: ¿Buscamos la portada por ti?, beneficio breve, Conectar SteamGridDB y Ahora no. No abre modales automáticamente ni bloquea importación. Conectar reutiliza el diálogo dedicado y el lote de portadas pendientes. Cancelar conserva la invitación; Ahora no la descarta sin repetirse al importar más en esa sesión. Bibliotecas existentes no reciben la invitación al abrir/importar; no hay indicador nuevo persistido ni red al inicio.
+- Formulario de conexión con obtener código y pegado agrupados, acción principal debajo del campo, tipografía/áreas de acción mayores, instrucción breve es/en. Idioma/Acerca de y resto de Configuración conservados. Portadas/virtualización/lanzamiento intactos; notificación conserva posición inferior y overlay de arrastre abarca el área de contenido.
+- CONFIRMADO: build Release -warnaserror limpio y 308/308 tests. Cuatro nuevas regresiones cubren picker/drop, invitación tras persistencia, omitir sin repetición, cancelación, conexión/descarga pendiente, biblioteca existente y guardado fallido. Regresiones de bienvenida/localización adaptadas. Harness WPF con datos aislados y sin red valida bienvenida/invitación/omisión/conexión en es/en a 760×540 y 1280×800; renders inspeccionados. Comprensión con usuarios reales y conexión con cuenta propia pendientes.
+- Entrega CONFIRMADA: ambos ZIPs SmokePublished PASS; instalador generado y SmokeInstaller PASS (instalar, actualizar, bloquear con app abierta, desinstalar, preservar datos y archivo ajeno). SHA256/iconos verificados. Fuentes en Git sin push; evidencia aislada en artifacts/ux-1.1.31. La invitación también permanece oculta tras conectar y desconectar posteriormente.
+- Próximo paso concreto: instalar 1.1.31 y observar el primer uso con usuarios nuevos; validar conexión con cuenta propia, sin afirmar comprensión universal ni tiempos de uso medidos.
 
 ## Identificación de ejecutables y recuperación de búsqueda — 1.1.30
 - El usuario aclara que elige el .exe pero arrastra un acceso directo. Ambos ya usan el mismo importador; difieren las fuentes de identidad disponibles. CONFIRMADO leyendo solo FileVersionInfo de D:\Games\God of War\GoW.exe: ProductName=GoW, FileDescription=God of War; lector/resolver obtienen nombre y consulta God of War sin SteamAppId. No se ejecutó el juego ni se accedió a configuración personal. No se confirma la causa de su fallo HTTP/portada sin consulta real al proveedor.

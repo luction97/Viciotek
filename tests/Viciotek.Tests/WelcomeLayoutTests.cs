@@ -56,24 +56,16 @@ public sealed class WelcomeLayoutTests
                 Assert.InRange(bounds.Bottom, 0, height);
             }
             var texts = content.Children.OfType<TextBlock>().ToArray();
-            Assert.Single(texts);
+            Assert.Equal(2, texts.Length);
             Assert.True(texts[0].FontSize >= 32);
             var button = (Button)window.FindName("ChooseFirstGame");
             Assert.Equal(Language.Get("ChooseGame"), button.Content);
             Assert.True(button.ActualHeight >= 44);
             Assert.True(button.Focusable);
             Assert.True(button.IsTabStop);
-            var setup = (Border)window.FindName("CoverSetupHint");
-            Assert.Equal(!connected, setup.IsVisible);
-            var connect = (Button)window.FindName("ConnectWelcome");
-            Assert.Equal(Language.Get("ConnectSteamGridOptional"), connect.Content);
-            Assert.True(connect.Focusable);
-            if (!connected)
-            {
-                var actions = Descendants(content).OfType<Button>().ToArray();
-                Assert.Same(connect, actions[0]);
-                Assert.Same(button, actions[1]);
-            }
+            Assert.Null(window.FindName("CoverSetupHint"));
+            Assert.Single(Descendants(content).OfType<Button>());
+            Assert.Equal(Language.Get("DragShortcutToStart"), texts[1].Text);
             await Task.CompletedTask;
         }
         finally { window.Close(); Language.Use(previous); }

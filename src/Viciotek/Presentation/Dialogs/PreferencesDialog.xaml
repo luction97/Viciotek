@@ -56,7 +56,7 @@
                         </StackPanel>
                     </Grid>
                     <StackPanel x:Name="ConnectionForm">
-                    <Button FontSize="15" Content="{loc:Text GetMyCode}" Style="{StaticResource LinkButtonStyle}"
+                    <Button FontSize="16" FontWeight="SemiBold" MinHeight="44" Content="{loc:Text GetMyCode}" Style="{StaticResource LinkButtonStyle}"
                             HorizontalAlignment="Left" Padding="0" Click="OpenSteamGridDb_Click" />
                     <TextBlock Text="{loc:Text SignInAndCopyYourApiKeyCode}"
                                Style="{StaticResource FieldHintStyle}" FontSize="15" LineHeight="22" TextWrapping="Wrap"
@@ -64,9 +64,9 @@
                     <Label Content="{loc:Text PasteYourCodeToConnect}" Target="{Binding ElementName=ApiKeyBox}"
                            Foreground="{DynamicResource TextSecondaryBrush}" FontSize="15" Padding="0,0,0,10" />
                     <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <PasswordBox FontSize="15" x:Name="ApiKeyBox"
@@ -77,8 +77,8 @@
                                 Style="{StaticResource GhostButtonStyle}" Padding="8,0"
                                 Margin="8,0,0,0" VerticalAlignment="Center" ToolTip="{loc:Text PasteCode}"
                                 Click="PasteCode_Click" />
-                        <Button FontSize="14" x:Name="VerifyButton" Grid.Column="2" Content="{loc:Text Connect}"
-                                Style="{StaticResource PrimaryButtonStyle}" Margin="4,0,0,0"
+                        <Button FontSize="16" MinHeight="44" x:Name="VerifyButton" Grid.Row="1" Grid.ColumnSpan="2" Content="{loc:Text Connect}"
+                                Style="{StaticResource PrimaryButtonStyle}" Margin="0,12,0,0" HorizontalAlignment="Right"
                                 IsEnabled="False" Click="VerifyConnection_Click" />
                     </Grid>
                     <TextBlock x:Name="ConnectionStatusText" TextWrapping="Wrap" FontSize="14"

@@ -39,6 +39,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     private CancellationTokenSource _coverConnectionCancellation = new();
     private int _coverConnectionRevision;
     private bool _editingSettings;
+    private bool _coverInvitationOffered;
+    private bool _showCoverSetupHint;
     private readonly HashSet<Task> _operations = [];
     private readonly HashSet<Guid> _pendingCoverSearches = [];
     private Task? _closeTask;
@@ -77,6 +79,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         _steamGrid = steamGrid;
         _dialogs = dialogs;
         _startupWarning = startupWarning;
+        _coverInvitationOffered = games.Count > 0;
 
         Games = new ObservableCollection<GameCardViewModel>(
             games.Select(game => new GameCardViewModel(game, this, _covers)));
@@ -87,6 +90,11 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         AddGamesCommand = new AsyncRelayCommand(AddGamesFromDialogAsync);
         OpenPreferencesCommand = new AsyncRelayCommand(OpenPreferencesAsync);
         ConnectCoversCommand = new AsyncRelayCommand(ConnectCoversAsync);
+        DismissCoverSetupCommand = new RelayCommand(() =>
+        {
+            _showCoverSetupHint = false;
+            OnPropertyChanged(nameof(ShowCoverSetupHint));
+        });
         ClearSearchCommand = new RelayCommand(ClearSearch);
     }
 
@@ -95,6 +103,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public AsyncRelayCommand AddGamesCommand { get; }
     public AsyncRelayCommand OpenPreferencesCommand { get; }
     public AsyncRelayCommand ConnectCoversCommand { get; }
+    public RelayCommand DismissCoverSetupCommand { get; }
     public RelayCommand ClearSearchCommand { get; }
     public bool IsSteamGridConfigured => _steamGrid.IsConfigured;
     public bool AnimationsEnabled => _settings.AnimationsEnabled;
@@ -139,7 +148,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public string NoResultsText => L.Get("NoResults");
 
     public bool ShowEmptyState => Games.Count == 0;
-    public bool ShowCoverSetupHint => ShowEmptyState && !IsSteamGridConfigured;
+    public bool ShowCoverSetupHint => _showCoverSetupHint && Games.Count > 0 && !IsSteamGridConfigured;
     public bool ShowNoResults => Games.Count > 0 && !_hasVisibleGames;
 
     public bool IsImporting
@@ -580,6 +589,12 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                 addedCards.Add(card);
             }
 
+            if (!_coverInvitationOffered && addedCards.Count > 0)
+            {
+                _coverInvitationOffered = true;
+                _showCoverSetupHint = !_steamGrid.IsConfigured;
+            }
+
             if (addedCards.Count > 0 && SearchQuery.Length > 0)
             {
                 SearchQuery = string.Empty;
@@ -662,6 +677,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                 previous.Cancel(); previous.Dispose();
             }
             _settings.SteamGridDbApiKey = updated.SteamGridDbApiKey;
+            if (!string.IsNullOrWhiteSpace(updated.SteamGridDbApiKey)) _showCoverSetupHint = false;
             _settings.AutoFetchCovers = updated.AutoFetchCovers;
             _settings.AnimationsEnabled = updated.AnimationsEnabled;
             _settings.CoverSizePreset = updated.CoverSizePreset;
@@ -977,8 +993,6 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             isError = true;
         }
 
-        if (outcome.Added.Count > 0 && _settings.AutoFetchCovers && !_steamGrid.IsConfigured)
-            message += L.Get("SetUpSteamgriddbInSettingsToFindCovers");
 
         return new ImportToast(message, isError);
     }

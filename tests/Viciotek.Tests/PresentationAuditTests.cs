@@ -73,7 +73,7 @@ public sealed class PresentationAuditTests
                 new SettingsStore(paths), new GameImporter(new FakeShortcutResolver()), new RecordingLauncher(),
                 new CoverStore(paths), new SteamGridDbClient(null), dialogs, null);
             Assert.True(viewModel.ShowEmptyState);
-            Assert.True(viewModel.ShowCoverSetupHint);
+            Assert.False(viewModel.ShowCoverSetupHint);
             Assert.False(viewModel.ShowNoResults);
             await viewModel.AddGamesFromDialogAsync();
             Assert.True(dialogs.DirectPick);
@@ -87,7 +87,7 @@ public sealed class PresentationAuditTests
             Assert.True(dialogs.DirectPick);
             dialogs.FilesToPick = null;
             Assert.False(viewModel.ShowEmptyState);
-            Assert.False(viewModel.ShowCoverSetupHint);
+            Assert.True(viewModel.ShowCoverSetupHint);
             Assert.False(viewModel.ShowNoResults);
             Assert.Contains(nameof(viewModel.ShowEmptyState), notifications);
             viewModel.SearchQuery = "no matching game";
@@ -100,7 +100,7 @@ public sealed class PresentationAuditTests
             await viewModel.RemoveAsync(Assert.Single(viewModel.Games));
             Assert.True(viewModel.ShowEmptyState);
             Assert.False(viewModel.ShowNoResults);
-            Assert.True(viewModel.ShowCoverSetupHint);
+            Assert.False(viewModel.ShowCoverSetupHint);
             dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "test-key" };
             await viewModel.OpenPreferencesAsync();
             Assert.True(viewModel.ShowEmptyState);

@@ -316,7 +316,23 @@
 
         <!-- Gallery -->
         <Grid Grid.Row="1">
-            <controls:GameGallery x:Name="Gallery"
+            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+            <Border x:Name="CoverSetupHint" Style="{StaticResource DialogSectionStyle}" Margin="40,12,40,0"
+                    Visibility="{Binding ShowCoverSetupHint, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <TextBlock Text="{loc:Text OfferFirstCover}" FontSize="19" FontWeight="SemiBold" TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextPrimaryBrush}" />
+                    <TextBlock Text="{loc:Text OfferFirstCoverDescription}" FontSize="15" Margin="0,6,0,8"
+                               Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <WrapPanel>
+                        <Button Content="{loc:Text ConnectCoverService}" Command="{Binding ConnectCoversCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}" FontSize="15" MinHeight="44" Padding="0,0,20,0" />
+                        <Button Content="{loc:Text NotNow}" Command="{Binding DismissCoverSetupCommand}"
+                                Style="{StaticResource GhostButtonStyle}" FontSize="15" MinHeight="44" Padding="8,0" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+            <controls:GameGallery Grid.Row="1" x:Name="Gallery"
                                   ItemsSource="{Binding GamesView}"
                                   ItemTemplate="{StaticResource GameCardTemplate}"
                                   ItemContainerStyle="{StaticResource GameCardItemStyle}"
@@ -336,54 +352,21 @@
             </controls:GameGallery>
 
             <!-- Empty library -->
-            <Grid x:Name="EmptyLibrary" Background="{DynamicResource BgBrush}"
+            <Grid Grid.Row="1" x:Name="EmptyLibrary" Background="{DynamicResource BgBrush}"
                   Visibility="{Binding ShowEmptyState, Converter={StaticResource BoolToVisibility}}">
-                <StackPanel x:Name="WelcomeContent" HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            MaxWidth="620"
-                            Margin="32">
-                    <TextBlock Text="{loc:Text YourLibraryStartsHere}"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"
-                               FontFamily="{StaticResource DisplayFont}"
-                               TextWrapping="Wrap"
-                               FontSize="36"
-                               FontWeight="SemiBold"
+                <StackPanel x:Name="WelcomeContent" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="620" Margin="32">
+                    <TextBlock Text="{loc:Text YourLibraryStartsHere}" HorizontalAlignment="Center" TextAlignment="Center"
+                               FontFamily="{StaticResource DisplayFont}" TextWrapping="Wrap" FontSize="36" FontWeight="SemiBold"
                                Foreground="{DynamicResource TextPrimaryBrush}" />
-                    <Border x:Name="CoverSetupHint" Style="{StaticResource DialogSectionStyle}" Margin="0,24,0,0"
-                            Visibility="{Binding ShowCoverSetupHint, Converter={StaticResource BoolToVisibility}}">
-                        <StackPanel>
-                        <TextBlock Text="{loc:Text StartWithAutomaticCovers}" FontSize="20" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" />
-                            <Button x:Name="ConnectWelcome" Content="{loc:Text ConnectSteamGridOptional}" Command="{Binding ConnectCoversCommand}"
-                                    Style="{StaticResource PrimaryButtonStyle}" FontSize="18" Height="44" Padding="0"
-                                    HorizontalAlignment="Left" Margin="0,10,0,0" />
-                        <TextBlock Text="{loc:Text ManualCoversWithoutConnection}" FontSize="14"
-                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"
-                                   TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Border>
-                    <StackPanel Margin="0,20,0,0" HorizontalAlignment="Center">
-                        <Button x:Name="ChooseFirstGame" Content="{loc:Text ChooseGame}"
-                                Command="{Binding AddGamesCommand}"
-                                Height="48" Padding="22,0" HorizontalAlignment="Center">
-                            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource WelcomeButtonStyle}">
-                                <Setter Property="FontSize" Value="18" />
-                                <Style.Triggers><DataTrigger Binding="{Binding ShowCoverSetupHint}" Value="True">
-                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
-                                    <Setter Property="FontSize" Value="16" />
-                                </DataTrigger></Style.Triggers>
-                            </Style></Button.Style>
-                        </Button>
-                        <TextBlock Text="{loc:Text DragShortcutToStart}" FontSize="15"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                   TextAlignment="Center" TextWrapping="Wrap" Margin="0,4,0,0" />
-                    </StackPanel>
+                    <TextBlock Text="{loc:Text DragShortcutToStart}" FontSize="18" Foreground="{DynamicResource TextSecondaryBrush}"
+                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,20,0,20" />
+                    <Button x:Name="ChooseFirstGame" Content="{loc:Text ChooseGame}" Command="{Binding AddGamesCommand}"
+                            Style="{StaticResource WelcomeButtonStyle}" FontSize="18" Height="48" Padding="22,0" HorizontalAlignment="Center" />
                 </StackPanel>
             </Grid>
 
             <!-- Empty search -->
-            <Grid Background="{DynamicResource BgBrush}"
+            <Grid Grid.Row="1" Background="{DynamicResource BgBrush}"
                   Visibility="{Binding ShowNoResults, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="440" Margin="32">
                     <TextBlock Text="&#xE721;"
@@ -408,7 +391,7 @@
             </Grid>
 
             <!-- Drop hint for imported files -->
-            <Border x:Name="DropOverlay"
+            <Border Grid.RowSpan="2" x:Name="DropOverlay"
                     Margin="18"
                     Background="{DynamicResource DropHintBackgroundBrush}"
                     BorderBrush="#38FFFFFF"
@@ -438,7 +421,7 @@
             </Border>
 
             <!-- Toast -->
-            <Border MaxWidth="680"
+            <Border Grid.Row="1" MaxWidth="680"
                     Margin="24,0,24,24"
                     VerticalAlignment="Bottom"
                     HorizontalAlignment="Center"

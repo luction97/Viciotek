@@ -16,6 +16,62 @@ namespace Viciotek.Tests;
 
 public sealed class GameIdentificationFlowTests
 {
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public Task FirstImport_OffersConnectionAfterSaving_DeclineDoesNotRepeat(bool pick) => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(apiKey: null);
+        Assert.False(fixture.ViewModel.ShowCoverSetupHint);
+        var executable = fixture.CreateExecutable("MK.exe");
+        if (pick)
+        {
+            fixture.Dialogs.FilesToPick = [executable];
+            await fixture.ViewModel.AddGamesFromDialogAsync();
+        }
+        else await fixture.ViewModel.HandleDroppedFilesAsync([executable]);
+        Assert.Single(fixture.Library.Load().Games);
+        Assert.True(fixture.ViewModel.ShowCoverSetupHint);
+        Assert.Empty(fixture.Handler.Requests);
+        Assert.Equal(0, fixture.Dialogs.PreferenceCount);
+        fixture.ViewModel.DismissCoverSetupCommand.Execute(null);
+        await fixture.ImportAsync("Second.exe");
+        Assert.False(fixture.ViewModel.ShowCoverSetupHint);
+        Assert.Equal(2, fixture.Library.Load().Games.Count);
+        Assert.Empty(fixture.Handler.Requests);
+    });
+
+    [Fact]
+    public Task FirstImport_ConnectCancellationKeepsInvitation_ConnectionBackfillsAndHidesIt() => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(apiKey: null);
+        await fixture.ImportAsync("MK.exe");
+        await fixture.ViewModel.ConnectCoversAsync(); // Cancel connection.
+        Assert.True(fixture.ViewModel.ShowCoverSetupHint);
+        Assert.Empty(fixture.Handler.Requests);
+        fixture.Dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "fixture-key" };
+        await fixture.ViewModel.ConnectCoversAsync();
+        Assert.False(fixture.ViewModel.ShowCoverSetupHint);
+        await WpfTest.WaitUntilAsync(() => fixture.ViewModel.Games[0].Model.CoverFileName is not null);
+        Assert.Equal(42, Assert.Single(fixture.Library.Load().Games).SteamGridDbGameId);
+        fixture.Dialogs.SettingsResult = new AppSettings();
+        await fixture.ViewModel.OpenPreferencesAsync(); // Disconnecting later must not resurrect onboarding.
+        Assert.False(fixture.ViewModel.ShowCoverSetupHint);
+    });
+
+    [Fact]
+    public Task ExistingLibrary_DoesNotOfferConnectionAgain_AndFailedImportDoesNotOfferIt() => WpfTest.RunAsync(async () =>
+    {
+        await using var existing = new Fixture(apiKey: null, games: [MissingCover()]);
+        await existing.ImportAsync("Second.exe");
+        Assert.False(existing.ViewModel.ShowCoverSetupHint);
+        await using var empty = new Fixture(apiKey: null);
+        Directory.CreateDirectory(empty.Paths.LibraryFile);
+        await empty.ImportAsync("MK.exe");
+        Assert.Empty(empty.ViewModel.Games);
+        Assert.False(empty.ViewModel.ShowCoverSetupHint);
+        Assert.Empty(empty.Handler.Requests);
+    });
     [Fact]
     public Task SavedConnection_IsReusedWhenEditingOtherPreferences() => WpfTest.RunAsync(async () =>
     {
@@ -351,7 +407,8 @@ public sealed class GameIdentificationFlowTests
         Assert.Single(fixture.ViewModel.Games);
         Assert.Empty(fixture.Handler.Requests);
         Assert.True(fixture.ViewModel.IsToastVisible);
-        Assert.Contains("Configura SteamGridDB", fixture.ViewModel.ToastMessage);
+        Assert.True(fixture.ViewModel.ShowCoverSetupHint);
+        Assert.DoesNotContain("Configura SteamGridDB", fixture.ViewModel.ToastMessage);
     });
 
     [Fact]

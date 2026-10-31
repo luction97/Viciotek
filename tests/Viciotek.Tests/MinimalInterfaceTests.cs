@@ -14,7 +14,7 @@ public sealed class MinimalInterfaceTests
             .Select(attribute => attribute.Value));
         Assert.DoesNotContain("clic", text, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("{loc:Text DragShortcutToStart}", text);
-        Assert.Contains("{loc:Text ConnectSteamGridOptional}", text);
+        Assert.Contains("{loc:Text ConnectCoverService}", text);
         Assert.Contains("{loc:Text YourLibraryStartsHere}", text);
         Assert.Contains(document.Descendants(ui + "Button"), item =>
             (string?)item.Attribute("Content") == "{loc:Text ChooseGame}" &&
