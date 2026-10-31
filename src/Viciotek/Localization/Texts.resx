@@ -694,4 +694,5 @@ Detalle técnico: {0}</value>
 <data name="OfferFirstCover" xml:space="preserve"><value>¿Buscamos la portada por ti?</value></data>
 <data name="NotNow" xml:space="preserve"><value>Ahora no</value></data>
 <data name="OfferFirstCoverDescription" xml:space="preserve"><value>Conecta SteamGridDB para encontrar y elegir portadas.</value></data>
+<data name="CoversForGame" xml:space="preserve"><value>Portadas de «{0}»</value></data>
 </root>

@@ -691,8 +691,9 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             OnPropertyChanged(nameof(AnimationsEnabled));
             foreach (var card in Games) card.RefreshCoverAvailability();
             DismissToast();
-            if (_steamGrid.IsConfigured && _settings.AutoFetchCovers && (connectionOnly || keyChanged || autoEnabled))
-                _ = RunOperationAsync(() => FetchAutomaticCoversAsync(Games.Where(card => card.Model.CoverFileName is null).ToArray(), allowManualFallback: false));
+            if (_steamGrid.IsConfigured && (connectionOnly || keyChanged || autoEnabled))
+                _ = RunOperationAsync(() => FetchAutomaticCoversAsync(Games.Where(card => card.Model.CoverFileName is null).ToArray(),
+                    allowManualFallback: false, connectionBackfill: connectionOnly || keyChanged));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
@@ -784,7 +785,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
     }
 
-    private async Task FetchAutomaticCoversAsync(IReadOnlyList<GameCardViewModel> cards, bool allowManualFallback = true)
+    private async Task FetchAutomaticCoversAsync(IReadOnlyList<GameCardViewModel> cards, bool allowManualFallback = true, bool connectionBackfill = false)
     {
         var revision = _coverConnectionRevision;
         using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, _coverConnectionCancellation.Token);
@@ -797,7 +798,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         {
             foreach (var card in cards)
             {
-                if (revision != _coverConnectionRevision || !_settings.AutoFetchCovers || !_steamGrid.IsConfigured || token.IsCancellationRequested)
+                if (revision != _coverConnectionRevision || (!connectionBackfill && !_settings.AutoFetchCovers) || !_steamGrid.IsConfigured || token.IsCancellationRequested)
                 {
                     return;
                 }
@@ -809,7 +810,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
                 try
                 {
-                    if (await TryAutomaticCoverAsync(card, token, revision) && allowManualFallback && _settings.AutoFetchCovers && revision == _coverConnectionRevision)
+                    if (await TryAutomaticCoverAsync(card, token, revision, connectionBackfill) && allowManualFallback && _settings.AutoFetchCovers && revision == _coverConnectionRevision)
                         await SearchCoverCoreAsync(card, manualFallback: true);
                 }
                 catch (OperationCanceledException)
@@ -830,11 +831,11 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     }
 
     // true means manual input is needed; HTTP failures propagate and never open a fallback modal.
-    private async Task<bool> TryAutomaticCoverAsync(GameCardViewModel card, CancellationToken token = default, int? revision = null)
+    private async Task<bool> TryAutomaticCoverAsync(GameCardViewModel card, CancellationToken token = default, int? revision = null, bool connectionBackfill = false)
     {
         if (!_pendingCoverSearches.Add(card.Model.Id)) return false;
         card.IsFindingCover = true;
-        try { return await TryAutomaticCoverCoreAsync(card, token == default ? _lifetime.Token : token, revision); }
+        try { return await TryAutomaticCoverCoreAsync(card, token == default ? _lifetime.Token : token, revision, connectionBackfill); }
         finally
         {
             card.IsFindingCover = false;
@@ -842,9 +843,9 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         }
     }
 
-    private async Task<bool> TryAutomaticCoverCoreAsync(GameCardViewModel card, CancellationToken token, int? revision)
+    private async Task<bool> TryAutomaticCoverCoreAsync(GameCardViewModel card, CancellationToken token, int? revision, bool connectionBackfill)
     {
-        bool CurrentConnection() => revision is null || revision == _coverConnectionRevision && _steamGrid.IsConfigured && _settings.AutoFetchCovers && !token.IsCancellationRequested;
+        bool CurrentConnection() => revision is null || revision == _coverConnectionRevision && _steamGrid.IsConfigured && (connectionBackfill || _settings.AutoFetchCovers) && !token.IsCancellationRequested;
         var before = card.Model.Clone();
         var resolved = await Task.Run(() => _importer.ResolveIdentityForCoverSearch(before), token);
         if (!CurrentConnection() || !Games.Contains(card) || card.IsBusy || !SameIdentity(card.Model, before) || card.Model.CoverFileName is not null) return false;

@@ -694,4 +694,5 @@ Technical details: {0}</value>
 <data name="OfferFirstCover" xml:space="preserve"><value>Shall we find the cover for you?</value></data>
 <data name="NotNow" xml:space="preserve"><value>Not now</value></data>
 <data name="OfferFirstCoverDescription" xml:space="preserve"><value>Connect SteamGridDB to find and choose covers.</value></data>
+<data name="CoversForGame" xml:space="preserve"><value>Covers for “{0}”</value></data>
 </root>

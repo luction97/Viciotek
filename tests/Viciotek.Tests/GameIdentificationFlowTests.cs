@@ -19,6 +19,25 @@ public sealed class GameIdentificationFlowTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
+    public Task SavingConnection_BackfillsMissingCoversEvenWhenImportAutomationIsOff(bool dedicated) => WpfTest.RunAsync(async () =>
+    {
+        await using var fixture = new Fixture(autoFetch: false, apiKey: dedicated ? "fixture-key" : null,
+            games: [MissingCover(), new Game { Name = "Manual", CoverFileName = "manual.png" }]);
+        fixture.Dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "fixture-key", AutoFetchCovers = false };
+        if (dedicated) await fixture.ViewModel.ConnectCoversAsync();
+        else await fixture.ViewModel.OpenPreferencesAsync();
+        await WpfTest.WaitUntilAsync(() => fixture.ViewModel.Games[0].Model.CoverFileName is not null && !fixture.ViewModel.Games[0].IsFindingCover);
+        Assert.Equal("manual.png", fixture.ViewModel.Games[1].Model.CoverFileName);
+        Assert.False(new SettingsStore(fixture.Paths).Load().Settings.AutoFetchCovers);
+        var count = fixture.Handler.Requests.Count;
+        await fixture.ImportAsync("Next.exe");
+        await Task.Delay(100);
+        Assert.Equal(count, fixture.Handler.Requests.Count);
+        Assert.Null(fixture.ViewModel.Games.Last().Model.CoverFileName);
+    });
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
     public Task FirstImport_OffersConnectionAfterSaving_DeclineDoesNotRepeat(bool pick) => WpfTest.RunAsync(async () =>
     {
         await using var fixture = new Fixture(apiKey: null);
@@ -184,7 +203,8 @@ public sealed class GameIdentificationFlowTests
                 await gallery.InitializeAsync();
                 Assert.Equal("God of War", gallery.SearchQuery);
                 Assert.Equal(2, gallery.Matches.Count);
-                Assert.Empty(gallery.Candidates);
+                Assert.NotEmpty(gallery.Candidates);
+                Assert.Null(gallery.Selected);
                 await gallery.SelectGameAsync(gallery.Matches.Single(match => match.Id == 42));
                 Assert.False(gallery.ShowSuggestions);
                 gallery.Selected = Assert.Single(gallery.Candidates);
@@ -691,7 +711,7 @@ public sealed class GameIdentificationFlowTests
     });
 
     [Fact]
-    public Task Gallery_AmbiguousResultsRequireExplicitGameSelection() => WpfTest.RunAsync(async () =>
+    public Task Gallery_AmbiguousResultsPreviewWithoutApplying_AndAllowChangingGame() => WpfTest.RunAsync(async () =>
     {
         using var handler = new Handler(request => request.RequestUri!.AbsolutePath.Contains("search/")
             ? Json("""{"success":true,"data":[{"id":1,"name":"Prey"},{"id":2,"name":"Prey"}]}""")
@@ -702,9 +722,9 @@ public sealed class GameIdentificationFlowTests
         {
             await gallery.SearchAsync();
             Assert.Equal(2, gallery.Matches.Count);
-            Assert.Empty(gallery.Candidates);
-            Assert.Null(gallery.SelectedGame);
-            Assert.Single(handler.Requests);
+            Assert.NotEmpty(gallery.Candidates);
+            Assert.Equal(1, gallery.SelectedGame?.Id);
+            Assert.Null(gallery.Selected);
             await gallery.SelectGameAsync(gallery.Matches[1]);
             Assert.Equal(2, gallery.SelectedGame?.Id);
             Assert.Contains(handler.Requests, uri => uri.AbsolutePath.EndsWith("grids/game/2"));

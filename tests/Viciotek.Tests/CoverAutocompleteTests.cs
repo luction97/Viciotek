@@ -9,6 +9,50 @@ namespace Viciotek.Tests;
 public sealed class CoverAutocompleteTests
 {
     [Theory]
+    [InlineData("spid")]
+    [InlineData("MK")]
+    public Task TypingPartialName_LoadsCoversWithoutSelectingASuggestion_AndDoesNotApply(string query) => WpfTest.RunAsync(async () =>
+    {
+        var applied = false;
+        using var handler = new Handler((request, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = request.RequestUri!.AbsolutePath.EndsWith("cover.png") ? new ByteArrayContent(TestHelpers.CreatePng(160, 240)) : new StringContent(request.RequestUri.AbsolutePath.Contains("/search/")
+                ? """{"success":true,"data":[{"id":5,"name":"First result"},{"id":6,"name":"Another result"}]}"""
+                : """{"success":true,"data":[{"id":1,"url":"https://example.invalid/cover.png","width":600,"height":900}]}""")
+        }));
+        using var client = new SteamGridDbClient("fixture", handler);
+        var vm = new CoverGalleryViewModel(client, new Game(), (selection, _) =>
+        {
+            Assert.Equal(5, selection.Game.Id);
+            Assert.Equal(query, selection.SearchName);
+            applied = true;
+            return Task.FromResult(true);
+        }, true);
+        try
+        {
+            vm.SearchQuery = query;
+            await WpfTest.WaitUntilAsync(() => vm.Candidates.Count == 1 && !vm.IsLoading);
+            Assert.Equal(5, vm.SelectedGame?.Id);
+            Assert.Equal(query, vm.SearchQuery);
+            Assert.Contains("First result", vm.Status);
+            Assert.True(vm.ShowSuggestions);
+            Assert.Null(vm.Selected);
+            Assert.False(vm.ConfirmCommand.CanExecute(null));
+            Assert.False(applied);
+            vm.Selected = Assert.Single(vm.Candidates);
+            await vm.ConfirmAsync();
+            Assert.True(applied);
+            await vm.SelectGameAsync(vm.Matches[1]);
+            Assert.Equal(6, vm.SelectedGame?.Id);
+            Assert.Equal("Another result", vm.SearchQuery);
+            Assert.False(vm.ShowSuggestions);
+            vm.SearchQuery = " ";
+            Assert.Empty(vm.Candidates);
+            Assert.Null(vm.SelectedGame);
+        }
+        finally { await vm.CloseAsync(); }
+    });
+    [Theory]
     [InlineData("M")]
     [InlineData("MK")]
     [InlineData("   ")]
@@ -17,7 +61,7 @@ public sealed class CoverAutocompleteTests
         string? requestedPath = null;
         using var handler = new Handler((request, _) =>
         {
-            requestedPath = request.RequestUri!.AbsolutePath;
+            if (request.RequestUri!.AbsolutePath.Contains("/search/")) requestedPath = request.RequestUri.AbsolutePath;
             return Task.FromResult(Result(1, "Mortal Kombat"));
         });
         using var client = new SteamGridDbClient("fixture", handler);
@@ -35,7 +79,7 @@ public sealed class CoverAutocompleteTests
             {
                 await WpfTest.WaitUntilAsync(() => vm.Matches.Count == 1 && !vm.IsLoading);
                 Assert.True(vm.ShowSuggestions);
-                Assert.Equal(1, handler.Calls);
+                Assert.Equal(2, handler.Calls);
                 Assert.EndsWith("/" + query, requestedPath);
                 vm.SearchQuery = "";
                 Assert.Null(vm.Status);
@@ -135,7 +179,7 @@ public sealed class CoverAutocompleteTests
             Assert.Equal("Second edition", vm.SearchQuery);
             Assert.False(vm.ShowSuggestions);
             await Task.Delay(450);
-            Assert.Equal(2, handler.Calls);
+            Assert.Equal(3, handler.Calls);
             vm.SearchQuery = "another";
             await vm.SearchAsync();
             Assert.True(vm.ShowSuggestions);
@@ -178,7 +222,7 @@ public sealed class CoverAutocompleteTests
             vm.SearchQuery = "god o";
             vm.SearchQuery = "god of";
             await WpfTest.WaitUntilAsync(() => vm.Matches.Count == 1 && !vm.IsLoading);
-            Assert.Equal(1, handler.Calls);
+            Assert.Equal(2, handler.Calls);
             Assert.Equal(2, vm.Matches[0].Id);
         }
         finally { await vm.CloseAsync(); }
@@ -237,8 +281,8 @@ public sealed class CoverAutocompleteTests
         try
         {
             vm.SearchQuery = "query";
-            await vm.SearchAsync();
-            var first = vm.SelectGameAsync(vm.Matches[0]);
+            var first = vm.SearchAsync();
+            await WpfTest.WaitUntilAsync(() => vm.Matches.Count == 2);
             var second = vm.SelectGameAsync(vm.Matches[1]);
             oldReply.SetResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("""{"success":true,"data":[]}""") });
             await Task.WhenAll(first, second);

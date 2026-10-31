@@ -158,7 +158,9 @@ public sealed class CoverGalleryViewModel : ObservableObject
             foreach (var match in matches) Matches.Add(match);
             OnPropertyChanged(nameof(ShowSuggestions));
             var exact = GameIdentitySearch.ExactMatches(query, matches);
-            if (exact.Count == 1) await LoadGridsAsync(exact[0], revision, token);
+            // Preview the best result while typing; saving still requires choosing a cover.
+            var preview = exact.Count > 0 ? exact[0] : matches.FirstOrDefault();
+            if (preview is not null) await LoadGridsAsync(preview, revision, token);
             else Status = matches.Count == 0 ? L.Get("NoResultsTryAnotherName") : L.Get("ChooseAGameToSeeItsCovers");
         });
     }
@@ -214,7 +216,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
         if (_closed || token.IsCancellationRequested || currentRevision != _searchRevision) return;
         SelectedGame = game;
         foreach (var grid in grids) Candidates.Add(new(grid));
-        Status = grids.Count == 0 ? L.Get("ThisGameHasNoPortraitCoversTryAnotherName") : null;
+        Status = grids.Count == 0 ? L.Get("ThisGameHasNoPortraitCoversTryAnotherName") : L.Get("CoversForGame", game.Name);
         _previewCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
         _previews = Task.WhenAll(Candidates.Select(candidate => LoadPreviewAsync(candidate, _previewCancellation.Token)));
     }
