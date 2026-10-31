@@ -173,7 +173,7 @@ public sealed class GameIdentificationFlowTests
         await using var fixture = new Fixture(apiKey: null, games: [MissingCover()], response: _ => new(HttpStatusCode.Unauthorized));
         fixture.Dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "fixture-key" };
         await fixture.ViewModel.ConnectCoversAsync();
-        await WpfTest.WaitUntilAsync(() => fixture.ViewModel.ToastMessage.Contains("SteamGridDB", StringComparison.Ordinal));
+        await WpfTest.WaitUntilAsync(() => fixture.ViewModel.ToastMessage == Viciotek.Localization.Language.Get("ReviewCoverConnection"));
         Assert.Equal("fixture-key", new SettingsStore(fixture.Paths).Load().Settings.SteamGridDbApiKey);
         Assert.Equal(0, fixture.Dialogs.Count);
         Assert.Contains("SteamGridDB", fixture.ViewModel.ToastMessage);
@@ -723,7 +723,8 @@ public sealed class GameIdentificationFlowTests
             await gallery.SearchAsync();
             Assert.Equal(2, gallery.Matches.Count);
             Assert.NotEmpty(gallery.Candidates);
-            Assert.Equal(1, gallery.SelectedGame?.Id);
+            Assert.Null(gallery.SelectedGame);
+            Assert.Equal(new[] { 1, 2 }, gallery.Candidates.Select(candidate => candidate.Game!.Id));
             Assert.Null(gallery.Selected);
             await gallery.SelectGameAsync(gallery.Matches[1]);
             Assert.Equal(2, gallery.SelectedGame?.Id);

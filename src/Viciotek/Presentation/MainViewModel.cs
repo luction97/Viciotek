@@ -691,6 +691,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             OnPropertyChanged(nameof(AnimationsEnabled));
             foreach (var card in Games) card.RefreshCoverAvailability();
             DismissToast();
+            if (_steamGrid.IsConfigured && (connectionOnly || keyChanged)) ShowToast(L.Get("SteamGridConnected"), isError: false);
             if (_steamGrid.IsConfigured && (connectionOnly || keyChanged || autoEnabled))
                 _ = RunOperationAsync(() => FetchAutomaticCoversAsync(Games.Where(card => card.Model.CoverFileName is null).ToArray(),
                     allowManualFallback: false, connectionBackfill: connectionOnly || keyChanged));

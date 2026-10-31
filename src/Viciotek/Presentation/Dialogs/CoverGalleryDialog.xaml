@@ -49,7 +49,7 @@
                              Background="Transparent" BorderThickness="0" FontSize="14" Padding="0"
                              AutomationProperties.Name="{loc:Text GameName}" ToolTip="{loc:Text SearchesAsYouTypePressEnterToSearchForShortNamesToo}"
                              PreviewKeyDown="SearchBox_KeyDown" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
-                    <ListBox x:Name="Suggestions" ItemsSource="{Binding Matches}" DisplayMemberPath="Name"
+                    <ListBox x:Name="Suggestions" ItemsSource="{Binding Matches}" DisplayMemberPath="DisplayName"
                              MaxHeight="56" Margin="0,2,0,4" BorderThickness="0" Background="Transparent"
                              Foreground="{DynamicResource TextPrimaryBrush}" FontSize="14"
                              AutomationProperties.Name="{loc:Text MatchingGames}" PreviewMouseLeftButtonUp="Suggestion_MouseUp" PreviewKeyDown="Suggestions_KeyDown">
@@ -96,6 +96,7 @@
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
                                     <Setter Property="Padding" Value="0" />
+                                    <Setter Property="AutomationProperties.Name" Value="{Binding Game.DisplayName}" />
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="ListBoxItem">
@@ -114,7 +115,7 @@
                             </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="{x:Type presentation:CoverCandidate}">
-                                    <Border CornerRadius="8" Cursor="Hand">
+                                    <Border CornerRadius="8" Cursor="Hand" ToolTip="{Binding Game.DisplayName}">
                                         <Grid>
                                             <Image Source="{Binding Thumbnail}"
                                                    Stretch="UniformToFill"

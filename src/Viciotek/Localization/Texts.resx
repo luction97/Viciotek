@@ -695,4 +695,6 @@ Detalle técnico: {0}</value>
 <data name="NotNow" xml:space="preserve"><value>Ahora no</value></data>
 <data name="OfferFirstCoverDescription" xml:space="preserve"><value>Conecta SteamGridDB para encontrar y elegir portadas.</value></data>
 <data name="CoversForGame" xml:space="preserve"><value>Portadas de «{0}»</value></data>
+<data name="SteamGridConnected" xml:space="preserve"><value>Conectado a SteamGridDB.</value></data>
+<data name="ChooseEditionCover" xml:space="preserve"><value>Hay varias ediciones. Elige la portada de tu juego.</value></data>
 </root>

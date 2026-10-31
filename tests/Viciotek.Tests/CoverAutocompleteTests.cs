@@ -9,6 +9,43 @@ namespace Viciotek.Tests;
 public sealed class CoverAutocompleteTests
 {
     [Theory]
+    [InlineData("God of War")]
+    [InlineData("god of")]
+    public Task Homonyms_ShowModernAndOriginalCovers_AndSaveTheChosenEdition(string query) => WpfTest.RunAsync(async () =>
+    {
+        CoverSelection? applied = null;
+        using var handler = new Handler((request, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = request.RequestUri!.Host == "cdn.example.com" ? new ByteArrayContent(TestHelpers.CreatePng(160, 240)) : new StringContent(
+                request.RequestUri.AbsolutePath.Contains("/search/")
+                ? """{"success":true,"data":[{"id":2005,"name":"God of War","release_date":1111449600},{"id":2018,"name":"God of War","release_date":1524182400}]}"""
+                : """{"success":true,"data":[{"id":1,"url":"https://cdn.example.com/full.png","width":600,"height":900}]}""")
+        }));
+        using var client = new SteamGridDbClient("fixture", handler);
+        var vm = new CoverGalleryViewModel(client, new Game(), (selection, _) => { applied = selection; return Task.FromResult(true); }, true);
+        try
+        {
+            vm.SearchQuery = query;
+            await vm.SearchAsync();
+            Assert.Equal(new int?[] { 2018, 2005 }, vm.Candidates.Select(candidate => candidate.Game!.ReleaseYear));
+            Assert.Contains(vm.Matches, game => game.DisplayName == "God of War (2018)");
+            Assert.Contains(vm.Matches, game => game.DisplayName == "God of War (2005)");
+            Assert.Null(applied);
+            vm.Selected = vm.Candidates[0];
+            Assert.True(vm.ConfirmCommand.CanExecute(null));
+            await vm.ConfirmAsync();
+            Assert.Equal(2018, applied!.Game.Id);
+            vm.Selected = vm.Candidates[1];
+            await vm.ConfirmAsync();
+            Assert.Equal(2005, applied!.Game.Id);
+            await vm.SelectGameAsync(vm.Matches.Single(game => game.Id == 2018));
+            Assert.Single(vm.Candidates);
+            Assert.Equal(2018, vm.Candidates[0].Game!.Id);
+            Assert.False(vm.ShowSuggestions);
+        }
+        finally { await vm.CloseAsync(); }
+    });
+    [Theory]
     [InlineData("spid")]
     [InlineData("MK")]
     public Task TypingPartialName_LoadsCoversWithoutSelectingASuggestion_AndDoesNotApply(string query) => WpfTest.RunAsync(async () =>

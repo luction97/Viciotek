@@ -9,8 +9,9 @@ namespace Viciotek.Presentation;
 
 public sealed record CoverSelection(byte[] Bytes, SteamGridGame Game, string SearchName);
 
-public sealed class CoverCandidate(SteamGridDbClient.SteamGridGrid grid) : ObservableObject
+public sealed class CoverCandidate(SteamGridDbClient.SteamGridGrid grid, SteamGridGame? game = null) : ObservableObject
 {
+    public SteamGridGame? Game => game;
     public string Url => grid.Url;
     public string? ThumbnailUrl => grid.ThumbnailUrl;
     private BitmapSource? _thumbnail;
@@ -54,7 +55,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
             ? new(game.SteamGridDbGameId.Value, game.SteamGridDbName ?? game.Name) : null;
         _status = manualFallback ? L.Get("NoCoverWasFoundAutomatically") : null;
         SearchCommand = new AsyncRelayCommand(SearchAsync, () => !IsLoading && !string.IsNullOrWhiteSpace(SearchQuery));
-        ConfirmCommand = new AsyncRelayCommand(ConfirmAsync, () => !IsLoading && Selected is not null && SelectedGame is not null);
+        ConfirmCommand = new AsyncRelayCommand(ConfirmAsync, () => !IsLoading && Selected is not null && (Selected.Game is not null || SelectedGame is not null));
     }
 
     public string SearchQuery
@@ -158,9 +159,11 @@ public sealed class CoverGalleryViewModel : ObservableObject
             foreach (var match in matches) Matches.Add(match);
             OnPropertyChanged(nameof(ShowSuggestions));
             var exact = GameIdentitySearch.ExactMatches(query, matches);
-            // Preview the best result while typing; saving still requires choosing a cover.
-            var preview = exact.Count > 0 ? exact[0] : matches.FirstOrDefault();
-            if (preview is not null) await LoadGridsAsync(preview, revision, token);
+            // Homonyms are separate games: preview a balanced sample, never just the first edition.
+            var homonyms = exact.Count > 0 ? exact : matches.Where(game =>
+                GameTitle.Normalize(game.Name) == GameTitle.Normalize(matches.FirstOrDefault()?.Name ?? string.Empty)).ToList();
+            if (homonyms.Count > 1) await LoadHomonymsAsync(homonyms, revision, token);
+            else if ((exact.FirstOrDefault() ?? matches.FirstOrDefault()) is { } preview) await LoadGridsAsync(preview, revision, token);
             else Status = matches.Count == 0 ? L.Get("NoResultsTryAnotherName") : L.Get("ChooseAGameToSeeItsCovers");
         });
     }
@@ -215,8 +218,24 @@ public sealed class CoverGalleryViewModel : ObservableObject
         var grids = await _client.GetGridsAsync(game.Id, token);
         if (_closed || token.IsCancellationRequested || currentRevision != _searchRevision) return;
         SelectedGame = game;
-        foreach (var grid in grids) Candidates.Add(new(grid));
-        Status = grids.Count == 0 ? L.Get("ThisGameHasNoPortraitCoversTryAnotherName") : L.Get("CoversForGame", game.Name);
+        foreach (var grid in grids) Candidates.Add(new(grid, game));
+        Status = grids.Count == 0 ? L.Get("ThisGameHasNoPortraitCoversTryAnotherName") : L.Get("CoversForGame", game.DisplayName);
+        _previewCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _previews = Task.WhenAll(Candidates.Select(candidate => LoadPreviewAsync(candidate, _previewCancellation.Token)));
+    }
+
+    private async Task LoadHomonymsAsync(IReadOnlyList<SteamGridGame> games, int revision, CancellationToken token)
+    {
+        var editions = games.OrderByDescending(game => game.ReleaseYear).Take(4).ToArray();
+        var perEdition = 24 / editions.Length;
+        foreach (var game in editions)
+        {
+            var grids = await _client.GetGridsAsync(game.Id, token);
+            if (_closed || token.IsCancellationRequested || revision != _searchRevision) return;
+            foreach (var grid in grids.Take(perEdition)) Candidates.Add(new(grid, game));
+        }
+        SelectedGame = null;
+        Status = Candidates.Count == 0 ? L.Get("ThisGameHasNoPortraitCoversTryAnotherName") : L.Get("ChooseEditionCover");
         _previewCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
         _previews = Task.WhenAll(Candidates.Select(candidate => LoadPreviewAsync(candidate, _previewCancellation.Token)));
     }
@@ -261,7 +280,7 @@ public sealed class CoverGalleryViewModel : ObservableObject
         try
         {
             var selected = Selected;
-            var game = SelectedGame;
+            var game = selected?.Game ?? SelectedGame;
             if (selected is null || game is null) return;
             var bytes = await _client.DownloadImageAsync(selected.Url, _lifetime.Token);
             if (await _apply(new(bytes, game, _matchedQuery), _lifetime.Token)) Completed?.Invoke();

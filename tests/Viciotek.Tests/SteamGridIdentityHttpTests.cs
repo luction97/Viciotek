@@ -9,6 +9,21 @@ namespace Viciotek.Tests;
 public sealed class SteamGridIdentityHttpTests
 {
     [Theory]
+    [InlineData("1524182400", 2018)]
+    [InlineData("1111449600", 2005)]
+    [InlineData("null", null)]
+    [InlineData("0", null)]
+    [InlineData("\"unknown\"", null)]
+    [InlineData("9223372036854775807", null)]
+    public async Task Search_PreservesReleaseYearAndToleratesMissingOrInvalidDates(string date, int? year)
+    {
+        using var handler = new Handler(_ => Json($$"""{"success":true,"data":[{"id":1,"name":"God of War","release_date":{{date}}}]}"""));
+        using var client = new SteamGridDbClient("fixture", handler);
+        var game = Assert.Single(await client.SearchGamesAsync("God of War", default));
+        Assert.Equal(year, game.ReleaseYear);
+        Assert.Equal(year is null ? "God of War" : $"God of War ({year})", game.DisplayName);
+    }
+    [Theory]
     [InlineData(null)]
     [InlineData("saved-fixture-key")]
     public async Task Verify_UsesNewlyEnteredKeyWithoutChangingSavedCredential(string? savedKey)

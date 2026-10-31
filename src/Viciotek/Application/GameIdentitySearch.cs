@@ -2,7 +2,10 @@ using Viciotek.Domain;
 
 namespace Viciotek.Application;
 
-public sealed record SteamGridGame(int Id, string Name);
+public sealed record SteamGridGame(int Id, string Name, int? ReleaseYear = null)
+{
+    public string DisplayName => ReleaseYear is int year ? $"{Name} ({year})" : Name;
+}
 
 public interface ISteamGridDbGames
 {

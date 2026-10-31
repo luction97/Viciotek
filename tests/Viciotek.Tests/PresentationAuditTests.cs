@@ -228,7 +228,7 @@ public sealed class PresentationAuditTests
     });
 
     [Fact]
-    public Task Preferences_UpdateOptionalCoverActionWithoutStartupNetworkOrSuccessToast() => WpfTest.RunAsync(async () =>
+    public Task Preferences_UpdateOptionalCoverActionAndConfirmSavedConnection() => WpfTest.RunAsync(async () =>
     {
         var directory = TestHelpers.CreateTempDirectory();
         try
@@ -247,7 +247,8 @@ public sealed class PresentationAuditTests
 
             Assert.True(card.CanFindCover);
             Assert.True(notified);
-            Assert.False(viewModel.IsToastVisible);
+            Assert.True(viewModel.IsToastVisible);
+            Assert.Equal(Viciotek.Localization.Language.Get("SteamGridConnected"), viewModel.ToastMessage);
         }
         finally
         {

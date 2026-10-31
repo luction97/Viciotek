@@ -68,7 +68,11 @@ public sealed class SteamGridDbClient : ISteamGridDbGames, IDisposable
     private static SteamGridGame? ParseGame(JsonElement data) =>
         data.ValueKind == JsonValueKind.Object && data.TryGetProperty("id", out var id) && id.TryGetInt32(out var number) && number > 0 &&
         data.TryGetProperty("name", out var name) && name.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(name.GetString())
-            ? new(number, name.GetString()!.Trim()) : null;
+            ? new(number, name.GetString()!.Trim(), ReleaseYear(data)) : null;
+
+    private static int? ReleaseYear(JsonElement data) =>
+        data.TryGetProperty("release_date", out var date) && date.ValueKind == JsonValueKind.Number && date.TryGetInt64(out var seconds) &&
+        seconds != 0 && seconds >= -2208988800L && seconds < 7289654400L ? DateTimeOffset.FromUnixTimeSeconds(seconds).Year : null;
 
     public Task<IReadOnlyList<SteamGridGrid>> GetGridsAsync(int gameId, CancellationToken cancellationToken) =>
         GetGridsAsync(gameId, VerticalDimensions, cancellationToken);

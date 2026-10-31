@@ -695,4 +695,6 @@ Technical details: {0}</value>
 <data name="NotNow" xml:space="preserve"><value>Not now</value></data>
 <data name="OfferFirstCoverDescription" xml:space="preserve"><value>Connect SteamGridDB to find and choose covers.</value></data>
 <data name="CoversForGame" xml:space="preserve"><value>Covers for “{0}”</value></data>
+<data name="SteamGridConnected" xml:space="preserve"><value>Connected to SteamGridDB.</value></data>
+<data name="ChooseEditionCover" xml:space="preserve"><value>Several editions match. Choose your game's cover.</value></data>
 </root>

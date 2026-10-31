@@ -41,6 +41,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
         _paths = paths;
         _steamGrid = steamGrid;
         ApiKeyBox.Password = settings.SteamGridDbApiKey ?? string.Empty;
+        DataObject.AddPastingHandler(ApiKeyBox, ApiKeyBox_Pasting);
         AutoFetchCheckBox.IsChecked = settings.AutoFetchCovers;
         AnimationsCheckBox.IsChecked = settings.AnimationsEnabled;
         CoverSizeSlider.Value = settings.CoverSizePreset;
@@ -220,7 +221,7 @@ public partial class PreferencesDialog : ViciotekDialogWindow
             ? L.Get("Verify") : L.Get("Connect2");
     }
 
-    private void PasteCode_Click(object sender, RoutedEventArgs e)
+    private async void PasteCode_Click(object sender, RoutedEventArgs e)
     {
         try
         {
@@ -230,13 +231,28 @@ public partial class PreferencesDialog : ViciotekDialogWindow
                 ShowConnectionStatus(L.Get("FirstCopyYourCodeFromSteamgriddbThenComeBackAndChoosePaste"), error: true);
                 return;
             }
-            ApiKeyBox.Password = code;
-            ApiKeyBox.Focus();
+            await PasteConnectionCodeAsync(code);
         }
         catch (ExternalException)
         {
             ShowConnectionStatus(L.Get("CouldNotPasteTheCodeTryCtrlVInTheConnectionField"), error: true);
         }
+    }
+
+    private async void ApiKeyBox_Pasting(object sender, DataObjectPastingEventArgs e)
+    {
+        if (e.CommandCancelled || (e.FormatToApply != DataFormats.UnicodeText && e.FormatToApply != DataFormats.Text)) return;
+        // The routed event runs before WPF updates Password; inspect the completed edit.
+        await System.Windows.Threading.Dispatcher.Yield(System.Windows.Threading.DispatcherPriority.Background);
+        if (IsVisible && !_lifetime.IsCancellationRequested)
+            await PasteConnectionCodeAsync(ApiKeyBox.Password);
+    }
+
+    internal async Task PasteConnectionCodeAsync(string code)
+    {
+        if (!IsVisible || _verifying || string.IsNullOrWhiteSpace(code)) return;
+        ApiKeyBox.Password = code.Trim();
+        if (await CheckConnectionAsync() && !_lifetime.IsCancellationRequested) SaveAndClose();
     }
 
     private void ShowConnectionStatus(string message, bool error = false)
