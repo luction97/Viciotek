@@ -6,6 +6,7 @@ namespace Viciotek.Infrastructure.Library;
 
 public sealed class AppSettings
 {
+    public bool WelcomeCoverSetupCompleted { get; set; }
     public string? Language { get; set; }
     public string? SteamGridDbApiKey { get; set; }
     public string? ProtectedApiKey { get; set; }

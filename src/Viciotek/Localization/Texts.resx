@@ -711,4 +711,8 @@ Detalle técnico: {0}</value>
 <data name="RemoveFromLibrary" xml:space="preserve"><value>Quitar de la biblioteca</value></data>
 <data name="ManualImport" xml:space="preserve"><value>Selección manual</value></data>
 <data name="ReviewImport" xml:space="preserve"><value>Revisar juegos</value></data>
+<data name="WelcomeConnectionDescription" xml:space="preserve"><value>Conecta SteamGridDB para cargar las portadas de tus juegos automáticamente.</value></data>
+<data name="WelcomeImportDescription" xml:space="preserve"><value>Detecta tus juegos instalados o arrastra aquí un acceso directo o ejecutable.</value></data>
+<data name="DetectInstalledGames" xml:space="preserve"><value>Detectar juegos instalados</value></data>
+<data name="AddManually" xml:space="preserve"><value>Agregar manualmente</value></data>
 </root>

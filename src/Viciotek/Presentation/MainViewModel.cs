@@ -84,7 +84,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         _dialogs = dialogs;
         _startupWarning = startupWarning;
         _installedScanner = installedScanner;
-        _coverInvitationOffered = games.Count > 0;
+        _coverInvitationOffered = games.Count > 0 || settings.WelcomeCoverSetupCompleted || steamGrid.IsConfigured;
 
         Games = new ObservableCollection<GameCardViewModel>(
             games.Select(game => new GameCardViewModel(game, this, _covers)));
@@ -97,6 +97,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         UndoImportCommand = new AsyncRelayCommand(UndoLastImportAsync, () => CanUndoImport);
         OpenPreferencesCommand = new AsyncRelayCommand(OpenPreferencesAsync);
         ConnectCoversCommand = new AsyncRelayCommand(ConnectCoversAsync);
+        SkipWelcomeConnectionCommand = new AsyncRelayCommand(SkipWelcomeConnectionAsync);
         DismissCoverSetupCommand = new RelayCommand(() =>
         {
             _showCoverSetupHint = false;
@@ -111,6 +112,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public AsyncRelayCommand ScanInstalledGamesCommand { get; }
     public AsyncRelayCommand OpenPreferencesCommand { get; }
     public AsyncRelayCommand ConnectCoversCommand { get; }
+    public AsyncRelayCommand SkipWelcomeConnectionCommand { get; }
     public RelayCommand DismissCoverSetupCommand { get; }
     public RelayCommand ClearSearchCommand { get; }
     public bool IsSteamGridConfigured => _steamGrid.IsConfigured;
@@ -161,7 +163,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public string NoResultsText => L.Get("NoResults");
 
     public bool ShowEmptyState => Games.Count == 0;
-    public bool ShowSteamGridInvitation => !IsSteamGridConfigured;
+    public bool ShowWelcomeConnection => ShowEmptyState && !_coverInvitationOffered && !IsSteamGridConfigured;
+    public bool ShowWelcomeImport => ShowEmptyState && !ShowWelcomeConnection;
     public bool ShowCoverSetupHint => _showCoverSetupHint && Games.Count > 0 && !IsSteamGridConfigured;
     public bool ShowNoResults => Games.Count > 0 && !_hasVisibleGames;
 
@@ -754,6 +757,26 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     public Task OpenPreferencesAsync() => RunOperationAsync(OpenPreferencesCoreAsync);
     public Task ConnectCoversAsync() => RunOperationAsync(() => EditPreferencesCoreAsync(connectionOnly: true));
 
+    public Task SkipWelcomeConnectionAsync() => RunOperationAsync(async () =>
+    {
+        if (_editingSettings || _closing || !ShowWelcomeConnection) return;
+        _editingSettings = true;
+        try
+        {
+            var updated = _settings.Clone();
+            updated.WelcomeCoverSetupCompleted = true;
+            await _settingsStore.SaveAsync(updated);
+            _settings.WelcomeCoverSetupCompleted = true;
+            _coverInvitationOffered = true;
+            UpdateViewState();
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            ShowToast(L.Get("CouldNotSaveTheSettings"), isError: true);
+        }
+        finally { _editingSettings = false; }
+    });
+
     private async Task OpenPreferencesCoreAsync()
     {
         try { await EditPreferencesCoreAsync(); }
@@ -780,6 +803,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         updated.SteamGridDbApiKey = string.IsNullOrWhiteSpace(updated.SteamGridDbApiKey)
             ? null
             : updated.SteamGridDbApiKey.Trim();
+        updated.WelcomeCoverSetupCompleted |= _settings.WelcomeCoverSetupCompleted || IsSteamGridConfigured || updated.SteamGridDbApiKey is not null;
         // Centralized rule: no API key => auto-fetch disabled
         if (string.IsNullOrWhiteSpace(updated.SteamGridDbApiKey))
         {
@@ -805,6 +829,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                 previous.Cancel(); previous.Dispose();
             }
             _settings.SteamGridDbApiKey = updated.SteamGridDbApiKey;
+            _settings.WelcomeCoverSetupCompleted = updated.WelcomeCoverSetupCompleted;
+            if (updated.WelcomeCoverSetupCompleted) _coverInvitationOffered = true;
             if (!string.IsNullOrWhiteSpace(updated.SteamGridDbApiKey)) _showCoverSetupHint = false;
             _settings.AutoFetchCovers = updated.AutoFetchCovers;
             _settings.AnimationsEnabled = updated.AnimationsEnabled;
@@ -815,7 +841,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             if (keyChanged || wasConfigured != !string.IsNullOrWhiteSpace(_settings.SteamGridDbApiKey))
                 _steamGrid.UpdateApiKey(_settings.SteamGridDbApiKey);
             OnPropertyChanged(nameof(IsSteamGridConfigured));
-            OnPropertyChanged(nameof(ShowSteamGridInvitation));
+            OnPropertyChanged(nameof(ShowWelcomeConnection));
+            OnPropertyChanged(nameof(ShowWelcomeImport));
             OnPropertyChanged(nameof(ShowCoverSetupHint));
             OnPropertyChanged(nameof(AnimationsEnabled));
             foreach (var card in Games) card.RefreshCoverAvailability();
@@ -1163,6 +1190,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         UndoImportCommand.RaiseCanExecuteChanged();
         _hasVisibleGames = Games.Count > 0 && !GamesView.IsEmpty;
         OnPropertyChanged(nameof(ShowEmptyState));
+        OnPropertyChanged(nameof(ShowWelcomeConnection));
+        OnPropertyChanged(nameof(ShowWelcomeImport));
         OnPropertyChanged(nameof(ShowCoverSetupHint));
         OnPropertyChanged(nameof(ShowNoResults));
         OnPropertyChanged(nameof(NoResultsText));

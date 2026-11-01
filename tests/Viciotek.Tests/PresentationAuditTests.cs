@@ -13,6 +13,94 @@ namespace Viciotek.Tests;
 public sealed class PresentationAuditTests
 {
     [Fact]
+    public Task Welcome_SkipPersistsThenImportDoesNotOfferConnectionAgain() => WpfTest.RunAsync(async () =>
+    {
+        var directory = TestHelpers.CreateTempDirectory();
+        try
+        {
+            var paths = new AppPaths(directory); paths.EnsureCreated(); var dialogs = new FakeDialogs();
+            using var vm = CreateEmptyViewModel(paths, dialogs);
+            Assert.True(vm.ShowWelcomeConnection); Assert.False(vm.ShowWelcomeImport);
+            await vm.SkipWelcomeConnectionAsync();
+            Assert.False(vm.ShowWelcomeConnection); Assert.True(vm.ShowWelcomeImport);
+            var saved = new SettingsStore(paths).Load().Settings;
+            Assert.True(saved.WelcomeCoverSetupCompleted); Assert.Null(saved.SteamGridDbApiKey);
+            using var reopened = CreateEmptyViewModel(paths, dialogs, saved);
+            Assert.False(reopened.ShowWelcomeConnection); Assert.True(reopened.ShowWelcomeImport);
+            var exe = Path.Combine(directory, "Game.exe"); await File.WriteAllBytesAsync(exe, [0]);
+            await vm.HandleDroppedFilesAsync([exe]);
+            Assert.Single(vm.Games); Assert.False(vm.ShowCoverSetupHint); Assert.False(vm.ShowWelcomeImport);
+            Assert.Equal(0, dialogs.ConnectionRequests);
+            await vm.PrepareCloseAsync(); await reopened.PrepareCloseAsync();
+        }
+        finally { Directory.Delete(directory, true); }
+    });
+
+    [Fact]
+    public Task Welcome_OnlyAdvancesAfterSavedConnection_AndDisconnectDoesNotRestartIt() => WpfTest.RunAsync(async () =>
+    {
+        var directory = TestHelpers.CreateTempDirectory();
+        try
+        {
+            var paths = new AppPaths(directory); paths.EnsureCreated(); var dialogs = new FakeDialogs();
+            using var vm = CreateEmptyViewModel(paths, dialogs);
+            await vm.ConnectCoversAsync(); // Closing the connection form is not choosing No.
+            Assert.True(vm.ShowWelcomeConnection); Assert.False(File.Exists(paths.SettingsFile));
+            dialogs.SettingsResult = new AppSettings { SteamGridDbApiKey = "fixture-key" };
+            Directory.CreateDirectory(paths.SettingsFile);
+            await vm.ConnectCoversAsync();
+            Assert.True(vm.ShowWelcomeConnection); Assert.False(vm.IsSteamGridConfigured);
+            Directory.Delete(paths.SettingsFile);
+            await vm.ConnectCoversAsync();
+            Assert.False(vm.ShowWelcomeConnection); Assert.True(vm.ShowWelcomeImport); Assert.Empty(vm.Games);
+            Assert.True(new SettingsStore(paths).Load().Settings.WelcomeCoverSetupCompleted);
+            dialogs.SettingsResult = new AppSettings();
+            await vm.OpenPreferencesAsync();
+            Assert.True(vm.ShowWelcomeImport); Assert.False(vm.IsSteamGridConfigured);
+            using var reopened = CreateEmptyViewModel(paths, dialogs, new SettingsStore(paths).Load().Settings);
+            Assert.True(reopened.ShowWelcomeImport); Assert.False(reopened.ShowWelcomeConnection);
+            await vm.PrepareCloseAsync(); await reopened.PrepareCloseAsync();
+        }
+        finally { Directory.Delete(directory, true); }
+    });
+
+    [Fact]
+    public Task Welcome_FailedSkipDoesNotAdvance_AndCanBeRetried() => WpfTest.RunAsync(async () =>
+    {
+        var directory = TestHelpers.CreateTempDirectory();
+        try
+        {
+            var paths = new AppPaths(directory); paths.EnsureCreated();
+            using var vm = CreateEmptyViewModel(paths, new FakeDialogs());
+            Directory.CreateDirectory(paths.SettingsFile);
+            await vm.SkipWelcomeConnectionAsync();
+            Assert.True(vm.ShowWelcomeConnection); Assert.False(vm.ShowWelcomeImport); Assert.True(vm.ToastIsError);
+            Directory.Delete(paths.SettingsFile);
+            await vm.SkipWelcomeConnectionAsync(); Assert.True(vm.ShowWelcomeImport);
+            await vm.PrepareCloseAsync();
+        }
+        finally { Directory.Delete(directory, true); }
+    });
+
+    [Fact]
+    public Task Welcome_ExistingConnectionSkipsFirstStepWithoutNetwork() => WpfTest.RunAsync(async () =>
+    {
+        var directory = TestHelpers.CreateTempDirectory();
+        try
+        {
+            var paths = new AppPaths(directory); paths.EnsureCreated();
+            using var vm = CreateEmptyViewModel(paths, new FakeDialogs(), new AppSettings { SteamGridDbApiKey = "fixture-key" });
+            Assert.True(vm.ShowWelcomeImport); Assert.False(vm.ShowWelcomeConnection); Assert.False(File.Exists(paths.SettingsFile));
+            await vm.PrepareCloseAsync();
+        }
+        finally { Directory.Delete(directory, true); }
+    });
+
+    private static MainViewModel CreateEmptyViewModel(AppPaths paths, IDialogService dialogs, AppSettings? settings = null) => new(
+        [], settings ?? new AppSettings(), new LibraryStore(paths), new SettingsStore(paths), new GameImporter(new FakeShortcutResolver()),
+        new RecordingLauncher(), new CoverStore(paths), new SteamGridDbClient(settings?.SteamGridDbApiKey), dialogs, null);
+
+    [Fact]
     public Task WelcomeConnection_UsesDedicatedFlowAndCancelDoesNotChangeSettings() => WpfTest.RunAsync(async () =>
     {
         var directory = TestHelpers.CreateTempDirectory();

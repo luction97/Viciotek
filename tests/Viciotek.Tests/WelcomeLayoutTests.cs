@@ -16,7 +16,7 @@ public sealed class WelcomeLayoutTests
     [InlineData("en", 1920, 1000, false)]
     [InlineData("es", 760, 440, true)]
     [InlineData("en", 760, 440, true)]
-    public Task Welcome_IsReadableAndFitsTheLibraryViewport(string language, double width, double height, bool connected) => WpfTest.RunAsync(async () =>
+    public Task Welcome_IsReadableAndFitsTheLibraryViewport(string language, double width, double height, bool importStep) => WpfTest.RunAsync(async () =>
     {
         var previous = Language.Code;
         Language.Use(language);
@@ -40,7 +40,7 @@ public sealed class WelcomeLayoutTests
         window.Width = width; window.Height = height;
         window.WindowStyle = WindowStyle.None; window.ResizeMode = ResizeMode.NoResize;
         window.Left = -3000; window.ShowInTaskbar = false; window.ShowActivated = false;
-        window.DataContext = new { ShowEmptyState = true, ShowCoverSetupHint = !connected };
+        window.DataContext = new { ShowEmptyState = true, ShowWelcomeConnection = !importStep, ShowWelcomeImport = importStep };
         try
         {
             window.Show(); window.UpdateLayout();
@@ -55,11 +55,13 @@ public sealed class WelcomeLayoutTests
                 Assert.InRange(bounds.Top, 0, height);
                 Assert.InRange(bounds.Bottom, 0, height);
             }
-            var texts = content.Children.OfType<TextBlock>().ToArray();
+            var texts = Descendants(content).OfType<TextBlock>().Where(text => text.IsVisible).ToArray();
             Assert.Equal(2, texts.Length);
             Assert.True(texts[0].FontSize >= 32);
-            var buttons = Descendants(content).OfType<Button>().ToArray();
-            Assert.True(buttons.Length >= 1);
+            var buttons = Descendants(content).OfType<Button>().Where(button => button.IsVisible).ToArray();
+            Assert.Equal(2, buttons.Length);
+            Assert.Equal(Language.Get(importStep ? "DetectInstalledGames" : "ConnectCoverService"), buttons[0].Content);
+            Assert.Equal(Language.Get(importStep ? "AddManually" : "NotNow"), buttons[1].Content);
             var primaryButton = buttons.First();
             Assert.True(primaryButton.ActualHeight >= 44);
             Assert.True(primaryButton.Focusable);

@@ -300,8 +300,8 @@
                    AllowsTransparency="True">
                 <Border Background="{DynamicResource BgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="4">
                     <StackPanel>
-                        <Button Content="Detectar juegos instalados" Command="{Binding ScanInstalledGamesCommand}" Style="{StaticResource GhostButtonStyle}" Padding="12,6" HorizontalAlignment="Stretch" />
-                        <Button Content="Agregar manualmente" Command="{Binding AddGamesCommand}" Style="{StaticResource GhostButtonStyle}" Padding="12,6" HorizontalAlignment="Stretch" />
+                        <Button Content="{loc:Text DetectInstalledGames}" Command="{Binding ScanInstalledGamesCommand}" Style="{StaticResource GhostButtonStyle}" Padding="12,6" HorizontalAlignment="Stretch" />
+                        <Button Content="{loc:Text AddManually}" Command="{Binding AddGamesCommand}" Style="{StaticResource GhostButtonStyle}" Padding="12,6" HorizontalAlignment="Stretch" />
                     </StackPanel>
                 </Border>
             </Popup>
@@ -378,25 +378,27 @@
                     <TextBlock Text="{loc:Text YourLibraryStartsHere}" HorizontalAlignment="Center" TextAlignment="Center"
                                FontFamily="{StaticResource DisplayFont}" TextWrapping="Wrap" FontSize="36" FontWeight="SemiBold"
                                Foreground="{DynamicResource TextPrimaryBrush}" />
-                    <TextBlock Text="Detectá tus videojuegos instalados y reunilos en una única biblioteca."
-                               FontSize="18" Foreground="{DynamicResource TextSecondaryBrush}"
-                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,20,0,28" />
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12">
-                        <Button Content="Detectar juegos instalados" Command="{Binding ScanInstalledGamesCommand}"
-                                Style="{StaticResource WelcomeButtonStyle}" FontSize="18" Height="48" Padding="22,0"
-                                HorizontalAlignment="Center" Margin="0,0,12,0" />
-                        <Button Content="Agregar manualmente" Command="{Binding AddGamesCommand}"
-                                Style="{StaticResource GhostButtonStyle}" FontSize="16" Height="48" Padding="18,0"
-                                HorizontalAlignment="Center" />
+                    <StackPanel x:Name="WelcomeConnection" Visibility="{Binding ShowWelcomeConnection, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="{loc:Text WelcomeConnectionDescription}"
+                                   FontSize="18" Foreground="{DynamicResource TextSecondaryBrush}"
+                                   TextAlignment="Center" TextWrapping="Wrap" Margin="0,20,0,28" />
+                        <WrapPanel HorizontalAlignment="Center">
+                            <Button x:Name="WelcomeConnectButton" Content="{loc:Text ConnectCoverService}" Command="{Binding ConnectCoversCommand}"
+                                    Style="{StaticResource WelcomeButtonStyle}" FontSize="18" Height="48" Padding="22,0" Margin="0,0,12,0" />
+                            <Button x:Name="WelcomeSkipButton" Content="{loc:Text NotNow}" Command="{Binding SkipWelcomeConnectionCommand}"
+                                    Style="{StaticResource GhostButtonStyle}" FontSize="16" Height="48" Padding="18,0" />
+                        </WrapPanel>
                     </StackPanel>
-                    <!-- SteamGridDB invitation (only when not configured) -->
-                    <StackPanel HorizontalAlignment="Center" Margin="0,24,0,0"
-                                Visibility="{Binding ShowSteamGridInvitation, Converter={StaticResource BoolToVisibility}}">
-                        <TextBlock Text="¿Querés portadas automáticas?" FontSize="15" Foreground="{DynamicResource TextSecondaryBrush}"
-                                   TextAlignment="Center" Margin="0,0,0,8" />
-                        <Button Content="Configurar portadas" Command="{Binding OpenPreferencesCommand}"
-                                Style="{StaticResource GhostButtonStyle}" FontSize="14" Padding="14,6"
-                                HorizontalAlignment="Center" />
+                    <StackPanel x:Name="WelcomeImport" Visibility="{Binding ShowWelcomeImport, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="{loc:Text WelcomeImportDescription}"
+                                   FontSize="18" Foreground="{DynamicResource TextSecondaryBrush}"
+                                   TextAlignment="Center" TextWrapping="Wrap" Margin="0,20,0,28" />
+                        <WrapPanel HorizontalAlignment="Center">
+                            <Button Content="{loc:Text DetectInstalledGames}" Command="{Binding ScanInstalledGamesCommand}"
+                                    Style="{StaticResource WelcomeButtonStyle}" FontSize="18" Height="48" Padding="22,0" Margin="0,0,12,0" />
+                            <Button Content="{loc:Text AddManually}" Command="{Binding AddGamesCommand}"
+                                    Style="{StaticResource GhostButtonStyle}" FontSize="16" Height="48" Padding="18,0" />
+                        </WrapPanel>
                     </StackPanel>
                 </StackPanel>
             </Grid>

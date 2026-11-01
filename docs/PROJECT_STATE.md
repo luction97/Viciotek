@@ -1,6 +1,13 @@
 # Estado del proyecto
 
-Última revisión: 2026-11-01. Producto: **VICIOTEK 1.1.35**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-11-01. Producto: **VICIOTEK 1.1.36**, C#/WPF/.NET 8 para Windows 11.
+
+## Bienvenida: conexión antes de importar — 1.1.36
+- Pantalla vacía con una decisión por vez: Conectar SteamGridDB (beneficio breve de portadas automáticas) o Ahora no; después, Detectar juegos instalados y Agregar manualmente, con instrucción de arrastre. Usa el formulario dedicado existente, sin abrir Configuración. Si ya hay conexión se entra directamente al segundo paso. No se inicia detección, importación ni red automáticamente.
+- `AppSettings.WelcomeCoverSetupCompleted` opcional conserva la decisión al reiniciar. Omitir/conectar solo avanza después de persistir; cancelar la conexión o fallar el guardado conserva el primer paso y permite reintentar. Elegir Ahora no evita repetir la invitación después de importar. Desconectar posteriormente no reinicia la bienvenida. Importación por arrastre/selector y revisión segura siguen disponibles; el ofrecimiento contextual previo se conserva solo como respaldo si se importó sin elegir en la bienvenida.
+- CONFIRMADO: build Release sin advertencias, 377/377 pruebas. Cuatro regresiones nuevas cubren omitir/reinicio/importar sin repetir, cancelar/conectar/desconectar, fallos/reintento y conexión previa. Pruebas de layout comprueban ambos pasos es/en a 760×440 y otros tamaños, dos acciones visibles y texto legible. Harness WPF con comandos de botones reales comprueba transiciones/cancelación/guardado; renders es/en 1280×800 y 760×540 inspeccionados. Datos aislados y clave ficticia; sin cuenta real ni consultas de red.
+- Sin cambios en portadas, detectores, selección múltiple ni esquema de biblioteca. La elección se añade únicamente a settings.json, preservando DPAPI y .bak. Evidencia de revisión y de paquetes versionados: artifacts/ux-1.1.36. README/Store preexistentes se preservan fuera de los commits de esta tarea.
+- Próximo paso concreto: probar el primer uso y la conexión con la cuenta del propietario, y luego detectar juegos con clientes instalados reales. No se afirma comprensión universal, conexión real ni rendimiento medido.
 
 ## Detección conservadora e importación reversible — 1.1.35
 - CONFIRMADO: Xbox/WindowsApps y detectores genéricos por publisher/registro deshabilitados: no aportaban clasificación fiable. Steam exige instalación completa y `common/type=game` en appinfo local v39–41; Epic exige categoría games, aplicación completa, ID y ejecutable contenido; GOG exige juego base y tarea primaria FileTask válida. Sin adivinar EXE ni clasificar por nombres/publishers. Se conservan bibliotecas multidisco y protocolos de lanzamiento de Steam/Epic; GOG conserva argumentos/carpeta. Formatos desconocidos o evidencia insuficiente se omiten.
