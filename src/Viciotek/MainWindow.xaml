@@ -291,6 +291,18 @@
                     AutomationProperties.Name="{loc:Text AddGames}"
                     Click="AddGamesMenu_Click"
                     WindowChrome.IsHitTestVisibleInChrome="True" />
+            <Popup x:Name="AddGamesPopup"
+                   PlacementTarget="{Binding ElementName=AddGamesPopupAnchor}"
+                   Placement="Bottom"
+                   StaysOpen="False"
+                   AllowsTransparency="True">
+                <Border Background="{DynamicResource BgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="4">
+                    <StackPanel>
+                        <Button Content="Detectar juegos instalados" Command="{Binding ScanInstalledGamesCommand}" Style="{StaticResource GhostButtonStyle}" Padding="12,6" HorizontalAlignment="Stretch" />
+                        <Button Content="Agregar manualmente" Command="{Binding AddGamesCommand}" Style="{StaticResource GhostButtonStyle}" Padding="12,6" HorizontalAlignment="Stretch" />
+                    </StackPanel>
+                </Border>
+            </Popup>
 
             <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Top">
                 <Button x:Name="MinimizeButton"

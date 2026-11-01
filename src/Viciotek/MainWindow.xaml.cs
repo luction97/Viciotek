@@ -340,17 +340,8 @@ public partial class MainWindow : Window
     private void AddGamesMenu_Click(object sender, RoutedEventArgs e)
     {
         var button = (Button)sender;
-        var menu = new ContextMenu();
-        menu.PlacementTarget = button;
-        menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-        var detect = new MenuItem { Header = "Detectar juegos instalados" };
-        detect.Command = _viewModel.ScanInstalledGamesCommand;
-        var manual = new MenuItem { Header = "Agregar manualmente" };
-        manual.Command = _viewModel.AddGamesCommand;
-        menu.Items.Add(detect);
-        menu.Items.Add(manual);
-        button.ContextMenu = menu;
-        menu.IsOpen = true;
+        AddGamesPopup.PlacementTarget = button;
+        AddGamesPopup.IsOpen = true;
     }
 
     private void LaunchSelectedGame()
