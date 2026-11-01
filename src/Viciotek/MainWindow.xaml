@@ -47,9 +47,11 @@
                         <MenuItem Header="{loc:Text ChangeCover}" Command="{Binding ChangeCoverCommand}"><MenuItem.Icon><TextBlock Text="&#xEB9F;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
                         <Separator Style="{StaticResource MenuSeparatorStyle}" />
                         <MenuItem Header="{loc:Text Edit}" Command="{Binding EditCommand}" InputGestureText="F2"><MenuItem.Icon><TextBlock Text="&#xE70F;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
-                        <MenuItem Header="{loc:Text Remove}"
+                        <MenuItem Header="{loc:Text RemoveFromLibrary}"
                                   Command="{Binding RemoveCommand}"
                                   Style="{StaticResource DangerMenuTextStyle}"><MenuItem.Icon><TextBlock Text="&#xE74D;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
+                        <Separator Style="{StaticResource MenuSeparatorStyle}" />
+                        <MenuItem Header="{loc:Text UndoLastImport}" Command="{Binding UndoImportCommand}" />
                     </ContextMenu></Setter.Value></Setter>
             <Setter Property="Template">
                 <Setter.Value>
@@ -345,6 +347,7 @@
                 </StackPanel>
             </Border>
             <controls:GameGallery Grid.Row="1" x:Name="Gallery"
+                                  SelectionMode="Extended"
                                   ItemsSource="{Binding GamesView}"
                                   ItemTemplate="{StaticResource GameCardTemplate}"
                                   ItemContainerStyle="{StaticResource GameCardItemStyle}"
@@ -352,6 +355,11 @@
                                   SelectionChanged="Gallery_SelectionChanged"
                                   MouseDoubleClick="Gallery_MouseDoubleClick"
                                   PreviewMouseRightButtonDown="Gallery_PreviewMouseRightButtonDown">
+                <controls:GameGallery.ContextMenu>
+                    <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                        <MenuItem Header="{loc:Text UndoLastImport}" Command="{Binding UndoImportCommand}" />
+                    </ContextMenu>
+                </controls:GameGallery.ContextMenu>
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <controls:VirtualizingWrapPanel ItemWidth="{Binding DataContext.PreferredCoverWidth, RelativeSource={RelativeSource AncestorType={x:Type controls:GameGallery}}}" Responsive="True"

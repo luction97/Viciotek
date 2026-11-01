@@ -8,7 +8,7 @@ if ($LASTEXITCODE -ne 0) { throw 'No se pudieron enumerar archivos Git.' }
 $forbidden = @()
 foreach ($path in $files) {
     if ($path -match '(^|/)(bin|obj|dist|artifacts|TestResults|measurements|\.vs|\.tools)/' -or
-        $path -match '(^|/)(settings|library)(\..*)?\.json$|(^|/)\.env($|\.(?!example$|sample$))|\.(pfx|p12|key|pem|log|bak|dmp)$') {
+        $path -match '(^|/)AI_CONTEXT\.local\.md$|(^|/)(settings|library)(\..*)?\.json$|(^|/)\.env($|\.(?!example$|sample$))|\.(pfx|p12|key|pem|log|bak|dmp)$') {
         $forbidden += $path
     }
 }

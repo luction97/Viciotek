@@ -5,7 +5,7 @@ $root = (Resolve-Path -LiteralPath $Directory).Path
 $forbidden = @()
 foreach ($file in Get-ChildItem -LiteralPath $root -Recurse -File) {
     $relative = $file.FullName.Substring($root.Length + 1)
-    if ($file.Name -match '^(settings|library)(\..*)?\.json$|^\.env($|\.)|^secrets\.json$|^\.instance\.lock$' -or
+    if ($file.Name -match '^AI_CONTEXT\.local\.md$|^(settings|library)(\..*)?\.json$|^\.env($|\.)|^secrets\.json$|^\.instance\.lock$' -or
         $file.Extension -in '.pfx','.p12','.key','.pem','.log','.bak','.tmp','.dmp','.pdb','.suo','.user','.cs','.csproj' -or
         $relative -match '(^|[\\/])(measurements|TestResults|covers|\.git|\.vs)([\\/]|$)') {
         $forbidden += $relative

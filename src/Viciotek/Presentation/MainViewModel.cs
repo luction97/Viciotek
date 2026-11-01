@@ -75,6 +75,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     {
         _settings = settings;
         _libraryStore = libraryStore;
+        _lastImportBatchId = libraryStore.LastImportBatchId;
         _settingsStore = settingsStore;
         _importer = importer;
         _launcher = launcher;
@@ -92,7 +93,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         _hasVisibleGames = Games.Count > 0;
 
         AddGamesCommand = new AsyncRelayCommand(AddGamesFromDialogAsync);
-        ScanInstalledGamesCommand = new AsyncRelayCommand(AddGamesFromDialogAsync);
+        ScanInstalledGamesCommand = new AsyncRelayCommand(ScanInstalledGamesAsync);
+        UndoImportCommand = new AsyncRelayCommand(UndoLastImportAsync, () => CanUndoImport);
         OpenPreferencesCommand = new AsyncRelayCommand(OpenPreferencesAsync);
         ConnectCoversCommand = new AsyncRelayCommand(ConnectCoversAsync);
         DismissCoverSetupCommand = new RelayCommand(() =>
@@ -124,6 +126,11 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
     }
     bool IGameCardActions.CanFindCover => IsSteamGridConfigured;
     public string AppVersion => typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "1.1.4";
+    private Guid? _lastImportBatchId;
+    public ObservableCollection<GameCardViewModel> SelectedGames { get; } = [];
+    public AsyncRelayCommand UndoImportCommand { get; }
+    System.Windows.Input.ICommand? IGameCardActions.UndoImportCommand => UndoImportCommand;
+    public bool CanUndoImport => _lastImportBatchId is Guid batch && Games.Any(card => card.Model.ImportBatchId == batch);
     public GameCardViewModel? SelectedGame { get; set; }
 
     public event EventHandler? CloseRequested;
@@ -520,53 +527,41 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
     public Task RemoveAsync(GameCardViewModel card) => RunOperationAsync(() => RemoveCoreAsync(card));
 
-    private async Task RemoveCoreAsync(GameCardViewModel card)
+    private Task RemoveCoreAsync(GameCardViewModel card) => RemoveCardsCoreAsync(
+        SelectedGames.Contains(card) && SelectedGames.Count > 1 ? SelectedGames.ToArray() : [card], false);
+    public Task RemoveSelectionAsync() => RunOperationAsync(() => RemoveCardsCoreAsync(SelectedGames.ToArray(), false));
+    public Task UndoLastImportAsync() => RunOperationAsync(() => RemoveCardsCoreAsync(
+        Games.Where(card => _lastImportBatchId is not null && card.Model.ImportBatchId == _lastImportBatchId).ToArray(), true));
+    private async Task RemoveCardsCoreAsync(IReadOnlyList<GameCardViewModel> selection, bool undo)
     {
-        if (!Games.Contains(card))
-        {
-            return;
-        }
-
-        if (!_dialogs.ConfirmRemove(card.Name))
-        {
-            return;
-        }
-
+        var cards=selection.Where(card=>Games.Contains(card)).Distinct().ToArray();
+        if(cards.Length==0)return;
+        if(!(undo?_dialogs.ConfirmUndoImport(cards.Length):cards.Length==1?_dialogs.ConfirmRemove(cards[0].Name):_dialogs.ConfirmRemoveMany(cards.Length)))return;
         await _coverUpdateGate.WaitAsync(_lifetime.Token);
         try
         {
-            if (!Games.Contains(card)) return;
-            var saved = await PersistAsync(Games.Where(item => !ReferenceEquals(item, card)).Select(item => item.Model.Clone()).ToList());
-            if (saved)
+            var removing=cards.Where(Games.Contains).ToHashSet();
+            if(await PersistAsync(Games.Where(card=>!removing.Contains(card)).Select(card=>card.Model.Clone()).ToList()))
             {
-                Games.Remove(card);
-                if (ReferenceEquals(SelectedGame, card)) SelectedGame = null;
-                UpdateViewState();
-                await PruneCoversAsync();
+                foreach(var card in removing){Games.Remove(card);SelectedGames.Remove(card);}
+                if(SelectedGame is not null && removing.Contains(SelectedGame))SelectedGame=null;
+                UpdateViewState();await PruneCoversAsync();
             }
-            ReportSaveFailure(saved, L.Get("CouldNotSaveTheChange"));
+            else ShowToast(L.Get("CouldNotSaveTheChange"),isError:true);
         }
-        finally
-        {
-            _coverUpdateGate.Release();
-        }
+        finally{_coverUpdateGate.Release();}
+    }
+    public Task ScanInstalledGamesAsync() => RunOperationAsync(ScanInstalledGamesCoreAsync);
+    private async Task ScanInstalledGamesCoreAsync()
+    {
+        if(_installedScanner is null || IsImporting || _closing)return;
+        try{var detected=await Task.Run(()=>_installedScanner.ScanAll(),_lifetime.Token);if (!_closing && !_lifetime.IsCancellationRequested) await ImportDetectedGamesAsync(detected);}
+        catch(OperationCanceledException){}
+        catch(Exception){ShowToast(L.Get("DetectionFailed"),isError:true);}
     }
 
     public async Task AddGamesFromDialogAsync()
     {
-        if (_installedScanner is not null)
-        {
-            var detected = await Task.Run(() => _installedScanner.ScanAll(), _lifetime.Token);
-            if (detected.Count > 0)
-            {
-                var dialog = new DetectInstalledGamesDialog(detected);
-                if (dialog.ShowDialog() == true && dialog.Selected.Count > 0)
-                {
-                    await ImportDetectedGamesAsync(dialog.Selected);
-                    return;
-                }
-            }
-        }
         var files = _dialogs.PickGameFiles(directly: true);
         if (files is { Length: > 0 })
         {
@@ -591,13 +586,28 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
             var keys = new HashSet<string>(existing.Select(GameIdentity.CreateDuplicateKey), StringComparer.Ordinal);
             var nextOrder = existing.Count == 0 ? 0 : existing.Max(g => g.SortOrder) + 1;
 
+            var candidates=detected.Where(d=>LaunchPlanner.CreatePlan(new Game{Name=d.Name,LaunchPath=d.LaunchPath,LaunchKind=d.LaunchKind,Arguments=d.Arguments,WorkingDirectory=d.WorkingDirectory}).IsValid).ToArray();
+            var approved=_dialogs.ReviewImport(candidates);
+            if(approved is null)return;
+            var selected=approved.Where(candidates.Contains).Distinct().ToArray();
+            var batch=Guid.NewGuid();
             var added = new List<Game>();
-            foreach (var d in detected)
+            foreach (var d in selected)
             {
+                // Preserve executable-based entries from earlier detector versions when switching to platform protocols.
+                if (d.LaunchKind == LaunchKind.Uri && d.HighConfidence && existing.Any(previous =>
+                    previous.LaunchKind == LaunchKind.Executable &&
+                    (d.ExecutablePath is not null && GameIdentity.NormalizePath(previous.LaunchPath) == GameIdentity.NormalizePath(d.ExecutablePath) &&
+                        string.Equals(previous.Arguments?.Trim() ?? "", d.Arguments?.Trim() ?? "", StringComparison.Ordinal) ||
+                     d.Platform == "Steam" && d.WorkingDirectory is not null &&
+                        GameIdentity.NormalizePath(previous.LaunchPath).StartsWith(GameIdentity.NormalizePath(d.WorkingDirectory) + Path.DirectorySeparatorChar, StringComparison.Ordinal)))) continue;
                 var game = new Game
                 {
                     Id = Guid.NewGuid(),
                     Name = d.Name,
+                    ImportBatchId = batch,
+                    ImportSource = d.Platform,
+                    SteamAppId = d.Platform == "Steam" && int.TryParse(d.PlatformId,out var steamId) ? steamId : null,
                     LaunchPath = d.LaunchPath,
                     LaunchKind = d.LaunchKind,
                     Arguments = d.Arguments,
@@ -605,6 +615,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                     IconPath = d.IconPath,
                     AddedAt = DateTimeOffset.UtcNow,
                 };
+                if(game.SteamAppId is not null && existing.Any(previous=>previous.SteamAppId==game.SteamAppId))continue;
                 var duplicateKey = GameIdentity.CreateDuplicateKey(game);
                 if (!keys.Add(duplicateKey)) continue;
                 game.SortOrder = nextOrder++;
@@ -617,13 +628,14 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                 return;
             }
 
-            var saved = await PersistAsync(existing.Concat(added).ToList());
+            var saved = await PersistAsync(existing.Concat(added).ToList(), batch);
             if (!saved)
             {
                 ShowToast(L.Get("CouldNotSaveTheGames"), isError: true);
                 return;
             }
 
+            _lastImportBatchId = batch;
             foreach (var game in added)
             {
                 var card = new GameCardViewModel(game, this, _covers);
@@ -649,6 +661,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         {
             if (acquired) _coverUpdateGate.Release();
             IsImporting = false;
+            if (addedCards.Count > 0 && _settings.AutoFetchCovers && _steamGrid.IsConfigured)
+                _ = RunOperationAsync(() => FetchAutomaticCoversAsync(addedCards));
         }
     }
 
@@ -673,13 +687,24 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                 () => _importer.Import(paths, existing),
                 _lifetime.Token);
 
-            var saved = outcome.Added.Count == 0 || await PersistAsync(existing.Concat(outcome.Added).ToList());
+            var batch=Guid.NewGuid();
+            if(outcome.Added.Count>0)
+            {
+                var preview=outcome.Added.Select(game=>(Game:game,Choice:new DetectedGame(game.Name,L.Get("ManualImport"),game.LaunchPath,game.LaunchKind,game.Arguments,game.WorkingDirectory,game.IconPath))).ToArray();
+                var approved=_dialogs.ReviewImport(preview.Select(item=>item.Choice).ToArray());
+                if(approved is null)return;
+                var selected=preview.Where(item=>approved.Contains(item.Choice)).Select(item=>item.Game).ToArray();
+                outcome.Added.Clear();outcome.Added.AddRange(selected);
+                foreach(var game in outcome.Added)game.ImportBatchId=batch;
+            }
+            var saved = outcome.Added.Count == 0 || await PersistAsync(existing.Concat(outcome.Added).ToList(), batch);
             if (!saved)
             {
                 ShowToast(L.Get("CouldNotSaveTheGames"), isError: true);
                 return;
             }
 
+            if(outcome.Added.Count>0)_lastImportBatchId=batch;
             foreach (var game in outcome.Added)
             {
                 var card = new GameCardViewModel(game, this, _covers);
@@ -973,11 +998,11 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
         current.LaunchPath == previous.LaunchPath && current.SteamGridDbGameId == previous.SteamGridDbGameId &&
         current.CoverFileName == previous.CoverFileName;
 
-    private async Task<bool> PersistAsync(IReadOnlyList<Game> snapshot)
+    private async Task<bool> PersistAsync(IReadOnlyList<Game> snapshot, Guid? batch = null)
     {
         try
         {
-            await _libraryStore.SaveAsync(snapshot, _lifetime.Token);
+            await _libraryStore.SaveAsync(snapshot, _lifetime.Token, batch);
             return true;
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or NotSupportedException)
@@ -1135,6 +1160,7 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
 
     private void UpdateViewState()
     {
+        UndoImportCommand.RaiseCanExecuteChanged();
         _hasVisibleGames = Games.Count > 0 && !GamesView.IsEmpty;
         OnPropertyChanged(nameof(ShowEmptyState));
         OnPropertyChanged(nameof(ShowCoverSetupHint));

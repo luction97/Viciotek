@@ -6,6 +6,8 @@ namespace Viciotek.Infrastructure.Detection;
 
 public sealed class GogDetector : IInstalledGameDetector
 {
+    private readonly IEnumerable<string>? _roots;
+    public GogDetector(IEnumerable<string>? roots = null) { _roots = roots; }
     public string Platform => "GOG";
 
     public IReadOnlyList<DetectedGame> Detect()
@@ -34,7 +36,7 @@ public sealed class GogDetector : IInstalledGameDetector
             roots.Add(Path.Combine(drive, "Program Files", "GOG Galaxy", "Games"));
         }
 
-        foreach (var root in roots.Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (var root in (_roots ?? roots).Distinct(StringComparer.OrdinalIgnoreCase))
         {
             if (!Directory.Exists(root)) continue;
             try
@@ -45,18 +47,23 @@ public sealed class GogDetector : IInstalledGameDetector
                     {
                         try
                         {
+                            if (new FileInfo(infoFile).Length > 1024 * 1024) continue;
                             var json = File.ReadAllText(infoFile);
                             using var doc = JsonDocument.Parse(json);
                             var root2 = doc.RootElement;
                             var name = root2.TryGetProperty("name", out var n) ? n.GetString() : null;
                             if (string.IsNullOrWhiteSpace(name)) continue;
+                            var id=Path.GetFileNameWithoutExtension(infoFile).Replace("goggame-", "");
+                            if(!long.TryParse(id,out var gameId)||gameId<=0)continue;
+                            if(!root2.TryGetProperty("gameId",out var declared)||declared.GetString()!=id)continue;
+                            if(root2.TryGetProperty("rootGameId",out var baseGame)&&baseGame.GetString()!=id)continue;
 
                             string? exe = null, args = null, workingDir = dir;
                             if (root2.TryGetProperty("playTasks", out var tasks) && tasks.ValueKind == JsonValueKind.Array)
                             {
                                 foreach (var task in tasks.EnumerateArray())
                                 {
-                                    if (task.TryGetProperty("isPrimary", out var ip) && ip.GetBoolean())
+                                    if (task.TryGetProperty("isPrimary", out var ip) && ip.ValueKind == JsonValueKind.True && task.TryGetProperty("type", out var type) && type.GetString() == "FileTask")
                                     {
                                         if (task.TryGetProperty("path", out var p)) exe = p.GetString();
                                         if (task.TryGetProperty("arguments", out var a)) args = a.GetString();
@@ -64,19 +71,16 @@ public sealed class GogDetector : IInstalledGameDetector
                                         break;
                                     }
                                 }
-                                if (exe is null && tasks.GetArrayLength() > 0)
-                                {
-                                    var first = tasks[0];
-                                    if (first.TryGetProperty("path", out var p)) exe = p.GetString();
-                                    if (first.TryGetProperty("arguments", out var a)) args = a.GetString();
-                                    if (first.TryGetProperty("workingDir", out var wd)) workingDir = wd.GetString() ?? dir;
-                                }
+
                             }
 
                             if (string.IsNullOrWhiteSpace(exe)) continue;
-                            var fullPath = Path.IsPathRooted(exe!) ? exe! : Path.Combine(workingDir!, exe!);
-                            if (!File.Exists(fullPath)) continue;
+                            var fullPath = Path.IsPathRooted(exe!) ? exe! : Path.Combine(dir, exe!);
+                            fullPath=Path.GetFullPath(fullPath);
+                            if(!fullPath.StartsWith(Path.GetFullPath(dir).TrimEnd('\\')+"\\",StringComparison.OrdinalIgnoreCase)||!LaunchTargetRules.IsAllowedProgram(fullPath)||!File.Exists(fullPath))continue;
 
+                            workingDir=string.IsNullOrWhiteSpace(workingDir)?dir:Path.GetFullPath(Path.IsPathRooted(workingDir)?workingDir:Path.Combine(dir,workingDir));
+                            if(!Directory.Exists(workingDir))continue;
                             var key = fullPath.ToUpperInvariant();
                             if (!seen.Add(key)) continue;
 
@@ -88,9 +92,9 @@ public sealed class GogDetector : IInstalledGameDetector
                                 Arguments: string.IsNullOrWhiteSpace(args) ? null : args,
                                 WorkingDirectory: workingDir,
                                 IconPath: fullPath,
-                                PlatformId: Path.GetFileNameWithoutExtension(infoFile).Replace("goggame-", "")));
+                                PlatformId: id, HighConfidence: true));
                         }
-                        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or ArgumentException) { }
+                        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or ArgumentException or InvalidOperationException) { }
                     }
                 }
             }

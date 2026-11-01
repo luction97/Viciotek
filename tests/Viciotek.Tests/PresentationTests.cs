@@ -228,6 +228,7 @@ public sealed class MainViewModelCoverDropTests
 
     private sealed class UnusedDialogService : IDialogService
     {
+        public IReadOnlyList<Viciotek.Application.DetectedGame>? ReviewImport(IReadOnlyList<Viciotek.Application.DetectedGame> games) => games;
         public string[]? PickGameFiles() => throw new InvalidOperationException("No se esperaba un diálogo.");
 
         public string? PickCoverFile() => throw new InvalidOperationException("No se esperaba un diálogo.");

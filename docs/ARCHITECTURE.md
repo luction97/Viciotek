@@ -35,6 +35,13 @@ Un proyecto WPF (`src/Viciotek`) y un proyecto xUnit (`tests/Viciotek.Tests`), a
 ## Ciclo de vida de cierre
 `MainWindow.OnClosing` cancela la primera solicitud, deshabilita la ventana y espera `MainViewModel.PrepareCloseAsync`, que cancela el `_lifetime`, descarta el toast y drena las operaciones registradas antes de liberar semáforos y el cliente HTTP. Después se guardan geometría y biblioteca en disco y se cierra. `Dispose` delega en este cierre y es idempotente.
 
+## Detección e importaciones revisables (1.1.35)
+`Infrastructure/Detection`: Steam cruza appmanifest instalado con clasificación game del appinfo binario local v39–41; Epic usa manifiestos games completos; GOG usa metadatos de juego base y tarea primaria ejecutable. Xbox y registro genérico devuelven vacío hasta disponer de clasificación fiable. `DetectedGame.HighConfidence` controla preselección, nunca autoriza por sí solo una importación. La detección no hace red ni se ejecuta al iniciar.
+
+`MainViewModel` comparte revisión (`IDialogService.ReviewImport` / DetectInstalledGamesDialog) entre resultados detectados y GameImporter manual. Persistir precede a adoptar tarjetas. Cada lote confirmado guarda un Guid en Game.ImportBatchId y el último en LibraryDocument.LastImportBatchId, campos opcionales del esquema 1. Eliminación múltiple y reversión reutilizan el semáforo y guardado atómico; no borran destinos de lanzamiento. El marcador del último lote se conserva aun sin miembros, impidiendo retroceder accidentalmente a lotes anteriores.
+
+`MainWindow` usa selección Extended nativa del GameGallery y sincroniza SelectedItems con SelectedGames del view model. Atajos de selección/eliminación solo actúan con foco en biblioteca; contextos reutilizan comandos existentes. Portadas, virtualización y cachés no cambian. AI_CONTEXT.local.md es documentación local ignorada y expresamente prohibida en índice Git/payload.
+
 ## Datos y límites
 `%LOCALAPPDATA%\Viciotek`: `library.json` (esquema 1), `settings.json`, `.bak`, `covers/`, `covers/thumbs/`, log de errores. `VICIOTEK_DATA_DIR` permite pruebas aisladas. Escrituras temporales, flush y reemplazo atómico; recuperación de respaldo ante JSON dañado.
 

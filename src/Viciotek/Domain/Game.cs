@@ -17,6 +17,7 @@ public sealed class Game
     public string? CoverFileName { get; set; }
     public string? ExecutableName { get; set; }
     public string? ImportSource { get; set; }
+    public Guid? ImportBatchId { get; set; }
     public int? SteamAppId { get; set; }
     public int? SteamGridDbGameId { get; set; }
     public string? SteamGridDbName { get; set; }

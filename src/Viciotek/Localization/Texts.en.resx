@@ -700,4 +700,15 @@ Technical details: {0}</value>
 <data name="MoreCoverResults" xml:space="preserve"><value>More covers</value></data>
 <data name="SearchCoverResults" xml:space="preserve"><value>Covers for “{0}”</value></data>
 <data name="ConfirmDisconnectSteamGrid" xml:space="preserve"><value>Your games and covers will be kept.</value></data>
+<data name="ReviewImportHint" xml:space="preserve"><value>Confirm which games you want to add.</value></data>
+<data name="DetectionFailed" xml:space="preserve"><value>Installed games could not be scanned. You can add them manually.</value></data>
+<data name="ImportSelected" xml:space="preserve"><value>Add selected</value></data>
+<data name="NoDetectedGames" xml:space="preserve"><value>No games could be identified with confidence. You can add them manually.</value></data>
+<data name="ConfirmRemoveGames" xml:space="preserve"><value>{0} games will be removed from your library.</value></data>
+<data name="UndoLastImport" xml:space="preserve"><value>Undo last import</value></data>
+<data name="ConfirmUndoImport" xml:space="preserve"><value>{0} games from the last import will be removed.</value></data>
+<data name="SelectedGameCount" xml:space="preserve"><value>{0} selected games</value></data>
+<data name="RemoveFromLibrary" xml:space="preserve"><value>Remove from library</value></data>
+<data name="ManualImport" xml:space="preserve"><value>Manual selection</value></data>
+<data name="ReviewImport" xml:space="preserve"><value>Review games</value></data>
 </root>

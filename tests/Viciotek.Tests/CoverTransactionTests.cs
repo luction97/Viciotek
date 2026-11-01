@@ -207,6 +207,7 @@ public sealed class CoverTransactionTests
 
     private sealed class Dialogs : IDialogService
     {
+        public IReadOnlyList<Viciotek.Application.DetectedGame>? ReviewImport(IReadOnlyList<Viciotek.Application.DetectedGame> games) => games;
         public string[]? PickGameFiles() => null;
         public string? PickCoverFile() => null;
         public Task PickCoverFromGalleryAsync(Game game, SteamGridDbClient steamGrid,

@@ -10,7 +10,9 @@ public sealed record DetectedGame(
     string? Arguments = null,
     string? WorkingDirectory = null,
     string? IconPath = null,
-    string? PlatformId = null);
+    string? PlatformId = null,
+    bool HighConfidence = false,
+    string? ExecutablePath = null);
 
 public interface IInstalledGameDetector
 {

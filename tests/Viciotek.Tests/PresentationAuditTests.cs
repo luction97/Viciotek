@@ -314,6 +314,7 @@ public sealed class PresentationAuditTests
         public GameEditResult? EditGame(Game game) => EditResult;
         public AppSettings? EditPreferences(AppSettings settings) => SettingsResult;
         public bool ConfirmRemove(string gameName) => true;
+        public IReadOnlyList<Viciotek.Application.DetectedGame>? ReviewImport(IReadOnlyList<Viciotek.Application.DetectedGame> games) => games;
         public string[]? PickGameFiles() => null;
         public string? PickCoverFile() => null;
         public Task PickCoverFromGalleryAsync(Game game, SteamGridDbClient steamGrid,

@@ -87,6 +87,7 @@ public sealed class LocalizationTests
     });
     private sealed class LanguageDialogs(bool cancel) : Viciotek.Presentation.Dialogs.IDialogService
     {
+        public IReadOnlyList<Viciotek.Application.DetectedGame>? ReviewImport(IReadOnlyList<Viciotek.Application.DetectedGame> games) => games;
         public string[]? PickGameFiles() => null;
         public string? PickCoverFile() => null;
         public Viciotek.Presentation.Dialogs.GameEditResult? EditGame(Viciotek.Domain.Game game) => null;

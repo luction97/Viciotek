@@ -76,6 +76,16 @@ public sealed class DialogService : IDialogService
         return ShowDialog(dialog) == true;
     }
 
+    public IReadOnlyList<Viciotek.Application.DetectedGame>? ReviewImport(IReadOnlyList<Viciotek.Application.DetectedGame> games)
+    {
+        var dialog = new DetectInstalledGamesDialog(games);
+        return ShowDialog(dialog) == true ? dialog.Selected : null;
+    }
+    public bool ConfirmRemoveMany(int count) => ShowDialog(new ConfirmDialog(L.Get("RemoveFromLibrary"),
+        L.Get("ConfirmRemoveGames", count), L.Get("RemoveFromLibrary"))) == true;
+    public bool ConfirmUndoImport(int count) => ShowDialog(new ConfirmDialog(L.Get("UndoLastImport"),
+        L.Get("ConfirmUndoImport", count), L.Get("UndoLastImport"))) == true;
+
     public AppSettings? EditPreferences(AppSettings settings)
         => EditPreferences(settings, _ => { });
 

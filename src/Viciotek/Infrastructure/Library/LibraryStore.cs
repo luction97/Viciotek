@@ -146,12 +146,14 @@ public sealed class SettingsStore
 
 public sealed class LibraryDocument
 {
+    public Guid? LastImportBatchId { get; set; }
     public int SchemaVersion { get; set; } = 1;
     public List<Game> Games { get; set; } = [];
 }
 
 public sealed class LibraryStore
 {
+    public Guid? LastImportBatchId { get; private set; }
     private readonly AtomicJsonFile<LibraryDocument> _file;
     private readonly SemaphoreSlim _saveGate = new(1, 1);
     private readonly Func<LibraryDocument, CancellationToken, Task> _writeAsync;
@@ -168,12 +170,13 @@ public sealed class LibraryStore
     public (List<Game> Games, string? Warning) Load()
     {
         var result = _file.Read();
+        LastImportBatchId = result.Value?.LastImportBatchId is Guid batch && batch != Guid.Empty ? batch : null;
         var games = result.Value?.Games ?? [];
         var sanitized = Sanitize(games);
         return (sanitized, result.Warning);
     }
 
-    public async Task SaveAsync(IReadOnlyList<Game> games, CancellationToken cancellationToken = default)
+    public async Task SaveAsync(IReadOnlyList<Game> games, CancellationToken cancellationToken = default, Guid? importBatchId = null)
     {
         var snapshot = new LibraryDocument
         {
@@ -183,7 +186,9 @@ public sealed class LibraryStore
         await _saveGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            snapshot.LastImportBatchId = importBatchId ?? LastImportBatchId;
             await _writeAsync(snapshot, cancellationToken).ConfigureAwait(false);
+            LastImportBatchId = snapshot.LastImportBatchId;
         }
         finally
         {
@@ -227,6 +232,7 @@ public sealed class LibraryStore
         _saveGate.Wait();
         try
         {
+            snapshot.LastImportBatchId = LastImportBatchId;
             _file.WriteNow(snapshot);
         }
         finally
@@ -259,6 +265,7 @@ public sealed class LibraryStore
             game.ShortcutPath = string.IsNullOrWhiteSpace(game.ShortcutPath) ? null : game.ShortcutPath;
             game.IconPath = string.IsNullOrWhiteSpace(game.IconPath) ? null : game.IconPath;
             game.IdentityCandidates = (game.IdentityCandidates ?? []).Where(GameTitle.IsDescriptive).Take(8).ToList();
+            if (game.ImportBatchId == Guid.Empty) game.ImportBatchId = null;
             if (game.SteamAppId is <= 0) game.SteamAppId = null;
             if (game.SteamGridDbGameId is <= 0) game.SteamGridDbGameId = null;
             game.CoverFileName = string.IsNullOrWhiteSpace(game.CoverFileName)

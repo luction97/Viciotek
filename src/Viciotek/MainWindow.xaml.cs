@@ -223,6 +223,7 @@ public partial class MainWindow : Window
 
     private void OnGamepadTick(object? sender, EventArgs e)
     {
+        if (!IsEnabled) return; // An import/confirmation dialog must also block controller actions.
         XInputGamepadState state = default;
         var xinputFound = false;
         for (var i = 0; i < 4; i++)
@@ -370,8 +371,12 @@ public partial class MainWindow : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
 
-    private void Gallery_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
+    private void Gallery_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
         _viewModel.SelectedGame = Gallery.SelectedItem as GameCardViewModel;
+        _viewModel.SelectedGames.Clear();
+        foreach (var card in Gallery.SelectedItems.Cast<GameCardViewModel>()) _viewModel.SelectedGames.Add(card);
+    }
 
     private void Gallery_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -381,12 +386,13 @@ public partial class MainWindow : Window
             return;
         }
 
-        item.IsSelected = true;
+        if (!item.IsSelected) { Gallery.SelectedItems.Clear(); item.IsSelected = true; }
         item.Focus();
     }
 
     private void Gallery_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
+        if (Keyboard.Modifiers != ModifierKeys.None) return;
         if (e.ChangedButton != MouseButton.Left)
         {
             return;
@@ -443,6 +449,10 @@ public partial class MainWindow : Window
             SearchBox.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
         var control = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
         var focusedButton = Keyboard.FocusedElement is ButtonBase;
+        if (Gallery.IsKeyboardFocusWithin && control && e.Key == Key.A)
+        { Gallery.SelectAll(); e.Handled = true; return; }
+        if (Gallery.IsKeyboardFocusWithin && e.Key == Key.Delete)
+        { e.Handled = true; await _viewModel.RemoveSelectionAsync(); return; }
 
         if (control && e.Key == Key.F)
         {

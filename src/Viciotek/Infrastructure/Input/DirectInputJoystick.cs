@@ -34,7 +34,7 @@ public static class DirectInputJoystick
     private static extern int DirectInput8Create(IntPtr hinst, uint dwVersion, ref Guid riidltf, out IntPtr ppvOut, IntPtr punkOuter);
 
     [DllImport("kernel32.dll")]
-    private static extern IntPtr GetModuleHandle(string lpModuleName);
+    private static extern IntPtr GetModuleHandle(string? lpModuleName);
 
     // IDirectInput8 vtable indices (after IUnknown: QI, AddRef, Release)
     // 3: CreateDevice, 4: EnumDevices, 5: GetDeviceStatus, 6: RunControlPanel, 7: Initialize, 8: FindDevice, 9: EnumDevicesBySemantics, 10: ConfigureDevices

@@ -834,6 +834,7 @@ public sealed class GameIdentificationFlowTests
             LastWasFallback = manualFallback;
             if (OnOpen is not null) await OnOpen(game, apply, manualFallback, cancellationToken);
         }
+        public IReadOnlyList<Viciotek.Application.DetectedGame>? ReviewImport(IReadOnlyList<Viciotek.Application.DetectedGame> games) => games;
         public string[]? PickGameFiles() => FilesToPick;
         public string? PickCoverFile() => null;
         public GameEditResult? EditGame(Game game) => EditResult;

@@ -8,11 +8,14 @@ public sealed class SteamDetector : IInstalledGameDetector
 {
     public string Platform => "Steam";
 
+    private readonly IEnumerable<string>? _folders;
+    private readonly string? _appInfo;
+    public SteamDetector(IEnumerable<string>? folders = null, string? appInfo = null) { _folders = folders; _appInfo = appInfo; }
     public IReadOnlyList<DetectedGame> Detect()
     {
-        var results = new List<DetectedGame>();
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var steamapps in FindSteamappsFolders())
+        var candidates = new Dictionary<int, (string Name, string Directory)>();
+        var folders = (_folders ?? FindSteamappsFolders()).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        foreach (var steamapps in folders)
         {
             try
             {
@@ -21,42 +24,23 @@ public sealed class SteamDetector : IInstalledGameDetector
                     try
                     {
                         if (new FileInfo(file).Length > 256 * 1024) continue;
-                        var text = File.ReadAllText(file);
-                        var idText = Value(text, "appid");
-                        var name = Value(text, "name");
-                        var directory = Value(text, "installdir");
-                        if (!int.TryParse(idText, out var id) || id <= 0) continue;
-                        if (Path.GetFileNameWithoutExtension(file) != $"appmanifest_{id}") continue;
-                        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(directory)) continue;
-                        if (directory.IndexOfAny(['/', '\\']) >= 0 || directory is "." or "..") continue;
-                        if (IsNonGame(id, name)) continue;
-
-                        var installDir = Path.Combine(steamapps, "common", directory);
-                        if (!Directory.Exists(installDir)) continue;
-
-                        var exe = FindLaunchExecutable(installDir);
-                        if (exe is null) continue;
-
-                        var key = exe.ToUpperInvariant();
-                        if (!seen.Add(key)) continue;
-
-                        results.Add(new DetectedGame(
-                            Name: name!,
-                            Platform: "Steam",
-                            LaunchPath: exe,
-                            LaunchKind: LaunchKind.Executable,
-                            WorkingDirectory: Path.GetDirectoryName(exe),
-                            IconPath: exe,
-                            PlatformId: id.ToString()));
+                        var text = File.ReadAllText(file); var directory = Value(text, "installdir"); var name = Value(text, "name");
+                        if (!int.TryParse(Value(text, "appid"), out var id) || id <= 0 || Path.GetFileNameWithoutExtension(file) != $"appmanifest_{id}" ||
+                            !uint.TryParse(Value(text, "StateFlags"), out var flags) || (flags & 4) == 0 || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(directory) || directory.IndexOfAny(['/', '\\']) >= 0 || directory is "." or "..") continue;
+                        var install = Path.Combine(steamapps, "common", directory); if (!Directory.Exists(install)) continue;
+                        candidates.TryAdd(id, (name, install));
                     }
                     catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException) { }
                 }
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
         }
-        return results;
+        var ids = candidates.Keys.ToHashSet(); var confirmed = new HashSet<int>();
+        var caches = _appInfo is not null ? new[] { _appInfo } : folders.Select(folder => Path.Combine(Path.GetDirectoryName(folder)!, "appcache", "appinfo.vdf"));
+        foreach (var cache in caches.Distinct(StringComparer.OrdinalIgnoreCase)) confirmed.UnionWith(SteamAppTypes.ReadGames(cache, ids));
+        return candidates.Where(pair => confirmed.Contains(pair.Key)).Select(pair => new DetectedGame(pair.Value.Name, Platform,
+            $"steam://rungameid/{pair.Key}", LaunchKind.Uri, WorkingDirectory: pair.Value.Directory, PlatformId: pair.Key.ToString(), HighConfidence: true)).ToList();
     }
-
     private static IEnumerable<string> FindSteamappsFolders()
     {
         var found = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -118,44 +102,6 @@ public sealed class SteamDetector : IInstalledGameDetector
             }
         }
         catch { }
-    }
-
-    private static string? FindLaunchExecutable(string installDir)
-    {
-        try
-        {
-            var exes = Directory.EnumerateFiles(installDir, "*.exe", SearchOption.TopDirectoryOnly).ToList();
-            if (exes.Count == 0)
-            {
-                foreach (var sub in new[] { "bin", "Binaries", "Win64", "x64" })
-                {
-                    var p = Path.Combine(installDir, sub);
-                    if (Directory.Exists(p))
-                        exes.AddRange(Directory.EnumerateFiles(p, "*.exe", SearchOption.TopDirectoryOnly));
-                }
-            }
-            var folderName = Path.GetFileName(installDir);
-            var match = exes.FirstOrDefault(e => Path.GetFileNameWithoutExtension(e).Equals(folderName, StringComparison.OrdinalIgnoreCase));
-            if (match is not null) return match;
-            return exes.FirstOrDefault(e => !IsLauncherExe(Path.GetFileName(e)));
-        }
-        catch { return null; }
-    }
-
-    private static bool IsNonGame(int appId, string name)
-    {
-        var lower = name.ToLowerInvariant();
-        if (lower.Contains("redistributable") || lower.Contains("runtime") || lower.Contains("sdk") ||
-            lower.Contains("dedicated server") || lower.Contains("tool") || lower.Contains("editor")) return true;
-        if (appId is 228980 or 1007) return true;
-        return false;
-    }
-
-    private static bool IsLauncherExe(string name)
-    {
-        var lower = name.ToLowerInvariant();
-        return lower.Contains("launcher") || lower.Contains("updater") || lower.Contains("crash") ||
-               lower.Contains("unins") || lower.Contains("redist");
     }
 
     private static string? Value(string text, string key)

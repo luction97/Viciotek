@@ -7,6 +7,7 @@ namespace Viciotek.Presentation;
 
 public interface IGameCardActions
 {
+    System.Windows.Input.ICommand? UndoImportCommand => null;
     bool CanFindCover { get; }
     Task PlayAsync(GameCardViewModel card);
     Task ChangeCoverAsync(GameCardViewModel card);
@@ -58,6 +59,7 @@ public sealed class GameCardViewModel : ObservableObject
     }
 
     public Game Model { get; }
+    public System.Windows.Input.ICommand? UndoImportCommand => _actions.UndoImportCommand;
     public string Name => Model.Name;
     public string? CoverVersion => Model.CoverFileName;
     public string? CoverPath => string.IsNullOrWhiteSpace(Model.CoverFileName)

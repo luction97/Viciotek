@@ -1,6 +1,7 @@
 # Viciotek — continuidad de desarrollo
 
 ## Antes de cambiar código
+- Leer primero `AI_CONTEXT.local.md` si existe; mantenerlo breve y actualizado al finalizar tareas importantes, sin secretos. Es local y debe permanecer ignorado por Git y fuera de los paquetes.
 - Leer `docs/PROJECT_STATE.md`, `docs/ARCHITECTURE.md` y `docs/DECISIONS.md`.
 - Verificar archivos y pruebas reales; no reiniciar ni reimplementar funcionalidades terminadas.
 - Proponer un plan breve, cambios pequeños y pruebas de regresión relevantes.

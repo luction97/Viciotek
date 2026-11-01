@@ -700,4 +700,15 @@ Detalle técnico: {0}</value>
 <data name="MoreCoverResults" xml:space="preserve"><value>Ver más portadas</value></data>
 <data name="SearchCoverResults" xml:space="preserve"><value>Portadas para «{0}»</value></data>
 <data name="ConfirmDisconnectSteamGrid" xml:space="preserve"><value>Tus juegos y portadas se conservarán.</value></data>
+<data name="ReviewImportHint" xml:space="preserve"><value>Confirma qué videojuegos quieres agregar.</value></data>
+<data name="DetectionFailed" xml:space="preserve"><value>No se pudieron buscar juegos instalados. Puedes agregarlos manualmente.</value></data>
+<data name="ImportSelected" xml:space="preserve"><value>Agregar seleccionados</value></data>
+<data name="NoDetectedGames" xml:space="preserve"><value>No se encontraron videojuegos que se puedan identificar con seguridad. Puedes agregarlos manualmente.</value></data>
+<data name="ConfirmRemoveGames" xml:space="preserve"><value>Se quitarán {0} juegos de tu biblioteca.</value></data>
+<data name="UndoLastImport" xml:space="preserve"><value>Deshacer última importación</value></data>
+<data name="ConfirmUndoImport" xml:space="preserve"><value>Se quitarán {0} juegos de la última importación.</value></data>
+<data name="SelectedGameCount" xml:space="preserve"><value>{0} juegos seleccionados</value></data>
+<data name="RemoveFromLibrary" xml:space="preserve"><value>Quitar de la biblioteca</value></data>
+<data name="ManualImport" xml:space="preserve"><value>Selección manual</value></data>
+<data name="ReviewImport" xml:space="preserve"><value>Revisar juegos</value></data>
 </root>

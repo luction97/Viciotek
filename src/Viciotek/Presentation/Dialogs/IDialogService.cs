@@ -1,4 +1,5 @@
 using Viciotek.Domain;
+using Viciotek.Application;
 using Viciotek.Infrastructure.Covers;
 using Viciotek.Infrastructure.Imaging;
 using Viciotek.Infrastructure.Library;
@@ -23,6 +24,9 @@ public interface IDialogService
         Func<CoverSelection, CancellationToken, Task<bool>> apply, bool manualFallback, CancellationToken cancellationToken);
     GameEditResult? EditGame(Game game);
     bool ConfirmRemove(string gameName);
+    bool ConfirmRemoveMany(int count) => ConfirmRemove(L.Get("SelectedGameCount", count));
+    bool ConfirmUndoImport(int count) => ConfirmRemoveMany(count);
+    IReadOnlyList<DetectedGame>? ReviewImport(IReadOnlyList<DetectedGame> games) => null;
     AppSettings? EditPreferences(AppSettings settings);
     AppSettings? ConnectCovers(AppSettings settings) => EditPreferences(settings);
     AppSettings? EditPreferences(AppSettings settings, Action<int> previewCoverSize) => EditPreferences(settings);
