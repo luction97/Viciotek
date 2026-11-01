@@ -74,6 +74,9 @@ public partial class MainWindow : Window
 
         UpdateCaptionButtons();
 
+        AddHandler(ContextMenuService.ContextMenuOpeningEvent, new ContextMenuEventHandler((sender, args) => _menuOpen = true));
+        AddHandler(ContextMenuService.ContextMenuClosingEvent, new ContextMenuEventHandler((sender, args) => RestoreLibraryFocus(sender, args)));
+        AddGamesPopup.Closed += RestoreLibraryFocus;
         _gamepadTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
         _gamepadTimer.Tick += OnGamepadTick;
     }
@@ -93,29 +96,22 @@ public partial class MainWindow : Window
         // Inicializar DirectInput con el HWND de la ventana para joysticks genéricos.
         var hwnd = new WindowInteropHelper(this).Handle;
         DirectInputJoystick.Initialize(hwnd);
-        // Detectar joystick al iniciar: si hay dispositivo conectado, seleccionar el primer juego.
-        Dispatcher.BeginInvoke(DispatcherPriority.Background, () =>
+    }
+
+    private static VirtualizingWrapPanel? FindPanel(DependencyObject root)
+    {
+        if (root is VirtualizingWrapPanel panel) return panel;
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+            if (FindPanel(VisualTreeHelper.GetChild(root, i)) is { } found) return found;
+        return null;
+    }
+    private void RestoreLibraryFocus(object? sender, EventArgs e)
+    {
+        _menuOpen = false;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
         {
-            var hasJoystick = false;
-            for (var i = 0; i < 4; i++)
-            {
-                if (XInputGamepad.GetState(i).Connected != 0) { hasJoystick = true; break; }
-            }
-            if (!hasJoystick)
-            {
-                hasJoystick = WinMMJoystick.GetState().Connected != 0;
-            }
-            if (!hasJoystick)
-            {
-                hasJoystick = DirectInputJoystick.GetState().Connected != 0;
-            }
-            if (hasJoystick && Gallery.SelectedItem is null && _viewModel.GamesView.Cast<GameCardViewModel>().Any())
-            {
-                var first = _viewModel.GamesView.Cast<GameCardViewModel>().First();
-                Gallery.ScrollToItem(first);
-                Gallery.SelectedItem = first;
-            }
-        });
+            if (IsActive && IsEnabled && !SearchBox.IsKeyboardFocusWithin) Keyboard.Focus(this);
+        }));
     }
 
     private void OnFirstContentRendered(object? sender, EventArgs e)
@@ -223,7 +219,7 @@ public partial class MainWindow : Window
 
     private void OnGamepadTick(object? sender, EventArgs e)
     {
-        if (!IsEnabled) return; // An import/confirmation dialog must also block controller actions.
+        if (!IsActive || !IsEnabled || _menuOpen || AddGamesPopup.IsOpen || SearchBox.IsKeyboardFocusWithin || Keyboard.FocusedElement is ButtonBase or MenuItem) { _launchHeld = true; _navigationArmed = false; _lastDirection = GamepadMoveDirection.None; return; }
         XInputGamepadState state = default;
         var xinputFound = false;
         for (var i = 0; i < 4; i++)
@@ -253,45 +249,58 @@ public partial class MainWindow : Window
                 var diDirection = GamepadInput.ResolveMoveDirection(diX, diY, 0);
                 if (diDirection != GamepadMoveDirection.None)
                 {
-                    MoveGameSelection(diDirection);
+                    NavigateGamepad(diDirection);
                     return;
                 }
                 // Launch button: first button
-                if (di.Buttons != null && di.Buttons.Length > 0 && (di.Buttons[0] & 0x80) != 0)
-                {
-                    LaunchSelectedGame();
-                }
+                LaunchGamepad(di.Buttons != null && di.Buttons.Length > 0 && (di.Buttons[0] & 0x80) != 0);
                 return;
             }
 
             var direction = GamepadInput.ResolveMoveDirectionWinMM(winmm.X, winmm.Y, winmm.Pov);
             if (direction != GamepadMoveDirection.None)
             {
-                MoveGameSelection(direction);
+                NavigateGamepad(direction);
                 return;
             }
 
-            if ((winmm.Buttons & WinMMJoystick.LaunchButton) == WinMMJoystick.LaunchButton)
-            {
-                LaunchSelectedGame();
-            }
+            LaunchGamepad((winmm.Buttons & WinMMJoystick.LaunchButton) != 0);
             return;
         }
 
         var xdirection = GamepadInput.ResolveMoveDirection(state.AxisLeftX, state.AxisLeftY, state.Buttons);
         if (xdirection != GamepadMoveDirection.None)
         {
-            MoveGameSelection(xdirection);
+            NavigateGamepad(xdirection);
             return;
         }
 
-        if ((state.Buttons & GamepadInput.LaunchButton) == GamepadInput.LaunchButton)
-        {
-            LaunchSelectedGame();
-        }
+        LaunchGamepad((state.Buttons & GamepadInput.LaunchButton) != 0);
     }
 
-    private void MoveGameSelection(GamepadMoveDirection direction)
+    private bool _menuOpen;
+    private bool _navigationArmed;
+    private bool _launchHeld;
+    private GamepadMoveDirection _lastDirection;
+    private DateTime _repeatAt;
+    private void NavigateGamepad(GamepadMoveDirection direction)
+    {
+        if (!_navigationArmed) return;
+        var now = DateTime.UtcNow;
+        if (_lastDirection == direction && now < _repeatAt) return;
+        var first = _lastDirection != direction;
+        _lastDirection = direction;
+        _repeatAt = now.AddMilliseconds(first ? 300 : 100);
+        MoveGameSelection(direction);
+    }
+    private void LaunchGamepad(bool pressed)
+    {
+        _lastDirection = GamepadMoveDirection.None;
+        if (_navigationArmed && pressed && !_launchHeld) LaunchSelectedGame();
+        if (!pressed) _navigationArmed = true;
+        _launchHeld = pressed;
+    }
+    internal void MoveGameSelection(GamepadMoveDirection direction)
     {
         if (direction == GamepadMoveDirection.None)
         {
@@ -315,18 +324,27 @@ public partial class MainWindow : Window
             return;
         }
 
-        var step = direction is GamepadMoveDirection.Down or GamepadMoveDirection.Right ? 1 : -1;
-        var targetIndex = index + step;
-        if (targetIndex < 0 || targetIndex >= cards.Count)
-        {
-            return;
-        }
-
+        var columns = FindPanel(Gallery)?.Columns ?? 1;
+        var targetIndex = NavigationIndex(cards.Count, index, columns, direction);
         var target = cards[targetIndex];
         Gallery.ScrollToItem(target);
         Gallery.SelectedItem = target;
     }
 
+    internal static int NavigationIndex(int count, int index, int columns, GamepadMoveDirection direction)
+    {
+        if (count == 0) return -1;
+        if (index < 0) return 0;
+        columns = Math.Max(1, columns);
+        return direction switch
+        {
+            GamepadMoveDirection.Left => index % columns == 0 ? index : index - 1,
+            GamepadMoveDirection.Right => (index + 1) % columns == 0 ? index : Math.Min(count - 1, index + 1),
+            GamepadMoveDirection.Up => index < columns ? index : index - columns,
+            GamepadMoveDirection.Down => index / columns == (count - 1) / columns ? index : Math.Min(count - 1, index + columns),
+            _ => index
+        };
+    }
     private static short NormalizeDirectInputAxis(int value)
     {
         // DirectInput axes can be -1000..1000 or 0..65535.
@@ -447,11 +465,16 @@ public partial class MainWindow : Window
         // Explicit actions use the latest text, including a pending delayed edit.
         if (SearchBox.IsKeyboardFocusWithin && e.Key is Key.Enter or Key.Escape or Key.Down)
             SearchBox.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
-        var control = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
+        var libraryFocus = ReferenceEquals(Keyboard.FocusedElement, this) || Gallery.IsKeyboardFocusWithin;
+        if (libraryFocus && Keyboard.Modifiers == ModifierKeys.None && e.Key is Key.Left or Key.Right or Key.Up or Key.Down)
+        {
+            MoveGameSelection(e.Key switch { Key.Left => GamepadMoveDirection.Left, Key.Right => GamepadMoveDirection.Right, Key.Up => GamepadMoveDirection.Up, _ => GamepadMoveDirection.Down });
+            Gallery.Focus(); e.Handled = true; return;
+        }        var control = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
         var focusedButton = Keyboard.FocusedElement is ButtonBase;
-        if (Gallery.IsKeyboardFocusWithin && control && e.Key == Key.A)
+        if (libraryFocus && control && e.Key == Key.A)
         { Gallery.SelectAll(); e.Handled = true; return; }
-        if (Gallery.IsKeyboardFocusWithin && e.Key == Key.Delete)
+        if (libraryFocus && e.Key == Key.Delete)
         { e.Handled = true; await _viewModel.RemoveSelectionAsync(); return; }
 
         if (control && e.Key == Key.F)

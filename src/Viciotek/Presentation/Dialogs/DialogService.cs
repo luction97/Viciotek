@@ -111,13 +111,32 @@ public sealed class DialogService : IDialogService
         }
 
         dialog.Owner = owner;
-        return dialog.ShowDialog();
+        var previous = System.Windows.Input.Keyboard.FocusedElement;
+        try { return dialog.ShowDialog(); }
+        finally
+        {
+            owner.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Input, new Action(() =>
+            {
+                if (!owner.IsActive || !owner.IsEnabled) return;
+                System.Windows.Input.Keyboard.Focus(previous is FrameworkElement element && element.IsVisible && element is not System.Windows.Controls.Primitives.ButtonBase ? element : owner);
+            }));
+        }
     }
 
     private bool? ShowOpenDialog(OpenFileDialog dialog)
     {
         var owner = GetOwner();
-        return owner is null ? dialog.ShowDialog() : dialog.ShowDialog(owner);
+        if (owner is null) return dialog.ShowDialog();
+        var previous = System.Windows.Input.Keyboard.FocusedElement;
+        try { return dialog.ShowDialog(owner); }
+        finally
+        {
+            owner.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Input, new Action(() =>
+            {
+                if (owner.IsActive && owner.IsEnabled)
+                    System.Windows.Input.Keyboard.Focus(previous is FrameworkElement element && element.IsVisible && element is not System.Windows.Controls.Primitives.ButtonBase ? element : owner);
+            }));
+        }
     }
 
     private static Window? GetOwner()

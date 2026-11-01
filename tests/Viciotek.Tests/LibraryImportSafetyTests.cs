@@ -13,6 +13,28 @@ using Viciotek.Presentation.Dialogs;
 namespace Viciotek.Tests;
 public sealed class LibraryImportSafetyTests
 {
+    [Theory]
+    [InlineData(-1, GamepadMoveDirection.Left, 0)]
+    [InlineData(-1, GamepadMoveDirection.Down, 0)]
+    [InlineData(0, GamepadMoveDirection.Down, 4)]
+    [InlineData(4, GamepadMoveDirection.Up, 0)]
+    [InlineData(1, GamepadMoveDirection.Up, 1)]
+    [InlineData(3, GamepadMoveDirection.Right, 3)]
+    [InlineData(4, GamepadMoveDirection.Left, 4)]
+    [InlineData(7, GamepadMoveDirection.Down, 7)]
+    public void DirectionalNavigation_UsesGridAndFirstIntent(int index, GamepadMoveDirection direction, int expected)
+    {
+        Assert.Equal(expected, Viciotek.MainWindow.NavigationIndex(8, index, 4, direction));
+        Assert.Equal(-1, Viciotek.MainWindow.NavigationIndex(0, -1, 4, direction));
+        Assert.Equal(0, Viciotek.MainWindow.NavigationIndex(1, -1, 1, direction));
+    }
+    [Fact]
+    public void XInput_UsesWindowsNativeLayout()
+    {
+        Assert.Equal(16, System.Runtime.InteropServices.Marshal.SizeOf<Viciotek.Infrastructure.Input.XInputGamepad.NativeState>());
+        Assert.Equal(4, System.Runtime.InteropServices.Marshal.OffsetOf<Viciotek.Infrastructure.Input.XInputGamepad.NativeState>("Buttons").ToInt32());
+        Assert.Equal(8, System.Runtime.InteropServices.Marshal.OffsetOf<Viciotek.Infrastructure.Input.XInputGamepad.NativeState>("AxisLeftX").ToInt32());
+    }
     [Theory][InlineData(false)][InlineData(true)]
     public Task ManualImport_ImportsExplicitFilesWithoutReview(bool drop)=>WpfTest.RunAsync(async()=>
     {

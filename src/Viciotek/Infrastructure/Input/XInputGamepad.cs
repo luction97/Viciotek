@@ -22,17 +22,25 @@ public static class XInputGamepad
 {
     public const int PlayerIndex = 0;
 
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct NativeState
+    {
+        public uint Packet;
+        public ushort Buttons;
+        public byte AxisLeftTrigger, AxisRightTrigger;
+        public short AxisLeftX, AxisLeftY, AxisRightX, AxisRightY;
+    }
     [DllImport("xinput1_4.dll", SetLastError = true)]
-    private static extern int XInputGetState(int dwUserIndex, ref XInputGamepadState state);
+    private static extern int XInputGetState(int dwUserIndex, ref NativeState state);
 
     public static XInputGamepadState GetState(int playerIndex = PlayerIndex)
     {
-        var current = new XInputGamepadState();
+        var current = new NativeState();
         var result = XInputGetState(playerIndex, ref current);
         return new XInputGamepadState
         {
             Connected = result == 0 ? 1 : 0,
-            Flags = current.Flags,
+            Flags = (int)current.Packet,
             Buttons = current.Buttons,
             AxisLeftX = current.AxisLeftX,
             AxisLeftY = current.AxisLeftY,
