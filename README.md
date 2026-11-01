@@ -1,75 +1,57 @@
 # VICIOTEK
 
-_Todos tus vicios, en un solo lugar._
+_Todos tus juegos en un solo lugar._
 
-Biblioteca personal de videojuegos para Windows 11: portadas, búsqueda y lanzamiento sin paneles adicionales. C# / WPF / .NET 8, sin servidor ni Electron.
+Biblioteca personal de videojuegos para Windows 11. Organiza, busca y abre tus juegos desde una interfaz oscura y minimalista. Sin servidor ni telemetría.
 
-## Instalar y ejecutar (Windows 11 x64)
-- **Instalador**: `Viciotek-1.1.19-setup-win-x64.exe`, generado en `dist/`. Instala para el usuario actual en `%LOCALAPPDATA%\Programs\VICIOTEK`, incluye .NET y crea automáticamente un acceso directo **VICIOTEK en el escritorio** y otro en Inicio. No requiere administrador. Permite actualizar/desinstalar desde Windows sin borrar la biblioteca.
-- **Portable x64**: extraer **todo** `Viciotek-1.1.19-win-x64.zip` y abrir `Viciotek.exe`. Incluye .NET; no requiere instalación ni administrador.
-- **Framework-dependent x64**: requiere **.NET 8 Desktop Runtime x64** (el runtime básico de .NET no alcanza).
-- Los datos están en `%LOCALAPPDATA%\Viciotek`; una segunda apertura reutiliza la instancia existente. Si venís de una versión anterior, mové el contenido de la carpeta de datos previa a `%LOCALAPPDATA%\Viciotek` antes de abrir 1.1.1: no hay migración automática.
-- Al actualizar, cerrar la versión anterior antes de abrir la nueva: comparten la misma biblioteca y el bloqueo de instancia. No ejecutar como administrador para arrastrar desde un Explorador sin elevación.
-- Instalador/ejecutable locales aún sin firma digital; Windows puede mostrar SmartScreen. Comparar el archivo `.sha256` entregado por un canal confiable. No se afirma certificación de producción ni cumplimiento completo de OWASP.
-- Los binarios no se versionan en Git. Publicarlos en [GitHub Releases](https://github.com/luction97/Viciotek/releases) es una acción separada del mantenedor; la CI produce artefactos de prueba, no hace releases automáticas.
+## Instalación — versión 1.1.39
 
-## Uso
-- El botón **+** abre una ventana con las instrucciones para agregar juegos (arrastrar `.exe`, `.lnk` o `.url`, o elegir archivos). Doble clic o Enter sobre una tarjeta para jugar.
-- Las portadas se elevan con un sutil resaltado al pasar el cursor; el efecto se puede desactivar en Configuración.
-- Los `.lnk` conservan destino ejecutable, argumentos y directorio. Los `.url` admiten protocolos conocidos de Steam, Epic, Ubisoft, EA, GOG, Battle.net, Rockstar y Xbox; el launcher correspondiente debe estar instalado.
-- Arrastrar una imagen **sobre la tarjeta** para reemplazar su portada o usar clic derecho → «Cambiar portada…». Sin botones flotantes sobre las portadas. Se recorta al centro a 2:3.
-- PNG, JPEG, BMP, GIF (primer frame), TIFF e ICO mediante codecs WPF; WebP depende de codecs del sistema. Máximo 30 MiB/30 megapíxeles.
-- `Ctrl+F`: buscar · `Ctrl+O`: agregar · `Ctrl+,`: preferencias · `F2`: editar · Enter en búsqueda: jugar · Escape: limpiar búsqueda/selección.
-- SteamGridDB es opcional: ir a **Configuración → SteamGridDB**, abrir el sitio oficial, iniciar sesión y copiar el código que allí se llama «API Key». Volver, elegir **Pegar** y **Conectar**: verifica y guarda en una sola acción. Enter/Guardar también verifica un código nuevo; un código rechazado no reemplaza la conexión anterior. Una conexión guardada se puede comprobar sin cambiarla. Activar «Buscar portadas automáticamente al agregar juegos». Solo consulta al importar (si está activado) o al pedir portadas; nunca al iniciar. La clave se muestra oculta y se guarda cifrada en este equipo (DPAPI); no viene incluida en el ejecutable. Nota comercial: las imágenes de SteamGridDB son aportes de usuarios; revisar sus condiciones antes de redistribuir VICIOTEK.
-- La identificación prioriza manifiestos Steam y metadatos locales sobre el nombre del ejecutable. Si no encuentra una coincidencia fiable, abre la galería con «Ingresá el nombre del juego» para buscar y elegir manualmente. No expande siglas ambiguas ni reemplaza automáticamente portadas existentes. La acción contextual de búsqueda automática solo aparece cuando falta portada.
+- **Instalador recomendado:** `dist/Viciotek-1.1.39-setup-win-x64.exe`. Incluye .NET y se instala para tu usuario, sin permisos de administrador. Para compartirlo basta con enviar este archivo.
+- **Portable:** `dist/Viciotek-1.1.39-win-x64.zip`. Incluye .NET: extrae todo el ZIP y abre `Viciotek.exe`. Conserva todos los archivos de la carpeta; el ejecutable por sí solo no es suficiente.
+- **Variante sin .NET incluido:** `dist/Viciotek-1.1.39-win-x64-framework-dependent.zip`. Requiere .NET 8 Desktop Runtime x64.
 
-VICIOTEK se cierra cuando Windows acepta el lanzamiento. Eso no garantiza que el juego complete su inicio; ante un error detectable la biblioteca sigue abierta.
+Requisito: Windows 11 x64. Cierra VICIOTEK antes de actualizar. La biblioteca y las preferencias se conservan en `%LOCALAPPDATA%\Viciotek`; instalar o desinstalar no las elimina. El portable utiliza esa misma carpeta de datos. Una segunda apertura reutiliza la instancia existente.
 
-## Acerca de
-La autoría se muestra de forma discreta en **Configuración → Acerca de VICIOTEK**: creado por Lucas Siano, © 2026 Lucas Siano. Detalles de marca en [docs/BRANDING.md](docs/BRANDING.md) y atribución en [COPYRIGHT.md](COPYRIGHT.md).
+Cada descarga generada tiene un archivo `.sha256` de integridad. Los binarios todavía no tienen firma digital y Windows puede mostrar una advertencia de SmartScreen. Esta entrega está destinada a uso y pruebas privadas; no implica certificación de Microsoft Store.
 
-## Datos y recuperación
-Respaldar `%LOCALAPPDATA%\Viciotek` completa con la app cerrada. El guardado usa reemplazo atómico y `.bak`; un JSON dañado se conserva como `*.corrupt-*.json` antes de intentar recuperar el respaldo.
+## Primer uso
 
-## Desarrollo reproducible
+1. Conecta SteamGridDB para mostrar las portadas de tus juegos automáticamente, o elige **Ahora no**. La clave se valida y guarda protegida por Windows; puedes desconectar desde Configuración.
+2. Elige **Detectar mis juegos** para revisar los resultados antes de agregarlos, o **Agregar manualmente**. También puedes arrastrar un ejecutable o acceso directo a la ventana.
 
-SDK fijado en `global.json` (.NET 8.0.427 o parche compatible). WPF/MVVM en `src/Viciotek`, reglas en Domain, importación en Application, IO en Infrastructure y UI en Presentation. No hay dependencias NuGet de ejecución; tests y herramientas son independientes del instalador final.
+Los archivos elegidos manualmente se agregan directamente. Selector y arrastre comparten identificación, descarga de portadas y control de duplicados. Las imágenes se guardan localmente; también puedes elegir portadas desde tu equipo.
+
+La detección automática es conservadora: Steam, Epic y GOG requieren metadatos que identifiquen videojuegos instalados. Xbox/WindowsApps y la detección genérica por registro están deshabilitados mientras no puedan distinguir juegos de otras aplicaciones con suficiente confianza. Los resultados pueden omitir juegos; puedes agregarlos manualmente.
+
+## Biblioteca y controles
+
+- Doble clic o **Enter** sobre el juego seleccionado para jugar.
+- Al abrir no hay una portada seleccionada. La primera flecha del teclado o dirección del mando selecciona el primer juego visible; las siguientes recorren la cuadrícula. El hover del mouse es independiente.
+- **Ctrl + clic** selecciona varios; **Shift + clic**, un rango; **Ctrl + A** selecciona los juegos visibles cuando la biblioteca tiene el foco.
+- **Supr** o **Quitar de la biblioteca** pide confirmación. Nunca borra instalaciones ni archivos personales. El menú del fondo permite deshacer el último lote importado, previa confirmación.
+- **Ctrl + F** buscar · **Ctrl + O** agregar · **Ctrl + ,** Configuración · **F2** editar · **Escape** limpiar búsqueda/selección. **Enter** en la búsqueda abre el primer resultado visible.
+- En Configuración puedes cambiar idioma (español, inglés o sistema), tamaño de portadas y efectos de movimiento.
+
+El mando se atiende únicamente con la ventana activa y fuera de búsqueda, diálogos y menús. Se corrigió la lectura nativa XInput; la compatibilidad con mandos físicos y DirectInput sigue pendiente de validación completa.
+
+## Desarrollo
+
+C# / WPF / .NET 8, MVVM, sin dependencias NuGet de ejecución. SDK fijado en `global.json`.
 
 ```powershell
-dotnet restore Viciotek.sln --locked-mode
-dotnet build Viciotek.sln -c Release --no-restore --nologo
+dotnet build Viciotek.sln -c Release --nologo -warnaserror
 dotnet test Viciotek.sln -c Release --no-build --nologo
-.\tools\Test-Dependencies.ps1
-.\tools\Publish.ps1
-.\tools\Publish.ps1 -Variant FrameworkDependent
-.\tools\SmokePublished.ps1 -ZipPath '.\dist\Viciotek-1.1.19-win-x64.zip'
-```
-Los archivos `packages.lock.json` se versionan. Cada publicación genera carpeta, ZIP y SHA256 bajo `dist/`; para repetir usar `-OutputRoot` nuevo, sin borrar distribuciones existentes. Para el instalador: preparar Inno Setup con `tools/Get-BuildTools.ps1` y ejecutar `tools/Build-Installer.ps1 -CompilerPath <ruta-a-ISCC.exe>`; ver los comandos de build/smoke en [CONTRIBUTING.md](CONTRIBUTING.md).
-
-### Git, CI y seguridad
-- Ramas breves desde `main` (`feat/*`, `fix/*`), Conventional Commits, PR revisado y sin force-push a ramas compartidas. Flujo y hooks opcionales: [CONTRIBUTING.md](CONTRIBUTING.md).
-- La CI compila, prueba, escanea secretos con Gitleaks, audita dependencias y verifica el instalador. Actions fijadas por SHA y permisos mínimos; nunca usar una clave personal para la CI normal. Dependabot propone actualizaciones semanales.
-- `.gitignore` excluye binarios, cachés, datos personales, secretos, certificados y diagnósticos. Antes de un commit revisar staging y ejecutar `tools/Test-Commit.ps1`; los controles de seguridad incluyen pruebas negativas.
-- Amenazas, controles OWASP Top 10:2025 y limitaciones reales: [SECURITY.md](SECURITY.md). Las reglas de protección de `main` deben habilitarse en GitHub; añadir estos archivos no las activa automáticamente.
-
-Prueba adicional del flujo WPF de arrastre, galería y persistencia:
-```powershell
-dotnet run --project tools/SteamGridSmoke/SteamGridSmoke.csproj -c Release
-# Red real opcional: definir VICIOTEK_TEST_API_KEY solo en el entorno y agregar -- --live.
-```
-Sin `--live` usa HTTP simulado. Con red usa la misma implementación de la aplicación; no ejecuta juegos, no guarda la clave y crea datos aislados en `%LOCALAPPDATA%\Temp\opencode`. Los eventos WPF son automatizados: no equivale a un arrastre físico desde Explorer ni verifica diferencias de elevación/UIPI.
-
-Para no tocar datos personales:
-```powershell
-$env:VICIOTEK_DATA_DIR = Join-Path $env:TEMP 'opencode\viciotek-sandbox'
-dotnet run --project src/Viciotek
-Remove-Item Env:VICIOTEK_DATA_DIR
+./tools/Publish.ps1 -Variant Portable
+./tools/Publish.ps1 -Variant FrameworkDependent
+./tools/Build-Installer.ps1 -CompilerPath <ruta-a-ISCC.exe>
 ```
 
-## Estado y límites
-Interfaz sin tutoriales ni instrucciones de clic, portadas personalizables y virtualización verificada con tests WPF. Apertura caliente medida hasta portadas listas en ~0,6 s; el objetivo de RAM ≤100 MB **no se cumple**. Pendientes: arranque frío, DPI/multimonitor, UAC y launchers comerciales. Revisar actualización de .NET LTS antes de su fin de soporte.
+Usa `VICIOTEK_DATA_DIR` para pruebas aisladas. Antes de un commit ejecuta `tools/Test-Commit.ps1`; valida los paquetes con `tools/SmokePublished.ps1` y el instalador con `tools/SmokeInstaller.ps1`. La memoria `AI_CONTEXT.local.md` es exclusivamente local, ignorada por Git y excluida de los paquetes.
 
-Continuidad: [estado](docs/PROJECT_STATE.md), [arquitectura](docs/ARCHITECTURE.md), [decisiones](docs/DECISIONS.md), [diseño](docs/DESIGN_SYSTEM.md), [rendimiento](docs/PERFORMANCE.md) y [pendientes](docs/ROADMAP.md).
+## Documentación y licencia
 
-## Derechos de autor
-**© 2026 Lucas Siano. Todos los derechos reservados.** Código original bajo política propietaria; que el repositorio sea visible en GitHub no concede una licencia open source. Alcance y distribución: [COPYRIGHT.md](COPYRIGHT.md). Dependencias, marcas e imágenes de terceros conservan sus derechos: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+[Estado y validaciones](docs/PROJECT_STATE.md) · [Arquitectura](docs/ARCHITECTURE.md) · [Decisiones](docs/DECISIONS.md) · [Diseño](docs/DESIGN_SYSTEM.md) · [Rendimiento](docs/PERFORMANCE.md) · [Auditoría de publicación](docs/PUBLICATION_AUDIT.md).
+
+**© 2026 Lucas Siano. Todos los derechos reservados.** Código propietario; su publicación en GitHub no otorga una licencia de código abierto. [Derechos](COPYRIGHT.md) · [Seguridad](SECURITY.md) · [Contribución](CONTRIBUTING.md) · [Terceros](THIRD_PARTY_NOTICES.md).
+
+Antes de publicar en Microsoft Store quedan pendientes firma/formato de distribución, actualización del runtime, materiales de publicación y pruebas con cuentas, mandos y monitores reales. Consulta la auditoría y las actualizaciones posteriores en el estado del proyecto.

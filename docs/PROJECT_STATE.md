@@ -1,6 +1,13 @@
 # Estado del proyecto
 
-Última revisión: 2026-11-01. Producto: **VICIOTEK 1.1.36**, C#/WPF/.NET 8 para Windows 11.
+Última revisión: 2026-11-01. Producto: **VICIOTEK 1.1.39**, C#/WPF/.NET 8 para Windows 11.
+
+## Auditoría de publicación — 2026-11-01, sin correcciones de código
+- Dictamen: continuar pruebas privadas; no enviar todavía a Microsoft Store. Detalle en `docs/PUBLICATION_AUDIT.md`.
+- CONFIRMADO: ABI XInput incorrecta (32 bytes frente a 16; se pierden botones/ejes con bytes nativos sintéticos), normalización DirectInput incorrecta para centro 0 de rango firmado, tipos/flags DirectInput distintos del SDK. El sondeo no comprueba ventana activa; efecto de acciones en segundo plano INFERIDO del código, sin mando real.
+- CONFIRMADO: EXE/instalador NotSigned. La Store vuelve a firmar MSIX/AppX, no EXE/MSI: corregir el checklist antes de elegir ruta. Las tres capturas de store/assets muestran navegador/terminal ajenos a VICIOTEK aunque el verificador dimensional pase. .NET 8 termina soporte 10-11-2026; priorizar LTS vigente antes de una distribución nueva. Ficha Store/privacidad y algunos mensajes ingleses siguen pendientes.
+- Verificación nueva: build -warnaserror limpio; 377/377 tests; NuGet sin vulnerabilidades conocidas; política Git/payload PASS. Evidencia en artifacts/publication-audit-1.1.36. Benchmark caliente: 793 ms vacía, 868 ms con 500 registros/portadas sintéticas; 8 visibles, máximo 20 contenedores, cero fallos. No es presentación GPU ni RAM ≤100 MB; privada inicial 105,3 MiB y tras recorrido 188,2 MiB con 500.
+- No se cambiaron código/instaladores/assets Store, ni se accedió a datos personales de la app. Próximo paso: corregir gamepad, decidir MSIX/firma, migrar runtime, rehacer capturas y probar cuenta/clientes/hardware/DPI reales antes de certificar.
 
 ## Bienvenida: conexión antes de importar — 1.1.36
 - Pantalla vacía con una decisión por vez: Conectar SteamGridDB (beneficio breve de portadas automáticas) o Ahora no; después, Detectar juegos instalados y Agregar manualmente, con instrucción de arrastre. Usa el formulario dedicado existente, sin abrir Configuración. Si ya hay conexión se entra directamente al segundo paso. No se inicia detección, importación ni red automáticamente.
@@ -498,3 +505,32 @@ Completar validación real de DPI/multimonitor, launchers y UAC; perfilar la mem
 - **CONFIRMADO en código:** no hay regeneración de miniatura faltante desde el original; el loader devuelve `null`. También, editar una entrada URI y cambiarla a ejecutable no rehabilita argumentos/directorio: solo se deshabilitan en el constructor del diálogo.
 - **INFERIDO, pendiente de reproducción controlada:** cerrar durante una actualización puede enfrentar `Release` con un semáforo ya liberado por `Dispose`, además de dejar cambios de archivos sin confirmar en JSON.
 - **Criterio UX:** mantener la estética actual; revisar la configuración escondida en la marca y la personalización solo contextual, usando acciones discretas reconocibles, no tutoriales. Evaluar Enter en búsqueda como lanzamiento directo del resultado, en lugar de dos pasos. Estas recomendaciones requieren validar la interacción, no son fallos visuales demostrados.
+
+## Ajuste de texto de bienvenida — 2026-11-01
+- Descripción es actualizada al texto exacto solicitado: Conecta SteamGridDB para mostrar las portadas de tus juegos automáticamente. Recurso XML validado; sin cambios funcionales. Pendiente incluir esta corrección en el siguiente empaquetado.
+
+
+## Importación manual directa — 1.1.37
+- Selector y arrastre importan los archivos elegidos sin Revisar juegos; la detección automática mantiene revisión y confirmación. Se conservan identidad, portadas automáticas, deduplicación, guardado atómico y lotes para deshacer. Texto de bienvenida actualizado a mostrar las portadas, según pedido.
+- Build Release sin advertencias; 378 pruebas, incluidas selector/arrastre sin revisión, cancelación del selector, duplicados y descarga de portadas con HTTP simulado. No se probó cuenta real. Los bloqueos de publicación de la auditoría anterior permanecen; esta corrección no los resuelve.
+- Próximo paso: probar selector con el ejecutable del usuario y su conexión real. Paquetes versionados 1.1.37 y evidencia de smoke bajo artifacts/ux-1.1.37.
+
+## Refinamiento visual — 1.1.38
+- Hover: RenderTransform con escala 1,015 y elevación existente de 6 DIP en 150 ms; sombra negra tenue compartida/congelada solo activa al interactuar. Reset al salir/desactivar/descargar; respeta movimiento reducido y preferencia existente. Imágenes, geometría base, separación y virtualización intactas. Selección blanco suave #E8EDF5 de 1,5 DIP; foco 2 DIP.
+- Bienvenida conserva conexión opcional previa y destaca detectar como única acción principal clara; manual secundaria debajo, arrastre breve al pie. Deshacer importación solo en menú global del fondo, retirado de cada tarjeta. Configuración conserva controles/lógica; idioma con área de 44 DIP. Apertura de menú y desplegables inmediata, sin animar alturas/layout.
+- CONFIRMADO: build limpio; 381 tests, incluyendo selección/hover/reset, alcance de menú y layout a escalas equivalentes 100/125/150 %. Harness WPF es/en y renders inspeccionados de bienvenida, biblioteca con multiselección, menú global y configuración plegada/desplegada. No comprobación física en monitores DPI distintos ni mando real; no nueva medición RAM/arranque. Hallazgos previos de publicación/gamepad siguen abiertos y no se modificó infraestructura.
+- Evidencia aislada artifacts/ux-1.1.38; paquetes versionados en dist. Próximo paso: prueba física de teclado/mando/DPI y atender auditoría antes de Store.
+
+## Selección por intención — 2026-11-01
+- Sin selección inicial por presencia de mando; foco inicial en ventana sin contorno de tarjeta. Flechas sin modificadores y mando usan primer elemento visible y columnas reales del panel; límites sin salto horizontal de fila. Ctrl/Shift conservan navegación nativa, búsqueda/atajos propios intactos.
+- Mando solo con ventana activa/habilitada y fuera de búsqueda/menús/botones; armado tras estado neutro, lanzamiento por flanco y repetición de dirección controlada. Corregido contrato nativo XInput (16 bytes) manteniendo DTO existente. Restauración de foco tras diálogos/selector/menús diferida y condicionada a ventana activa, conservando foco de texto cuando corresponde.
+- Build Release sin advertencias, 390 pruebas; harness WPF es/en valida selección inicial vacía, primera intención y filas sobre controles reales, multiselección intacta. Sin pruebas de pulsaciones físicas ni hardware de mando. No se tocaron portadas/estilos/persistencia/lanzamiento. Los paquetes 1.1.38 previos no se regeneran en esta tarea de código. Próximo paso: probar teclado/mando físico y recuperación del foco en equipo del propietario.
+
+
+
+## Entrega 1.1.39 — navegación por intención
+- Incluye `ed51001`: sin selección inicial; flechas y mando seleccionan al demostrar intención y navegan por las columnas reales. Foco restaurado tras diálogos/menús sin activar ventanas ajenas; XInput con contrato nativo corregido.
+- CONFIRMADO: compilación Release sin advertencias ni errores y 390/390 pruebas aprobadas. README actualizado con instalación, portable, selección múltiple, detección conservadora y límites reales.
+- La versión 1.1.39 sustituye los paquetes 1.1.38 para probar estos cambios. Evidencia de empaquetado y smoke en artifacts/ux-1.1.39; comprobar resultados antes de compartir.
+- Límites: no se validaron mandos físicos ni DPI multimonitor; DirectInput, firma, runtime y preparación Store continúan pendientes según auditoría. Los borradores/capturas Store no forman parte de este commit.
+- Entrega CONFIRMADA: SmokePublished PASS en ambos ZIP; SmokeInstaller PASS (instalar, actualizar, bloquear actualización con app abierta y desinstalar conservando datos/archivos ajenos). Iconos oficiales y SHA256 verificados. Sin modificaciones al escritorio ni biblioteca personal. Binarios locales en dist; se suben fuentes/documentación a GitHub, no los paquetes ni borradores Store.
