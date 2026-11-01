@@ -34,7 +34,7 @@
 
     <SolidColorBrush x:Key="CardAccentBrush" Color="#149DFF" />
     <SolidColorBrush x:Key="CardHoverBrush" Color="#38FFFFFF" />
-    <SolidColorBrush x:Key="CardSelectionBrush" Color="#E0E3E8" />
+    <SolidColorBrush x:Key="CardSelectionBrush" Color="#E8EDF5" />
     <Visibility x:Key="HighContrastVisibility">Collapsed</Visibility>
     <SolidColorBrush x:Key="HighlightedTextBrush" Color="#F3F4F6" />
     <SolidColorBrush x:Key="CardBusyBackgroundBrush" Color="#DB0A0B0E" />
@@ -145,6 +145,20 @@
     <Style x:Key="WelcomeButtonStyle" BasedOn="{StaticResource PrimaryButtonStyle}" TargetType="{x:Type Button}">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="WelcomeDetectButtonStyle" BasedOn="{StaticResource WelcomeButtonStyle}" TargetType="{x:Type Button}">
+        <Setter Property="Foreground" Value="{DynamicResource BgBrush}" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="{x:Type Button}">
+            <Border x:Name="Surface" Background="{DynamicResource TextPrimaryBrush}" CornerRadius="14" Padding="{TemplateBinding Padding}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Opacity" Value="0.92" /></Trigger>
+                <Trigger Property="IsPressed" Value="True"><Setter TargetName="Surface" Property="Opacity" Value="0.82" /></Trigger>
+                <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Surface" Property="Opacity" Value="0.5" /></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
     </Style>
 
     <Style x:Key="GhostButtonStyle" BasedOn="{StaticResource ButtonBaseStyle}" TargetType="{x:Type Button}">

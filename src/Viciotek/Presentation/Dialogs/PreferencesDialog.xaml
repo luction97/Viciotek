@@ -93,7 +93,7 @@
                     </StackPanel>
                     </StackPanel></Border>
                                         <Button x:Name="LanguageButton" AutomationProperties.Name="{loc:Text Language}" Style="{StaticResource GhostButtonStyle}" HorizontalAlignment="Left"
-                            Padding="0" Margin="0,12,0,0" Click="LanguageButton_Click">
+                            Padding="0" MinHeight="44" Margin="0,12,0,0" Click="LanguageButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{loc:Text Language}" />
                             <TextBlock Text=" · " />

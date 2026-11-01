@@ -50,8 +50,6 @@
                         <MenuItem Header="{loc:Text RemoveFromLibrary}"
                                   Command="{Binding RemoveCommand}"
                                   Style="{StaticResource DangerMenuTextStyle}"><MenuItem.Icon><TextBlock Text="&#xE74D;" FontFamily="{StaticResource IconFont}" FontSize="14" /></MenuItem.Icon></MenuItem>
-                        <Separator Style="{StaticResource MenuSeparatorStyle}" />
-                        <MenuItem Header="{loc:Text UndoLastImport}" Command="{Binding UndoImportCommand}" />
                     </ContextMenu></Setter.Value></Setter>
             <Setter Property="Template">
                 <Setter.Value>
@@ -200,7 +198,7 @@
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
                                              Value="True">
-                                    <Setter Property="BorderThickness" Value="1.5" />
+                                    <Setter Property="BorderThickness" Value="2" />
                                     <Setter Property="BorderBrush" Value="{DynamicResource TextPrimaryBrush}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsCoverDropTarget}" Value="True">
@@ -393,12 +391,14 @@
                         <TextBlock Text="{loc:Text WelcomeImportDescription}"
                                    FontSize="18" Foreground="{DynamicResource TextSecondaryBrush}"
                                    TextAlignment="Center" TextWrapping="Wrap" Margin="0,20,0,28" />
-                        <WrapPanel HorizontalAlignment="Center">
+                        <StackPanel HorizontalAlignment="Center">
                             <Button Content="{loc:Text DetectInstalledGames}" Command="{Binding ScanInstalledGamesCommand}"
-                                    Style="{StaticResource WelcomeButtonStyle}" FontSize="18" Height="48" Padding="22,0" Margin="0,0,12,0" />
+                                    Style="{StaticResource WelcomeDetectButtonStyle}" FontSize="18" Height="52" MinWidth="300" Padding="22,0" />
                             <Button Content="{loc:Text AddManually}" Command="{Binding AddGamesCommand}"
                                     Style="{StaticResource GhostButtonStyle}" FontSize="16" Height="48" Padding="18,0" />
-                        </WrapPanel>
+                        </StackPanel>
+                        <TextBlock Text="{loc:Text WelcomeDragHint}" TextAlignment="Center" TextWrapping="Wrap" FontSize="16"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,12,0,0" />
                     </StackPanel>
                 </StackPanel>
             </Grid>

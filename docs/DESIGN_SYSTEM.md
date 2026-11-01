@@ -49,3 +49,6 @@ Las notas siguientes describen etapas anteriores y se interpretan junto con los 
 - 1.1.17: en la galería de selección se prioriza lectura sobre cantidad: 160×240 DIP, cinco columnas a 1000 DIP. Sugerencias transitorias que completan el campo al aceptar; cursor Hand y teclado. Slider con cuatro marcadores sobre posiciones de snap, hover/foco de baja intensidad. La biblioteca principal conserva sus dimensiones.
 
 - 1.1.18: las recomendaciones permanecen visibles tras perder foco o al encontrar un nombre exacto. Una elección explícita las oculta hasta editar/borrar el campo; completar el nombre no dispara otra búsqueda. Escape cierra el modal de manera normal. Sustituye el ocultamiento por foco de 1.1.17.
+
+- 1.1.38: hover RenderTransform combina escala 1,015 y elevación6DIP en150ms con sombra tenue solo activa; movimiento reducido restablece escala1/sombra nula. Geometría base intacta. Selección #E8EDF5 1,5DIP y foco2DIP. Único CTA de detección con superficie clara, manual debajo y ayuda de arrastre. Conexión opcional previa conservada. Deshacer última importación corresponde al menú del fondo global.
+

@@ -9,6 +9,16 @@ namespace Viciotek.Tests;
 [Collection("Language")]
 public sealed class WelcomeLayoutTests
 {
+    [Fact]
+    public void UndoImport_IsOnlyInLibraryBackgroundMenu()
+    {
+        var source = XDocument.Load(Path.Combine(AppContext.BaseDirectory, "UiFixtures", "MainWindow.xaml"));
+        XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
+        var cardStyle = source.Descendants().Single(e => (string?)e.Attribute(x + "Key") == "GameCardItemStyle");
+        Assert.DoesNotContain(cardStyle.Descendants().Attributes("Command"), attribute => attribute.Value.Contains("UndoImportCommand"));
+        var gallery = source.Descendants().Single(e => (string?)e.Attribute(x + "Name") == "Gallery");
+        Assert.Contains(gallery.Descendants().Attributes("Command"), attribute => attribute.Value.Contains("UndoImportCommand"));
+    }
     [Theory]
     [InlineData("es", 760, 440, false)]
     [InlineData("en", 760, 440, false)]
@@ -16,7 +26,9 @@ public sealed class WelcomeLayoutTests
     [InlineData("en", 1920, 1000, false)]
     [InlineData("es", 760, 440, true)]
     [InlineData("en", 760, 440, true)]
-    public Task Welcome_IsReadableAndFitsTheLibraryViewport(string language, double width, double height, bool importStep) => WpfTest.RunAsync(async () =>
+    [InlineData("es", 760, 440, true, 1.25)]
+    [InlineData("en", 760, 440, true, 1.5)]
+    public Task Welcome_IsReadableAndFitsTheLibraryViewport(string language, double width, double height, bool importStep, double scale = 1) => WpfTest.RunAsync(async () =>
     {
         var previous = Language.Code;
         Language.Use(language);
@@ -37,7 +49,8 @@ public sealed class WelcomeLayoutTests
             </Window>
             """;
         var window = (Window)XamlReader.Parse(markup);
-        window.Width = width; window.Height = height;
+        window.Width = width * scale; window.Height = height * scale;
+        ((FrameworkElement)window.Content).LayoutTransform = new System.Windows.Media.ScaleTransform(scale, scale);
         window.WindowStyle = WindowStyle.None; window.ResizeMode = ResizeMode.NoResize;
         window.Left = -3000; window.ShowInTaskbar = false; window.ShowActivated = false;
         window.DataContext = new { ShowEmptyState = true, ShowWelcomeConnection = !importStep, ShowWelcomeImport = importStep };
@@ -56,7 +69,7 @@ public sealed class WelcomeLayoutTests
                 Assert.InRange(bounds.Bottom, 0, height);
             }
             var texts = Descendants(content).OfType<TextBlock>().Where(text => text.IsVisible).ToArray();
-            Assert.Equal(2, texts.Length);
+            Assert.Equal(importStep ? 3 : 2, texts.Length);
             Assert.True(texts[0].FontSize >= 32);
             var buttons = Descendants(content).OfType<Button>().Where(button => button.IsVisible).ToArray();
             Assert.Equal(2, buttons.Length);

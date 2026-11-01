@@ -9,7 +9,7 @@ namespace Viciotek.Tests;
 public sealed class CardHoverBehaviorTests
 {
     [Fact]
-    public Task EnabledBeforeLoad_LiftsWithoutScalingAndReturnsOnLeave() => WpfTest.RunAsync(async () =>
+    public Task EnabledBeforeLoad_ScalesWithoutLayoutChangesAndReturnsOnLeave() => WpfTest.RunAsync(async () =>
     {
         var card = new Border { Width = 200, Height = 300 };
         CardHoverBehavior.SetEnabled(card, true);
@@ -19,10 +19,10 @@ public sealed class CardHoverBehaviorTests
         {
             window.Show();
             card.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, 0) { RoutedEvent = Mouse.MouseEnterEvent });
-            await WpfTest.WaitUntilAsync(() => card.RenderTransform is TranslateTransform t && t.Y <= -5.99);
-            var transform = Assert.IsType<TranslateTransform>(card.RenderTransform);
-            Assert.Equal(1, transform.Value.M11);
-            Assert.Equal(1, transform.Value.M22);
+            await WpfTest.WaitUntilAsync(() => card.RenderTransform is TransformGroup g && ((TranslateTransform)g.Children[1]).Y <= -5.99);
+            var transform = Assert.IsType<TranslateTransform>(((TransformGroup)card.RenderTransform).Children[1]);
+            Assert.Equal(1.015, ((ScaleTransform)((TransformGroup)card.RenderTransform).Children[0]).ScaleX, 3);
+            Assert.NotNull(card.Effect);
             Assert.Equal(200, card.ActualWidth);
             Assert.Equal(300, card.ActualHeight);
 
@@ -34,6 +34,11 @@ public sealed class CardHoverBehaviorTests
             CardHoverBehavior.SetEnabled(card, false);
             Assert.Equal(0, transform.Y);
             Assert.False(transform.HasAnimatedProperties);
+            Assert.Null(card.Effect);
+            var scale = (ScaleTransform)((TransformGroup)card.RenderTransform).Children[0];
+            Assert.Equal(1, scale.ScaleX);
+            Assert.Equal(1, scale.ScaleY);
+            Assert.False(scale.HasAnimatedProperties);
             card.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, 0) { RoutedEvent = Mouse.MouseLeaveEvent });
             Assert.Equal(0, transform.Y);
             Assert.False(transform.HasAnimatedProperties);
@@ -52,9 +57,9 @@ public sealed class CardHoverBehaviorTests
             window.Show();
             CardHoverBehavior.SetEnabled(card, true);
             card.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, 0) { RoutedEvent = Mouse.MouseEnterEvent });
-            await WpfTest.WaitUntilAsync(() => card.RenderTransform is TranslateTransform t && t.Y <= -5.99);
+            await WpfTest.WaitUntilAsync(() => card.RenderTransform is TransformGroup g && ((TranslateTransform)g.Children[1]).Y <= -5.99);
             card.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent));
-            var transform = Assert.IsType<TranslateTransform>(card.RenderTransform);
+            var transform = Assert.IsType<TranslateTransform>(((TransformGroup)card.RenderTransform).Children[1]);
             Assert.Equal(0, transform.Y);
             Assert.False(transform.HasAnimatedProperties);
         }

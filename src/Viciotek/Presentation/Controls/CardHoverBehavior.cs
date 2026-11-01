@@ -2,12 +2,13 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 
 namespace Viciotek.Presentation.Controls;
 
 /// <summary>
 /// Subtle, game-like hover lift for cover cards. Attach it to the card root
-/// without scaling or resampling the artwork. When <see cref="Enabled"/>
+/// with a render-only micro scale. When <see cref="Enabled"/>
 /// is false the card stays flat, letting the user disable motion effects.
 /// </summary>
 public static class CardHoverBehavior
@@ -25,7 +26,7 @@ public static class CardHoverBehavior
         new PropertyMetadata(false));
 
     private const double HoverOffset = -6;
-    private const int DurationMilliseconds = 180;
+    private const int DurationMilliseconds = 150;
 
     public static bool GetEnabled(DependencyObject element) => (bool)element.GetValue(EnabledProperty);
 
@@ -116,12 +117,24 @@ public static class CardHoverBehavior
 
     private static void Animate(FrameworkElement element, double target)
     {
-        if (element.RenderTransform is not TranslateTransform transform)
+        if (element.RenderTransform is not TransformGroup group)
         {
-            transform = new TranslateTransform();
-            element.RenderTransform = transform;
+            group = new TransformGroup();
+            group.Children.Add(new ScaleTransform());
+            group.Children.Add(new TranslateTransform());
+            element.RenderTransform = group;
         }
-
+        var scale = (ScaleTransform)group.Children[0];
+        var transform = (TranslateTransform)group.Children[1];
+        var factor = target == 0 ? 1 : 1.015;
+        foreach (var property in new[] { ScaleTransform.ScaleXProperty, ScaleTransform.ScaleYProperty })
+        {
+            var current = (double)scale.GetValue(property);
+            scale.SetValue(property, factor);
+            scale.BeginAnimation(property, new DoubleAnimation(current, factor, TimeSpan.FromMilliseconds(DurationMilliseconds))
+            { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }, FillBehavior = FillBehavior.Stop });
+        }
+        element.Effect = target == 0 ? null : HoverShadow;
         var animation = new DoubleAnimation(transform.Y, target, TimeSpan.FromMilliseconds(DurationMilliseconds))
         {
             EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
@@ -135,14 +148,22 @@ public static class CardHoverBehavior
 
     private static void Reset(FrameworkElement element)
     {
-        if (element.RenderTransform is TranslateTransform transform)
+        if (element.RenderTransform is TransformGroup group)
         {
-            transform.BeginAnimation(TranslateTransform.YProperty, null);
-            transform.Y = 0;
+            var scale = (ScaleTransform)group.Children[0];
+            scale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+            scale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+            scale.ScaleX = scale.ScaleY = 1;
+            var translation = (TranslateTransform)group.Children[1];
+            translation.BeginAnimation(TranslateTransform.YProperty, null);
+            translation.Y = 0;
         }
-        else
-        {
-            element.RenderTransform = new TranslateTransform();
-        }
+        element.Effect = null;
+    }
+    private static readonly DropShadowEffect HoverShadow = CreateShadow();
+    private static DropShadowEffect CreateShadow()
+    {
+        var shadow = new DropShadowEffect { Color = Colors.Black, BlurRadius = 8, ShadowDepth = 2, Opacity = 0.16, RenderingBias = RenderingBias.Performance };
+        shadow.Freeze(); return shadow;
     }
 }

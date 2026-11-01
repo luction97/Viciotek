@@ -712,7 +712,7 @@ Technical details: {0}</value>
 <data name="ManualImport" xml:space="preserve"><value>Manual selection</value></data>
 <data name="ReviewImport" xml:space="preserve"><value>Review games</value></data>
 <data name="WelcomeConnectionDescription" xml:space="preserve"><value>Connect SteamGridDB to automatically add covers to your games.</value></data>
-<data name="WelcomeImportDescription" xml:space="preserve"><value>Detect your installed games or drag a shortcut or executable here.</value></data>
+<data name="WelcomeImportDescription" xml:space="preserve"><value>Find your installed games and start playing.</value></data>
 <data name="DetectInstalledGames" xml:space="preserve"><value>Detect installed games</value></data>
 <data name="AddManually" xml:space="preserve"><value>Add manually</value></data>
-</root>
+<data name="WelcomeDragHint" xml:space="preserve"><value>You can also drag games into this window.</value></data></root>
