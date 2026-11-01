@@ -279,20 +279,18 @@
                     VerticalAlignment="Center" Margin="0,0,8,0"
                     WindowChrome.IsHitTestVisibleInChrome="True" />
 
-            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
-                <Button Command="{Binding ScanInstalledGamesCommand}"
-                        Style="{StaticResource IconButtonStyle}"
-                        FontFamily="{StaticResource IconFont}" FontSize="14"
-                        Content="&#xE721;" ToolTip="Analizar juegos instalados"
-                        AutomationProperties.Name="Analizar juegos instalados"
-                        WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,0,6,0" />
-                <Button Command="{Binding AddGamesCommand}"
-                        Style="{StaticResource IconButtonStyle}"
-                        FontFamily="{StaticResource IconFont}" FontSize="14"
-                        Content="&#xE710;" ToolTip="{loc:Text AddGamesCtrlO}"
-                        AutomationProperties.Name="{loc:Text AddGames}"
-                        WindowChrome.IsHitTestVisibleInChrome="True" />
-            </StackPanel>
+            <Button Grid.Column="2"
+                    Style="{StaticResource IconButtonStyle}"
+                    VerticalAlignment="Center"
+                    Margin="0,0,10,0"
+                    FontFamily="{StaticResource IconFont}"
+                    FontSize="14"
+                    Content="&#xE710;"
+                    Foreground="{DynamicResource TextPrimaryBrush}"
+                    ToolTip="{loc:Text AddGamesCtrlO}"
+                    AutomationProperties.Name="{loc:Text AddGames}"
+                    Click="AddGamesMenu_Click"
+                    WindowChrome.IsHitTestVisibleInChrome="True" />
 
             <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Top">
                 <Button x:Name="MinimizeButton"

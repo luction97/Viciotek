@@ -337,6 +337,20 @@ public partial class MainWindow : Window
         return (short)(value * 32);
     }
 
+    private void AddGamesMenu_Click(object sender, RoutedEventArgs e)
+    {
+        var button = (Button)sender;
+        var menu = new ContextMenu();
+        var detect = new MenuItem { Header = "Detectar juegos instalados" };
+        detect.Command = _viewModel.ScanInstalledGamesCommand;
+        var manual = new MenuItem { Header = "Agregar manualmente" };
+        manual.Command = _viewModel.AddGamesCommand;
+        menu.Items.Add(detect);
+        menu.Items.Add(manual);
+        button.ContextMenu = menu;
+        menu.IsOpen = true;
+    }
+
     private void LaunchSelectedGame()
     {
         if (_viewModel.SelectedGame is { } card && card.PlayCommand.CanExecute(null))
