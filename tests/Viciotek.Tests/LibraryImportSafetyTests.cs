@@ -14,11 +14,21 @@ namespace Viciotek.Tests;
 public sealed class LibraryImportSafetyTests
 {
     [Theory][InlineData(false)][InlineData(true)]
-    public Task ManualImport_CancelReviewDoesNotMutateAnything(bool drop)=>WpfTest.RunAsync(async()=>
+    public Task ManualImport_ImportsExplicitFilesWithoutReview(bool drop)=>WpfTest.RunAsync(async()=>
     {
-        await using var f=new Fixture();var exe=f.Exe("Browser.exe");f.Dialogs.Files=[exe];
+        await using var f=new Fixture();var exe=f.Exe("Game.exe");f.Dialogs.Files=[exe];
         if(drop)await f.Vm.HandleDroppedFilesAsync([exe]);else await f.Vm.AddGamesFromDialogAsync();
-        Assert.Equal(1,f.Dialogs.Reviews);Assert.Empty(f.Vm.Games);Assert.False(f.Vm.CanUndoImport);Assert.True(File.Exists(exe));
+        Assert.Equal(0,f.Dialogs.Reviews);Assert.Single(f.Vm.Games);Assert.True(f.Vm.CanUndoImport);Assert.True(File.Exists(exe));
+        Assert.Single(f.Store.Load().Games);
+        if(drop)await f.Vm.HandleDroppedFilesAsync([exe]);else await f.Vm.AddGamesFromDialogAsync();
+        Assert.Single(f.Vm.Games);Assert.Equal(0,f.Dialogs.Reviews);
+    });
+    [Fact]
+    public Task ManualImport_CancelPickerDoesNotImportAnything()=>WpfTest.RunAsync(async()=>
+    {
+        await using var f=new Fixture();
+        await f.Vm.AddGamesFromDialogAsync();
+        Assert.Empty(f.Vm.Games);Assert.False(f.Vm.CanUndoImport);Assert.Equal(0,f.Dialogs.Reviews);
     });
     [Fact]
     public Task Review_PreselectsOnlyHighConfidenceAndNeverApprovesOnItsOwn()

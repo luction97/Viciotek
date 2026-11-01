@@ -691,15 +691,8 @@ public sealed class MainViewModel : ObservableObject, IGameCardActions, IDisposa
                 _lifetime.Token);
 
             var batch=Guid.NewGuid();
-            if(outcome.Added.Count>0)
-            {
-                var preview=outcome.Added.Select(game=>(Game:game,Choice:new DetectedGame(game.Name,L.Get("ManualImport"),game.LaunchPath,game.LaunchKind,game.Arguments,game.WorkingDirectory,game.IconPath))).ToArray();
-                var approved=_dialogs.ReviewImport(preview.Select(item=>item.Choice).ToArray());
-                if(approved is null)return;
-                var selected=preview.Where(item=>approved.Contains(item.Choice)).Select(item=>item.Game).ToArray();
-                outcome.Added.Clear();outcome.Added.AddRange(selected);
-                foreach(var game in outcome.Added)game.ImportBatchId=batch;
-            }
+            // Picking or dropping specific files is already an explicit import decision.
+            foreach(var game in outcome.Added)game.ImportBatchId=batch;
             var saved = outcome.Added.Count == 0 || await PersistAsync(existing.Concat(outcome.Added).ToList(), batch);
             if (!saved)
             {
